@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->date('birthday');
+            $table->tinyInteger('gender');
+            $table->unsignedBigInteger('office_id');
+            $table->foreign('office_id')->references('id')->on('offices');
+            $table->unsignedBigInteger('department_id');
+            $table->foreign('department_id')->references('id')->on('departments');
+            $table->unsignedBigInteger('position_id');
+            $table->foreign('position_id')->references('id')->on('positions');
+            $table->tinyInteger('');
         });
     }
 
