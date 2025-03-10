@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('department_id')->references('id')->on('departments');
             $table->unsignedBigInteger('position_id');
             $table->foreign('position_id')->references('id')->on('positions');
-            $table->tinyInteger('');
+            $table->tinyInteger('administrator');
         });
     }
 
@@ -30,7 +30,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('birthday');
+            $table
+                ->dropForeign(['office_id'])
+                ->dropColumn('office_id');
+            $table
+                ->dropForeign(['department_id'])
+                ->dropColumn('department_id');
+            $table
+                ->dropForeign(['position_id'])
+                ->dropColumn('position_id');
+            $table->dropColumn('administrator');
         });
     }
 };
