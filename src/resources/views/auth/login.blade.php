@@ -6,6 +6,17 @@
     <div class="w-full max-w-md bg-white p-8 rounded-md shadow">
         <h1 class="text-center text-2xl font-bold mb-6">get mild</h1>
 
+        <!-- エラーメッセージ表示 -->
+        @if ($errors->any())
+            <div class="mb-4 text-red-600">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}">
             @csrf
             {{-- メールアドレス --}}
@@ -17,6 +28,7 @@
                     id="email"
                     type="email"
                     name="email"
+                    value="{{ old('email') }}"
                     class="block mt-1 w-full border-gray-300 rounded-md
                            focus:border-blue-300 focus:ring focus:ring-blue-200
                            focus:ring-opacity-50"
@@ -49,6 +61,7 @@
                         class="rounded border-gray-300 text-blue-600 shadow-sm
                                focus:ring-blue-500"
                         name="remember"
+                        {{ old('remember') ? 'checked' : '' }}
                     >
                     <span class="ml-2 text-sm text-gray-600">
                         パスワードを記憶する
