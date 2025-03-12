@@ -12,6 +12,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 他のシーダーがある場合はここに記述
+        $this->call(DepartmentKindSeeder::class);
+        $this->call(OfficeSeeder::class);
+        $this->call(PositionSeeder::class);
+        $this->call(DepartmentSeeder::class);
         $this->call(UserSeeder::class);
     }
 }
