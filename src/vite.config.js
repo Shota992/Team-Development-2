@@ -6,7 +6,6 @@ export default defineConfig({
         hmr: {
             host: 'localhost', // ホスト側からアクセスする場合、ここを適切な値に変更（例：実際のIPアドレスなど）
             protocol: 'ws',
-            port: 5173,
         },
     },
     plugins: [
