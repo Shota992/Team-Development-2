@@ -21,14 +21,21 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    protected $model = \App\Models\User::class;
+
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'password' => Hash::make('Password123'), // パスワードはハッシュ化して保存
+            'birthday' => $this->faker->date,
+            'gender' => $this->faker->randomElement(['0', '1']), // 0:男性, 1:女性,
+            'office_id' => null,
+            'department_id' => null,
+            'position_id' => null,
+            'administrator' => null,
         ];
     }
 

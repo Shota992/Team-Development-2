@@ -48,4 +48,19 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function office()
+    {
+        return $this->belongsTo('App\Models\Office');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo('App\Models\Department');
+    }
+
+    public function position()
+    {
+        return $this->belongsTo('App\Models\Position');
+    }
 }

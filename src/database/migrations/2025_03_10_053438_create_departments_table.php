@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('office_id');
             $table->foreign('office_id')->references('id')->on('offices');
-            $table->unsignedBigInteger('kind_id');
+            $table->unsignedBigInteger('kind_id')->nullable();
             $table->foreign('kind_id')->references('id')->on('department_kinds');
             $table->string('name');
             $table->timestamps();
