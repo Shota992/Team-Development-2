@@ -11,14 +11,18 @@ class SurveyResponseDetail extends Model
 
     protected $fillable = [
         'response_id',
-        'question_text',
-        'rating',
-        'free_text',
+        'question_id',
+        'survey_question_option_id',
+        'answer',
     ];
 
-    // リレーション: 所属する回答
     public function surveyResponse()
     {
-        return $this->belongsTo(SurveyResponse::class, 'response_id');
+        return $this->belongsTo('App\Models\SurveyResponse');
+    }
+
+    public function surveyResponseOptionDetail()
+    {
+        return $this->hasMany('App\Models\SurveyResponseOptionDetail');
     }
 }

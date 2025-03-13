@@ -14,11 +14,23 @@ class Survey extends Model
         'description',
         'start_date',
         'end_date',
+        'is_active',
+        'office_id',
+        'department_id',
     ];
 
-    // リレーション: このアンケートに対する回答
-    public function surveyResponses()
+    public function surveyQuestion()
     {
-        return $this->hasMany(SurveyResponse::class, 'survey_id');
+        return $this->hasMany('App\Models\SurveyQuestion');
+    }
+
+    public function office()
+    {
+        return $this->belongsTo('App\Models\Office');
+    }
+
+    public function department()
+    {
+        return $this->belongsToMany('App\Models\Department');
     }
 }

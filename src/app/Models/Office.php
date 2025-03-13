@@ -17,4 +17,9 @@ class Office extends Model
     {
         return $this->hasMany('App\Models\User');
     }
+
+    public function survey()
+    {
+        return $this->hasMany('App\Models\Survey');
+    }
 }
