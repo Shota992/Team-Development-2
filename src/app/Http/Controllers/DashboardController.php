@@ -3,62 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Survey;
+use App\Models\SurveyResponse;
+use App\Models\User;
+use App\Services\SurveyService;
+use App\Services\AiService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected $surveyService;
+    protected $aiService;
+
+    public function __construct(SurveyService $surveyService, AiService $aiService)
+    {
+        $this->surveyService = $surveyService;
+        $this->aiService = $aiService;
+    }
+
     public function index()
     {
-        // 1. 最新アンケートを取得 (ID降順で最初)
-        $latestSurvey = Survey::orderBy('id', 'desc')->first();
+        // 最新のアンケート結果と集計データを取得
+        $resultData = $this->surveyService->getLatestSurveyResults();
 
-        // 2. 前回アンケート (最新の1つ前)
-        $previousSurvey = Survey::orderBy('id', 'desc')->skip(1)->first();
-
-        // 3. 最新アンケートの回答数
-        $currentResponsesCount = $latestSurvey
-            ? $latestSurvey->surveyResponses()->count()
-            : 0;
-
-        // 4. 最新アンケートの平均スコア
-        $currentAverageScore = 0;
+        // 回答状況の計算
+        $latestSurvey = Survey::orderBy('start_date', 'desc')->first();
+        $answered = 0;
+        $total = User::count();
         if ($latestSurvey) {
-            $currentAverageScore = $latestSurvey->surveyResponses()
-                ->join('survey_response_details', 'survey_responses.id', '=', 'survey_response_details.response_id')
-                ->avg('survey_response_details.rating');
-            if (!$currentAverageScore) {
-                $currentAverageScore = 0;
-            }
+            // 重複しないユーザーごとの回答件数をカウント
+            $answered = SurveyResponse::where('survey_id', $latestSurvey->id)
+                ->distinct('user_id')
+                ->count('user_id');
         }
+        $percentage = ($total > 0) ? round(($answered / $total) * 100) : 0;
+        $answerStatus = [
+            'answered'   => $answered,
+            'total'      => $total,
+            'percentage' => $percentage,
+            'unanswered' => $total - $answered,
+        ];
 
-        // 5. 前回アンケートの平均スコア
-        $previousAverageScore = 0;
-        if ($previousSurvey) {
-            $previousAverageScore = $previousSurvey->surveyResponses()
-                ->join('survey_response_details', 'survey_responses.id', '=', 'survey_response_details.response_id')
-                ->avg('survey_response_details.rating');
-            if (!$previousAverageScore) {
-                $previousAverageScore = 0;
-            }
+        // AIフィードバックの要約を作成（各質問の最新スコア一覧）
+        $summaryText = "";
+        foreach ($resultData['cards'] as $card) {
+            $summaryText .= "{$card['label']}: " . number_format($card['score'], 1) . "\n";
         }
+        $aiFeedback = $this->aiService->getFeedback($summaryText);
 
-        // 6. 前回比
-        $scoreDiff = $currentAverageScore - $previousAverageScore;
-
-        // 7. 過去6回分のアンケート (最新→古い順)
-        $recentSurveys = Survey::orderBy('id', 'desc')->take(6)->get();
-
-        // 8. AIフィードバック (ダミー)
-        $aiFeedback = "今回のアンケートでは○○という声が多いです。○○に対しては改善が期待されます。";
-
+        // 必要であれば、$latestSurvey もビューに渡す
         return view('dashboard', [
-            'latestSurvey'          => $latestSurvey,
-            'previousSurvey'        => $previousSurvey,
-            'currentResponsesCount' => $currentResponsesCount,
-            'currentAverageScore'   => $currentAverageScore,
-            'scoreDiff'             => $scoreDiff,
-            'recentSurveys'         => $recentSurveys,
-            'aiFeedback'            => $aiFeedback,
+            'cards'        => $resultData['cards'],
+            'surveyDates'  => $resultData['surveyDates'],
+            'answerStatus' => $answerStatus,
+            'aiFeedback'   => $aiFeedback,
+            'latestSurvey' => $latestSurvey,
         ]);
     }
 }
