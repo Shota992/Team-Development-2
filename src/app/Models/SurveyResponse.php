@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SurveyResponse extends Model
 {
-    use HasFactory;
+    protected $table = 'survey_responses';
 
     protected $fillable = [
         'survey_id',
@@ -15,9 +16,9 @@ class SurveyResponse extends Model
         'free_message'
     ];
 
-    public function survey()
+    public function survey(): BelongsTo
     {
-        return $this->belongsTo('App\Models\Survey');
+        return $this->belongsTo(Survey::class, 'survey_id');
     }
 
     public function surveyQuestion()
@@ -25,13 +26,19 @@ class SurveyResponse extends Model
         return $this->belongsTo('App\Models\SurveyQuestion');
     }
 
-    public function user()
-    {
-        return $this->belongsTo('App\Models\User');
-    }
 
     public function surveyResponseDetail()
     {
         return $this->hasMany('App\Models\SurveyResponseDetail');
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(SurveyResponseDetail::class, 'response_id');
     }
 }
