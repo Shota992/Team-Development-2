@@ -11,12 +11,25 @@ class SurveyResponse extends Model
     protected $table = 'survey_responses';
 
     protected $fillable = [
-        'survey_id', 'user_id', 'free_message'
+        'survey_id',
+        'user_id',
+        'free_message'
     ];
 
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class, 'survey_id');
+    }
+
+    public function surveyQuestion()
+    {
+        return $this->belongsTo('App\Models\SurveyQuestion');
+    }
+
+
+    public function surveyResponseDetail()
+    {
+        return $this->hasMany('App\Models\SurveyResponseDetail');
     }
 
     public function user(): BelongsTo

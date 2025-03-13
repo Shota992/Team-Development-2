@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description', 1000);
             $table->date('start_date');
-            $table->date('end_date');
+            $table->date('end_date')->nullable();
             $table->unsignedBigInteger('office_id');
             $table->foreign('office_id')->references('id')->on('offices');
             $table->unsignedBigInteger('department_id');

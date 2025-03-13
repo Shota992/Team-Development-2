@@ -114,9 +114,16 @@
             <div class="bg-white border border-gray-300 shadow-sm rounded p-4">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-base font-bold text-gray-700">回答状況</h2>
+                    @if($latestSurvey && $latestSurvey->end_date->isPast())
+                    <div class="bg-gray-400 text-xs text-gray-200 px-2 py-1 rounded-full">
+                        回収済み
+                    </div>
+                @else
                     <div class="bg-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">
                         回答期間中
                     </div>
+                @endif
+                
                 </div>
                 <div class="text-sm text-gray-500">
                     回答済み

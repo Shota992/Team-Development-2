@@ -34,4 +34,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//従業員アンケートのルート設定
+Route::get('/survey/employee', function () {
+    return view('survey.employee_survey');
+});
+
+
 require __DIR__.'/auth.php';

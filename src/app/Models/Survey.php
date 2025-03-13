@@ -13,19 +13,41 @@ class Survey extends Model
     protected $table = 'surveys';
 
     protected $fillable = [
-        'name', 'description', 'start_date', 'end_date', 'office_id', 'department_id'
+        'name',
+        'description',
+        'start_date',
+        'end_date',
+        'is_active',
+        'office_id',
+        'department_id',
     ];
     protected $dates = ['start_date', 'end_date'];
 
-    // アンケートに属する設問
-    public function questions(): HasMany
+        // アンケートに属する設問
+        public function questions(): HasMany
+        {
+            return $this->hasMany(SurveyQuestion::class, 'survey_id');
+        }
+
+    // リレーション: このアンケートに対する回答
+    public function surveyResponses()
     {
-        return $this->hasMany(SurveyQuestion::class, 'survey_id');
+        return $this->hasMany('App\Models\SurveyQuestion');
     }
 
-    // このアンケートに対する回答
-    public function responses(): HasMany
+        // このアンケートに対する回答
+        public function responses(): HasMany
+        {
+            return $this->hasMany(SurveyResponse::class, 'survey_id');
+        }
+
+    public function office()
     {
-        return $this->hasMany(SurveyResponse::class, 'survey_id');
+        return $this->belongsTo('App\Models\Office');
+    }
+
+    public function department()
+    {
+        return $this->belongsToMany('App\Models\Department');
     }
 }
