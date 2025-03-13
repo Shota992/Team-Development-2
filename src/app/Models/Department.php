@@ -22,4 +22,9 @@ class Department extends Model
     {
         return $this->belongsTo('App\Models\DepartmentKind');
     }
+
+    public function survey()
+    {
+        return $this->belongsToMany('App\Models\Survey');
+    }
 }
