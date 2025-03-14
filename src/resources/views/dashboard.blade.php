@@ -6,7 +6,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#f7f8fa] min-h-screen">
-
     <!-- 上部バー -->
     <div class="bg-white border-b border-gray-300 py-3">
         <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
@@ -14,15 +13,31 @@
                 最新のサーベイ結果
             </h1>
             @if($latestSurvey)
-            <div class="text-sm text-gray-700">
-                回答期間：{{ $latestSurvey->start_date->format('Y/m/d') }} ～ {{ $latestSurvey->end_date->format('Y/m/d') }}
-            </div>
-        @else
-            <div class="text-sm text-gray-700">
-                回答期間：データなし
-            </div>
-        @endif
+                <div class="text-sm text-gray-700">
+                    回答期間：{{ \Carbon\Carbon::parse($latestSurvey->start_date)->format('Y/m/d') }} ～ {{ \Carbon\Carbon::parse($latestSurvey->end_date)->format('Y/m/d') }}
+                </div>
+            @else
+                <div class="text-sm text-gray-700">
+                    回答期間：データなし
+                </div>
+            @endif
         </div>
+    </div>
+
+    <!-- 部署選択プルダウン -->
+    <div class="max-w-6xl mx-auto px-4 py-3">
+        <form action="{{ route('dashboard') }}" method="GET">
+            <label for="department_id" class="block text-sm font-bold text-gray-700">部署を選択:</label>
+            <select name="department_id" id="department_id" class="mt-1 block w-full rounded-md border-gray-300">
+                @foreach($departments as $dept)
+                    <option value="{{ $dept->id }}" {{ $selectedDepartmentId == $dept->id ? 'selected' : '' }}>
+                        {{ $dept->name }}
+                    </option>
+                @endforeach
+                <option value="all" {{ $selectedDepartmentId === 'all' ? 'selected' : '' }}>会社全体</option>
+            </select>
+            <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">表示</button>
+        </form>
     </div>
 
     <!-- メインコンテンツ: 3カラム -->
@@ -86,7 +101,7 @@
                                         {{ number_format($avgValue, 1) }}
                                     </span>
                                 </td>
-                                @foreach($item['values'] as $val)
+                                @foreach ($item['values'] as $val)
                                     @php
                                         $valClass = ($val >= 4) ? 'text-blue-600'
                                                   : (($val <= 2.5) ? 'text-red-600' : '');
@@ -114,16 +129,15 @@
             <div class="bg-white border border-gray-300 shadow-sm rounded p-4">
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-base font-bold text-gray-700">回答状況</h2>
-                    @if($latestSurvey && $latestSurvey->end_date->isPast())
-                    <div class="bg-gray-400 text-xs text-gray-200 px-2 py-1 rounded-full">
-                        回収済み
-                    </div>
-                @else
-                    <div class="bg-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">
-                        回答期間中
-                    </div>
-                @endif
-                
+                    @if($latestSurvey && \Carbon\Carbon::parse($latestSurvey->end_date)->isPast())
+                        <div class="bg-gray-400 text-xs text-gray-200 px-2 py-1 rounded-full">
+                            回収済み
+                        </div>
+                    @else
+                        <div class="bg-gray-200 text-xs text-gray-700 px-2 py-1 rounded-full">
+                            回答期間中
+                        </div>
+                    @endif
                 </div>
                 <div class="text-sm text-gray-500">
                     回答済み
@@ -150,7 +164,7 @@
             <!-- /回答状況カード -->
 
             <!-- AIフィードバックカード -->
-            <div class="bg-white border border-gray-300 shadow-sm rounded p-4 flex flex-col items-center text-center">
+            <div class="bg-white border border-gray-300 shadow-sm rounded p-4 w-full flex flex-col items-center text-center">
                 <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                     <img src="{{ asset('images/ai.png') }}" alt="AIアイコン" class="w-5 h-5 object-contain">
                 </div>
