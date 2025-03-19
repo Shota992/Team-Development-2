@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MindMapController;
+use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 
@@ -50,5 +51,18 @@ Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSur
 Route::get('/mindmap', [MindMapController::class, 'index'])
     ->middleware('auth')
     ->name('mindmap.index');
+
+    Route::get('/create-policy', function () {
+        return view('create-policy');
+    })->middleware(['auth']);
+
+    Route::get('/create-policy', [MeasureController::class, 'create'])
+        ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
+        ->name('create-policy');
+
+    // 施策データ保存のルート（認証済みユーザーのみアクセス可能）
+    Route::post('/store-policy', [MeasureController::class, 'store'])
+    ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
+    ->name('store-policy');
 
 require __DIR__.'/auth.php';
