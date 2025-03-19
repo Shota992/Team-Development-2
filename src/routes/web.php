@@ -8,6 +8,8 @@ use App\Http\Controllers\MindMapController;
 use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\DistributionController;
+
 
 
 /*
@@ -46,12 +48,19 @@ Route::get('/survey/employee', function () {
     return view('survey.employee_survey');
 });
 
-Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
+// Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
 
 
 Route::get('/mindmap', [MindMapController::class, 'index'])
     ->middleware('auth')
     ->name('mindmap.index');
+
+Route::middleware('auth')->group(function () {
+    // 配信設定のアンケート作成画面を表示する
+    Route::get('/distribution/survey/create', [DistributionController::class, 'create'])->name('survey.create');
+    // アンケートをデータベースに保存する
+    Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
+});
 
     Route::get('/create-policy', function () {
         return view('create-policy');
