@@ -101,7 +101,7 @@
     
             <!-- 次へボタン -->
             <div class="mt-10">
-                <button class="bg-blue-300 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95">
+                <button class="bg-blue-300 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95" id="next-btn">
                     次へ →
                 </button>
             </div>
@@ -114,6 +114,47 @@
                 otherText.classList.toggle('text-gray-900', this.checked);
                 otherText.classList.toggle('text-gray-400', !this.checked);
             });
+
+            let currentIndex = 0;
+            let questions = [];
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+
+            // 質問データを取得
+            async function fetchQuestions() {
+                const response = await fetch("/api/survey/1/questions");
+                const data = await response.json();
+                questions = data.questions;
+                updateQuestion();
+            }
+
+            function updateQuestion() {
+                if (currentIndex >= questions.length) {
+                    alert("アンケートが終了しました！");
+                    return;
+                }
+
+                const question = questions[currentIndex];
+                document.getElementById("question-title").innerText = `Q${currentIndex + 1}. ${question.title}`;
+                document.getElementById("question-text").innerText = question.text;
+
+                // 進捗バーを更新
+                let progress = ((currentIndex + 1) / questions.length) * 100;
+                progressBar.style.width = progress + "%";
+                progressText.innerText = Math.round(progress) + "%";
+            }
+
+            document.getElementById("next-btn").addEventListener("click", function() {
+                if (document.querySelector('input[name="response"]:checked') === null) {
+                    alert("回答を選択してください！");
+                    return;
+                }
+
+                currentIndex++;
+                updateQuestion();
+            });
+
+            fetchQuestions();
         </script>
 </body>
 </html>

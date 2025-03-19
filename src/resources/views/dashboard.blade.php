@@ -63,7 +63,7 @@
                             </div>
                             @php
                                 $diff = $card['diff'];
-                                $diffColor = ($diff >= 0) ? 'text-green-600' : 'text-red-600';
+                                $diffColor = ($diff >= 0) ? 'text-blue-600' : 'text-red-600';
                                 $diffSign = ($diff > 0) ? '+' : (($diff < 0) ? '' : '±');
                             @endphp
                             <div class="mt-1 text-sm font-bold leading-none {{ $diffColor }}">
