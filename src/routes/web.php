@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MindMapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,5 +40,8 @@ Route::get('/survey/employee', function () {
     return view('survey.employee_survey');
 });
 
+Route::get('/mindmap', [MindMapController::class, 'index'])
+    ->middleware('auth')
+    ->name('mindmap.index');
 
 require __DIR__.'/auth.php';
