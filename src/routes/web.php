@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MindMapController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 
@@ -46,5 +47,8 @@ Route::get('/survey/employee', function () {
 Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
 
 
+Route::get('/mindmap', [MindMapController::class, 'index'])
+    ->middleware('auth')
+    ->name('mindmap.index');
 
 require __DIR__.'/auth.php';
