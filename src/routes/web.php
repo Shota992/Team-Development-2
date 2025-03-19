@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MindMapController;
+use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
@@ -33,6 +34,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
@@ -60,5 +62,17 @@ Route::middleware('auth')->group(function () {
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
 });
 
+    Route::get('/create-policy', function () {
+        return view('create-policy');
+    })->middleware(['auth']);
+
+    Route::get('/create-policy', [MeasureController::class, 'create'])
+        ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
+        ->name('create-policy');
+
+    // 施策データ保存のルート（認証済みユーザーのみアクセス可能）
+    Route::post('/store-policy', [MeasureController::class, 'store'])
+    ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
+    ->name('store-policy');
 
 require __DIR__.'/auth.php';
