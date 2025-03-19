@@ -13,13 +13,13 @@ class SurveyQuestion extends Model
 
     protected $table = 'survey_questions';
 
-    // 共通設問の場合、survey_id は null になることを許容します
+    // フィールドの修正 (title を追加し、不要なカラムを削除)
     protected $fillable = [
-        'question',
-        'type',
         'survey_id',
+        'title',       // ← ここを追加
         'text',
-        'order'
+        'description',
+        'common_status'
     ];
 
     /**
