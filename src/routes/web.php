@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\SurveyController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +42,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/survey/employee', function () {
     return view('survey.employee_survey');
 });
+
+Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
+
 
 
 require __DIR__.'/auth.php';
