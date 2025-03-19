@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MindMapController;
 use App\Http\Controllers\MeasureController;
+use App\Http\Controllers\DepartmentsController;
+use App\Http\Controllers\SurveyController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +31,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
@@ -40,6 +44,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/survey/employee', function () {
     return view('survey.employee_survey');
 });
+
+Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
+
 
 Route::get('/mindmap', [MindMapController::class, 'index'])
     ->middleware('auth')

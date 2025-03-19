@@ -15,7 +15,11 @@
                     <h2 class="font-bold text-xl">社内改善アンケートへのご協力のお願い</h2>
                     <p class="mt-2 text-base leading-relaxed">
                         皆さまの日々の業務環境をより良くするため、社内改善に関するアンケートを実施いたします。<br>
-                        お手数ですが、ご自身の率直なご意見をお聞かせください。<br>回答は約3分で完了します。
+                        お手数ですが、ご自身の率直なご意見をお聞かせください。<br>
+                        回答は 約3分 で完了します。<br>
+                        すべての質問にお答えいただいた後、送信をお願いいたします。<br>
+                        本アンケートは匿名で実施し、個別の回答が特定されることはありません。<br>
+                        皆さまの貴重なご意見をもとに、社内環境の向上に努めてまいります。ご協力のほど、よろしくお願いいたします。
                     </p>
                 </div>
             </div>
@@ -57,40 +61,47 @@
                 </div>
             </div>
     
-            <!-- 理由選択 -->
-            <div class="w-full">
-                <h3 class="font-bold text-lg mt-10 text-center">
-                    上記をお選びいただいた理由（該当するものを全て選択してください）
-                </h3>
-                <div class="flex flex-col mt-4 space-y-4">
-                    <label class="flex items-center">
-                        <input type="checkbox" class="w-5 h-5 mr-2"> 既存のお客様との取引が安定していると感じるため
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" class="w-5 h-5 mr-2"> 新規顧客の獲得が順調であると感じるため
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" class="w-5 h-5 mr-2"> 顧客との関係性が強く、長期的な信頼が築けているため
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" class="w-5 h-5 mr-2"> 顧客の入れ替わりが激しく、不安定であると感じるため
-                    </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" class="w-5 h-5 mr-2"> 競合他社と比較して、当社の顧客基盤に不安を感じるため
-                    </label>
-    
-                    <!-- その他 -->
-                    <div class="flex items-center">
-                        <input type="checkbox" id="otherCheckbox" class="w-5 h-5 mr-2">
-                        <label for="otherCheckbox" class="mr-2 cursor-pointer">その他</label>
-                        <input type="text" id="otherText" class="border-b border-gray-400 focus:border-black outline-none px-2 w-48 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
-                    </div>
+                    <!-- 理由選択 -->
+        <div class="w-full flex flex-col items-center"> 
+            <h3 class="font-bold text-lg mt-10 text-center">
+                上記をお選びいただいた理由（該当するものを全て選択してください）
+            </h3>
+            <div class="mt-4 flex flex-col space-y-4 w-full max-w-md"> 
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-5 h-5"> 
+                    <span class="leading-none">既存のお客様との取引が安定していると感じるため</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-5 h-5"> 
+                    <span class="leading-none">新規顧客の獲得が順調であると感じるため</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-5 h-5"> 
+                    <span class="leading-none">顧客との関係性が強く、長期的な信頼が築けているため</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-5 h-5"> 
+                    <span class="leading-none">顧客の入れ替わりが激しく、不安定であると感じるため</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-5 h-5"> 
+                    <span class="leading-none">競合他社と比較して、当社の顧客基盤に不安を感じるため</span>
+                </label>
+
+                <!-- その他 -->
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="otherCheckbox" class="w-5 h-5">
+                    <label for="otherCheckbox" class="cursor-pointer leading-none">その他</label>
+                    <input type="text" id="otherText" class="border-b border-gray-400 focus:border-black outline-none px-2 w-48 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
                 </div>
             </div>
+        </div>
+
+
     
             <!-- 次へボタン -->
             <div class="mt-10">
-                <button class="bg-blue-300 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95">
+                <button class="bg-blue-300 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95" id="next-btn">
                     次へ →
                 </button>
             </div>
@@ -103,6 +114,47 @@
                 otherText.classList.toggle('text-gray-900', this.checked);
                 otherText.classList.toggle('text-gray-400', !this.checked);
             });
+
+            let currentIndex = 0;
+            let questions = [];
+            const progressBar = document.getElementById("progress-bar");
+            const progressText = document.getElementById("progress-text");
+
+            // 質問データを取得
+            async function fetchQuestions() {
+                const response = await fetch("/api/survey/1/questions");
+                const data = await response.json();
+                questions = data.questions;
+                updateQuestion();
+            }
+
+            function updateQuestion() {
+                if (currentIndex >= questions.length) {
+                    alert("アンケートが終了しました！");
+                    return;
+                }
+
+                const question = questions[currentIndex];
+                document.getElementById("question-title").innerText = `Q${currentIndex + 1}. ${question.title}`;
+                document.getElementById("question-text").innerText = question.text;
+
+                // 進捗バーを更新
+                let progress = ((currentIndex + 1) / questions.length) * 100;
+                progressBar.style.width = progress + "%";
+                progressText.innerText = Math.round(progress) + "%";
+            }
+
+            document.getElementById("next-btn").addEventListener("click", function() {
+                if (document.querySelector('input[name="response"]:checked') === null) {
+                    alert("回答を選択してください！");
+                    return;
+                }
+
+                currentIndex++;
+                updateQuestion();
+            });
+
+            fetchQuestions();
         </script>
 </body>
 </html>

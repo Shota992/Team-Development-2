@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->foreign('department_id')->references('id')->on('departments');
             $table->unsignedBigInteger('position_id')->nullable();
             $table->foreign('position_id')->references('id')->on('positions');
-            $table->tinyInteger('administrator')->nullable();
+            $table->boolean('administrator');
         });
     }
 
