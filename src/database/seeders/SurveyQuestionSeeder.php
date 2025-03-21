@@ -7,6 +7,7 @@ use App\Models\SurveyQuestion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+
 class SurveyQuestionSeeder extends Seeder
 {
     /**
