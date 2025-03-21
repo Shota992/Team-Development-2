@@ -13,7 +13,7 @@ class DistributionController extends Controller
     public function create()
     {
         // 設問を ID の昇順で取得
-        $questions = SurveyQuestion::orderBy('id', 'asc')->get();
+        $questions = SurveyQuestion::with('surveyQuestionOptions')->orderBy('id', 'asc')->get();
 
         return view('distribution.survey_create', compact('questions'));
     }
