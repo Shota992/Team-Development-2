@@ -66,6 +66,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
 });
 
+//表示・非表示ボタン
+Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])
+    ->middleware('auth');
+
 
 
 

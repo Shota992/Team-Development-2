@@ -59,4 +59,26 @@ class DistributionController extends Controller
         return redirect()->route('survey.create')->with('success', 'アンケートが作成されました！');
     }
 
+    public function toggleDisplayStatus(Request $request, $id): JsonResponse
+    {
+        $question = SurveyQuestion::findOrFail($id);
+
+        // common_status が true の設問は変更不可
+        if ($question->common_status) {
+            return response()->json([
+                'success' => false,
+                'message' => 'この設問は表示状態を変更できません。'
+            ], 403);
+        }
+
+        $question->display_status = $request->display_status;
+        $question->save();
+
+        return response()->json([
+            'success' => true,
+            'display_status' => $question->display_status
+        ]);
+    }
+
+
 }
