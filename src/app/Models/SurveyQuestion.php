@@ -19,7 +19,10 @@ class SurveyQuestion extends Model
         'title',       // ← ここを追加
         'text',
         'description',
-        'common_status'
+        'common_status',
+        'office_id',
+        'department_id',
+        'display_status',
     ];
 
     /**
@@ -36,6 +39,16 @@ class SurveyQuestion extends Model
     public function surveyQuestionOptions(): HasMany
     {
         return $this->hasMany(\App\Models\SurveyQuestionOption::class, 'question_id');
+    }
+
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Office::class, 'office_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Department::class, 'department_id');
     }
 
     /**

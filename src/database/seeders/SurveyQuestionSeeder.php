@@ -100,7 +100,21 @@ class SurveyQuestionSeeder extends Seeder
             SurveyQuestion::create(array_merge([
                 'survey_id'     => null,
                 'common_status' => true,
+                'office_id'     => null,
+                'department_id' => null,
+                'display_status' => true,
             ], $question));
         }
+
+        SurveyQuestion::create([
+            'survey_id'     => 17,
+            'title'         => '社内研修の充実度',
+            'text'          => '社内研修の充実度についてどう思いますか',
+            'description'   => '社内研修の充実度とは、社内で行われる研修や教育プログラムの質や充実度を指します。この項目の数値が高いほど、社内研修が充実しており、従業員のスキルアップや成長に寄与しているということが言えます。',
+            'common_status' => false,
+            'office_id'     => 1,
+            'department_id' => 1,
+            'display_status' => true,
+        ]);
     }
 }

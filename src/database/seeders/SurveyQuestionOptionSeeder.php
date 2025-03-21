@@ -268,5 +268,21 @@ class SurveyQuestionOptionSeeder extends Seeder
                 'question_id'     => 16,
             ], $text));
         }
+
+        $texts17 = [
+            [ 'text'  => '研修プログラムが充実していない'],
+            [ 'text'  => '研修内容が実務に直結していない'],
+            [ 'text'  => '研修の頻度が少なく、継続的な学びが難しい'],
+            [ 'text'  => '研修の質が低く、効果が感じられない'],
+            [ 'text'  => '研修の受講機会が限られている'],
+            [ 'text'  => '研修の内容が最新の業界動向や技術に対応していない'],
+            [ 'text'  => '研修後のフォローアップが不足している'],
+        ];
+
+        forEach ($texts17 as $text) {
+            SurveyQuestionOption::create(array_merge([
+                'question_id'     => 17,
+            ], $text));
+        }
     }
 }
