@@ -13,13 +13,16 @@ class SurveyQuestion extends Model
 
     protected $table = 'survey_questions';
 
-    // 共通設問の場合、survey_id は null になることを許容します
+    // フィールドの修正 (title を追加し、不要なカラムを削除)
     protected $fillable = [
-        'question',
-        'type',
         'survey_id',
+        'title',       // ← ここを追加
         'text',
-        'order'
+        'description',
+        'common_status',
+        'office_id',
+        'department_id',
+        'display_status',
     ];
 
     /**
@@ -36,6 +39,16 @@ class SurveyQuestion extends Model
     public function surveyQuestionOptions(): HasMany
     {
         return $this->hasMany(\App\Models\SurveyQuestionOption::class, 'question_id');
+    }
+
+    public function office(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Office::class, 'office_id');
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Department::class, 'department_id');
     }
 
     /**
