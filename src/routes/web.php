@@ -43,6 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/sidebar', function () {
+    return view('components.sidebar');
+});
+
 //従業員アンケートのルート設定
 Route::get('/survey/employee', function () {
     return view('survey.employee_survey');
