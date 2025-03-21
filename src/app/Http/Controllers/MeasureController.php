@@ -13,10 +13,9 @@ class MeasureController extends Controller
     {
     $user = auth()->user();
 
-    $startDate = Carbon::parse('2025-02-01');
-    $endDate = Carbon::parse('2025-02-28');
+    $startDate = Carbon::today();
+    $endDate = Carbon::today()->addMonth();
 
-        // 例: 施策とタスクを取得
     $measures = Measure::with('tasks')->where('status', 0)->get();
     $tasks = Task::whereIn('measure_id', $measures->pluck('id'))->get();
 
@@ -26,9 +25,10 @@ class MeasureController extends Controller
     $dateList = [];
     for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
         $dateList[] = $date->format('Y-m-d');
-        return view('measures/index', compact('user'));
-    }}
+    }
 
+    return view('measures/index', compact('measures', 'tasks', 'dateList' , 'user'));
+    }
     // 施策作成フォーム表示
     public function create()
     {
@@ -78,7 +78,7 @@ class MeasureController extends Controller
                 'status' => 'pending', // デフォルトのステータス
             ]);
         }
-    
+
         return redirect()->route('measure.index'); // 保存後、一覧画面へリダイレクト
     }
 }
