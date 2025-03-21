@@ -107,33 +107,24 @@ class SurveyQuestionSeeder extends Seeder
         // 最初の16個を `common_status = true`
         foreach ($questions as $index => $question) {
             SurveyQuestion::create(array_merge([
-                'survey_id'     => null, // 共通設問なので `null`
-                'common_status' => true, // `common_status = true`
+
+                        'survey_id'     => null,
+                'common_status' => true,
+                'office_id'     => null,
+                'department_id' => null,
+                'display_status' => true,
             ], $question));
         }
-
-        // `survey_id` を持つ独自の質問を追加
-        $survey = Survey::first(); // 例: 最初のアンケートを取得
-        if ($survey) {
-            $customQuestions = [
-                [
-                    'title' => '独自質問1',
-                    'text'  => '独自質問の内容',
-                    'description' => 'この質問はカスタム追加されたものです。',
-                ],
-                [
-                    'title' => '独自質問2',
-                    'text'  => 'カスタムの質問です。',
-                    'description' => 'この質問は `survey_id` と紐付く質問です。',
-                ],
-            ];
-
-            foreach ($customQuestions as $question) {
-                SurveyQuestion::create(array_merge([
-                    'survey_id'     => $survey->id, // `survey_id` をセット
-                    'common_status' => false, // `common_status = false`
-                ], $question));
-            }
-        }
+      
+        SurveyQuestion::create([
+            'survey_id'     => 17,
+            'title'         => '社内研修の充実度',
+            'text'          => '社内研修の充実度についてどう思いますか',
+            'description'   => '社内研修の充実度とは、社内で行われる研修や教育プログラムの質や充実度を指します。この項目の数値が高いほど、社内研修が充実しており、従業員のスキルアップや成長に寄与しているということが言えます。',
+            'common_status' => false,
+            'office_id'     => 1,
+            'department_id' => 1,
+            'display_status' => true,
+        ]);
     }
 }

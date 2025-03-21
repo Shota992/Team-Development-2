@@ -21,7 +21,7 @@ class SurveyResponseOptionDetailSeeder extends Seeder
             $responseDetailIdEnd = 4 + ($i * 13);
 
             for ($responseDetailId = $responseDetailIdStart; $responseDetailId <= $responseDetailIdEnd; $responseDetailId++) {
-                for ($optionId = 1; $optionId <= 112; $optionId++) {
+                for ($optionId = 1; $optionId <= 119; $optionId++) {
                     if ($faker->boolean(30)) { // 30%の確率で値を入れる
                         SurveyResponseOptionDetail::create([
                             'response_detail_id' => $responseDetailId,

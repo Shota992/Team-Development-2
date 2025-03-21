@@ -27,4 +27,14 @@ class Department extends Model
     {
         return $this->belongsToMany('App\Models\Survey');
     }
+
+    public function office()
+    {
+        return $this->belongsTo('App\Models\Office');
+    }
+
+    public function surveyQuestion()
+    {
+        return $this->hasMany('App\Models\SurveyQuestion');
+    }
 }
