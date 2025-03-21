@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('survey_questions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('survey_id')->nullable();
             $table->string('title');
             $table->string('text');
             $table->string('description' , 1000); //項目に関する説明文
