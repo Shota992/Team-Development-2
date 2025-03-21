@@ -71,12 +71,14 @@ Route::middleware('auth')->group(function () {
     })->middleware(['auth']);
 
     Route::get('/create-policy', [MeasureController::class, 'create'])
-        ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
-        ->name('create-policy');
-
-    // 施策データ保存のルート（認証済みユーザーのみアクセス可能）
-    Route::post('/store-policy', [MeasureController::class, 'store'])
     ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
-    ->name('store-policy');
+    ->name('create-policy');
+
+    Route::post('/store-policy', [MeasureController::class, 'store'])
+        ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
+        ->name('measures.store'); // store-policy を measures.store に変更
+
+    Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
+
 
 require __DIR__.'/auth.php';

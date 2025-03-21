@@ -22,10 +22,10 @@ return new class extends Migration
             $table->string('status');
             $table->string('evaluation_interval');
             $table->string('evaluation_status');
+            $table->date('next_evaluation_date')->nullable(); // 次回評価日
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
