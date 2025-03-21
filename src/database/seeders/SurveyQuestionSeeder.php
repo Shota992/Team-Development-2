@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Survey;
 use App\Models\SurveyQuestion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -96,16 +97,25 @@ class SurveyQuestionSeeder extends Seeder
             ]
         ];
 
-        foreach ($questions as $question) {
+        // foreach ($questions as $question) {
+        //     SurveyQuestion::create(array_merge([
+        //         'survey_id'     => null,
+        //         'common_status' => true,
+        //     ], $question));
+        // }
+
+        // 最初の16個を `common_status = true`
+        foreach ($questions as $index => $question) {
             SurveyQuestion::create(array_merge([
-                'survey_id'     => null,
+
+                        'survey_id'     => null,
                 'common_status' => true,
                 'office_id'     => null,
                 'department_id' => null,
                 'display_status' => true,
             ], $question));
         }
-
+      
         SurveyQuestion::create([
             'survey_id'     => 17,
             'title'         => '社内研修の充実度',
