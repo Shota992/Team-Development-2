@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\Survey;
 use App\Models\SurveyQuestion;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+
 
 class SurveyQuestionSeeder extends Seeder
 {
@@ -96,11 +98,24 @@ class SurveyQuestionSeeder extends Seeder
             ]
         ];
 
-        foreach ($questions as $question) {
+        // 最初の16個を `common_status = true`
+        foreach ($questions as $index => $question) {
             SurveyQuestion::create(array_merge([
-                'survey_id'     => null,
                 'common_status' => true,
+                'office_id'     => null,
+                'department_id' => null,
+                'display_status' => true,
             ], $question));
         }
+
+        SurveyQuestion::create([
+            'title'         => '社内研修の充実度',
+            'text'          => '社内研修の充実度についてどう思いますか',
+            'description'   => '社内研修の充実度とは、社内で行われる研修や教育プログラムの質や充実度を指します。この項目の数値が高いほど、社内研修が充実しており、従業員のスキルアップや成長に寄与しているということが言えます。',
+            'common_status' => false,
+            'office_id'     => 1,
+            'department_id' => 1,
+            'display_status' => true,
+        ]);
     }
 }

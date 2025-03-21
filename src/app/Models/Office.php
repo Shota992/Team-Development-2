@@ -22,4 +22,14 @@ class Office extends Model
     {
         return $this->hasMany('App\Models\Survey');
     }
+
+    public function department()
+    {
+        return $this->hasMany('App\Models\Department');
+    }
+
+    public function surveyQuestion()
+    {
+        return $this->hasMany('App\Models\SurveyQuestion');
+    }
 }

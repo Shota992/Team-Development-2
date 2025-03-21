@@ -15,7 +15,8 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                customGray: '#939393',
+                customGray: '#939393', //枠の色
+                'light-gray': '#F7F8FA',// 画面の背景色
             },
         },
     },

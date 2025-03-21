@@ -66,6 +66,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
 });
 
+
+
+
     Route::get('/create-policy', function () {
         return view('create-policy');
     })->middleware(['auth']);
