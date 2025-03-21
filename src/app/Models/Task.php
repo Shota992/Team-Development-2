@@ -18,4 +18,10 @@ class Task extends Model
     {
         return $this->belongsTo(Measure::class);
     }
+
+    // Taskとのリレーション (1対多)
+    public function users()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
