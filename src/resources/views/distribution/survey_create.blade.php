@@ -27,18 +27,19 @@
         <div class="bg-white p-4 mb-4 border">
             <h3 class="text-lg font-semibold border-b pb-2">設問：</h3>
 
-            @php $questionNumber = 1; @endphp <!-- 設問番号を管理する変数を用意 -->
+            @php $questionNumber = 1; @endphp
 
-            @foreach($questions as $survey_id => $survey_questions)
-                @foreach($survey_questions as $question)
+            @foreach($questions as $question)
+                @if(is_object($question))
                     <div class="my-4">
                         <p class="text-lg">{{ $questionNumber }}. {{ $question->title }}</p>
                         <p class="font-semibold pl-6 my-4 text-lg">質問文：{{ $question->text }}</p>
                     </div>
-                    @php $questionNumber++; @endphp <!-- 設問ごとに番号を増やす -->
-                @endforeach
+                    @php $questionNumber++; @endphp
+                @endif
             @endforeach
         </div>
+
 
         <div class="flex justify-center mt-4">
             <a href="#" class="text-blue-500 hover:underline">アンケート配信設定へ</a>
