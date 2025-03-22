@@ -93,9 +93,16 @@
         @endforeach
     </div>
 
-    <!-- ✅ 最下部リンク（押すと上のフォームがバリデーションチェック付きで送信される） -->
+    <!-- ✅ 最下部リンク -->
     <div class="flex justify-center mt-10">
-        <a href="javascript:void(0);" id="submitSurvey"
+        <a href="javascript:void(0);" id="goToItemEdit"
+            class="px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
+            項目編集画面へ
+        </a>
+    </div>
+
+    <div class="flex justify-center mt-10">
+        <a href="javascript:void(0);" id="goToGroupSelection"
             class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
             グループ選択画面へ
         </a>
@@ -141,22 +148,22 @@
             });
         });
 
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('submitSurvey').addEventListener('click', function (e) {
+        // グループ選択画面へ（バリデーションあり）
+        document.getElementById('goToGroupSelection').addEventListener('click', function (e) {
             e.preventDefault();
-
             const name = document.getElementById('surveyName').value.trim();
             const description = document.getElementById('surveyDescription').value.trim();
-
             if (!name || !description) {
                 alert('アンケートタイトルと詳細説明を入力してください。');
                 return;
             }
-
-            // 遷移（Bladeのルートを使って明示的に指定）
             window.location.href = "{{ route('survey.group-selection') }}";
+        });
+
+        // 項目編集画面へ（バリデーションなし）
+        document.getElementById('goToItemEdit').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.location.href = "{{ route('survey.item-edit') }}";
         });
     });
 </script>

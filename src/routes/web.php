@@ -74,7 +74,12 @@ Route::post('/survey-question/toggle-display/{id}', [DistributionController::cla
 Route::get('/distribution/group-selection', function () {
     return view('distribution.group_selection');
 })->middleware('auth')->name('survey.group-selection');
-    
+
+//項目編集画面への画面遷移
+Route::get('/distribution/item-edit', function () {
+    return view('distribution.item_edit');
+})->middleware('auth')->name('survey.item-edit');
+
 
 
 
