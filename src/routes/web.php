@@ -70,6 +70,12 @@ Route::middleware('auth')->group(function () {
 Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])
     ->middleware('auth');
 
+//グループ選択画面への画面遷移
+Route::get('/distribution/group-selection', function () {
+    return view('distribution.group_selection');
+})->middleware('auth')->name('survey.group-selection');
+    
+
 
 
 
