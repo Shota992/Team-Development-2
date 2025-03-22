@@ -80,5 +80,15 @@ class DistributionController extends Controller
         ]);
     }
 
+    public function saveToSession(Request $request): \Illuminate\Http\JsonResponse
+    {
+        session([
+            'survey_input.name' => $request->input('name'),
+            'survey_input.description' => $request->input('description'),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
 
 }

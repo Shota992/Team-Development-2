@@ -80,8 +80,10 @@ Route::get('/distribution/item-edit', function () {
     return view('distribution.item_edit');
 })->middleware('auth')->name('survey.item-edit');
 
-
-
+//アンケート作成画面のセッションへ保存するルート設定
+Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])
+    ->middleware('auth')
+    ->name('survey.save-session');
 
 
     Route::get('/create-policy', function () {
