@@ -20,7 +20,7 @@ class Task extends Model
     }
 
     // Taskとのリレーション (1対多)
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
