@@ -16,8 +16,9 @@ class MeasureController extends Controller
     $startDate = Carbon::today();
     $endDate = Carbon::today()->addMonth();
 
-    $measures = Measure::with('tasks')->where('status', 0)->get();
-    $tasks = Task::whereIn('measure_id', $measures->pluck('id'))->get();
+    $measures = Measure::with('tasks.user')->where('status', 0)->get();
+    $tasks = Task::with('user')->whereIn('measure_id', $measures->pluck('id'))->get();
+
 
     // 表示範囲の開始・終了日
 
@@ -51,7 +52,7 @@ class MeasureController extends Controller
             'end_date_task' => 'required|array',
             'end_date_task.*' => 'required|date', // 各タスク終了日の検証
         ]);
-    
+
         // 施策のデータ保存
         $measure = Measure::create([
             'office_id' => $request->input('office_id'),

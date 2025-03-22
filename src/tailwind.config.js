@@ -17,6 +17,9 @@ export default {
             colors: {
                 customGray: '#939393', //枠の色
                 'light-gray': '#F7F8FA',// 画面の背景色
+                'light-red': '#FFE0E0', // 赤
+                'custom-red': '#FFA1A1', // 青
+                'good-blue': '#99DBFF', // 青
             },
         },
     },
