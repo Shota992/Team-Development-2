@@ -95,8 +95,9 @@
 
     <!-- ✅ 最下部リンク（押すと上のフォームがバリデーションチェック付きで送信される） -->
     <div class="flex justify-center mt-10">
-        <a href="#" id="submitSurvey" class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
-            アンケート配信設定へ
+        <a href="javascript:void(0);" id="submitSurvey"
+            class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
+            グループ選択画面へ
         </a>
     </div>
 </div>
@@ -140,7 +141,9 @@
             });
         });
 
-        // アンケート配信設定へリンク押下時のバリデーションと送信
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('submitSurvey').addEventListener('click', function (e) {
             e.preventDefault();
 
@@ -152,8 +155,8 @@
                 return;
             }
 
-            // フォーム送信
-            document.getElementById('surveyForm').submit();
+            // 遷移（Bladeのルートを使って明示的に指定）
+            window.location.href = "{{ route('survey.group-selection') }}";
         });
     });
 </script>
