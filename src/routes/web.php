@@ -9,6 +9,7 @@ use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
+use App\Http\Controllers\SettingController;
 
 
 
@@ -98,5 +99,10 @@ Route::post('/survey/save-session', [DistributionController::class, 'saveToSessi
     Route::post('/store-policy', [MeasureController::class, 'store'])
     ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
     ->name('store-policy');
+
+//従業員一覧のルート設定
+    Route::middleware('auth')->group(function () {
+        Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+    });
 
 require __DIR__.'/auth.php';
