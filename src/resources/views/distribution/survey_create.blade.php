@@ -17,11 +17,12 @@
         <div class="bg-white p-4 mb-4 border">
             <label class="block text-gray-700 font-semibold mb-1 mt-1">アンケートタイトル：</label>
             <input type="text" name="name" id="surveyName" required placeholder="アンケートタイトルを入力してください"
+                value="{{ session('survey_input.name') }}"
                 class="border border-custom-gray px-4 py-2 w-full focus:ring focus:ring-blue-200">
 
             <label class="block text-gray-700 font-semibold mb-1 mt-1">詳細説明：</label>
             <textarea name="description" id="surveyDescription" placeholder="詳細説明を入力してください"
-                class="border px-4 py-2 w-full h-24 focus:ring focus:ring-blue-200"></textarea>
+                class="border px-4 py-2 w-full h-24 focus:ring focus:ring-blue-200">{{ session('survey_input.description') }}</textarea>
         </div>
     </form>
 
@@ -148,22 +149,80 @@
             });
         });
 
-        // グループ選択画面へ（バリデーションあり）
+        // 入力値をセッションに保存
+        function saveSurveyToSession(callback, onError) {
+            const name = document.getElementById('surveyName').value.trim();
+            const description = document.getElementById('surveyDescription').value.trim();
+
+            fetch("{{ route('survey.save-session') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ name, description })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (callback) callback();
+            })
+            .catch(() => {
+                if (onError) onError();
+            });
+        }
+
+        // グループ選択画面へ（バリデーションあり＋ローディング＋復元あり）
         document.getElementById('goToGroupSelection').addEventListener('click', function (e) {
             e.preventDefault();
+
             const name = document.getElementById('surveyName').value.trim();
             const description = document.getElementById('surveyDescription').value.trim();
             if (!name || !description) {
                 alert('アンケートタイトルと詳細説明を入力してください。');
                 return;
             }
-            window.location.href = "{{ route('survey.group-selection') }}";
+
+            const button = this;
+            const originalText = button.textContent;
+
+            // ローディング表示
+            button.textContent = '保存中...';
+            button.classList.add('opacity-70', 'pointer-events-none');
+
+            saveSurveyToSession(
+                // 成功時
+                () => {
+                    window.location.href = "{{ route('survey.group-selection') }}";
+                },
+                // エラー時
+                () => {
+                    alert('セッション保存中にエラーが発生しました');
+                    button.textContent = originalText;
+                    button.classList.remove('opacity-70', 'pointer-events-none');
+                }
+            );
         });
 
-        // 項目編集画面へ（バリデーションなし）
+        // 項目編集画面へ（バリデーションなし・同様に保存 → 遷移）
         document.getElementById('goToItemEdit').addEventListener('click', function (e) {
             e.preventDefault();
-            window.location.href = "{{ route('survey.item-edit') }}";
+
+            const button = this;
+            const originalText = button.textContent;
+
+            button.textContent = '保存中...';
+            button.classList.add('opacity-70', 'pointer-events-none');
+
+            saveSurveyToSession(
+                () => {
+                    window.location.href = "{{ route('survey.item-edit') }}";
+                },
+                () => {
+                    alert('セッション保存中にエラーが発生しました');
+                    button.textContent = originalText;
+                    button.classList.remove('opacity-70', 'pointer-events-none');
+                }
+            );
         });
     });
 </script>
