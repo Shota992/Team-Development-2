@@ -22,41 +22,42 @@
                 <p class="ml-2 text-2xl font-bold">施策一覧 ー実行施策一覧ー</p>
             </div>
         </div>
-        <div class="flex ml-2">
-            <div class="flex mr-40">
-                <p class="mr-3 pt-2">タスク実行開始日：</p>
-                <input type="date" name="start_date" id="start_date" class="border border-customGray w-40 text-center rounded-md" pattern="\d{2}/\d{2}/\d{2}" placeholder="yy/mm/dd" />
-            </div>
-            <div class="flex">
-                <p class="mr-3 pt-2">表示範囲：</p>
-                <select class="border border-custom-gray w-40 text-center rounded-md">
-                    <option value="1">6ヶ月</option>
-                    <option value="2">3ヶ月</option>
-                    <option value="3">1ヶ月</option>
-                    <option value="4">2週間</option>
-                </select>
-            </div>
-        </div>
-        <div class="flex justify-between pt-3">
-                <div class="flex items-center justify-center gap-4 text-black">
-                    <button class="flex items-center text-sky-500">
-                        <span class="text-gray-500 text-2xl mr-1 mb-1">&lt;</span>
-                        <span>1週間前へ</span>
-                    </button>
-
-                    <span class="h-5 border-l border-gray-400"></span>
-
-                    <span>
-                        2025/03/01
-                    </span>
-
-                    <span class="h-5 border-l border-gray-400"></span>
-
-                    <button class="flex items-center text-sky-500">
-                        <span>1週間後へ</span>
-                        <span class="text-gray-500 text-2xl ml-1 mb-1">&gt;</span>
-                    </button>
+        <form method="GET" action="{{ route('measure.index') }}" id="dateForm">
+            <div class="flex ml-2">
+                <div class="flex mr-40">
+                    <p class="mr-3 pt-2">タスク実行開始日：</p>
+                    <input type="date" name="base_date" id="base_date" class="border border-customGray w-40 text-center rounded-md" value="{{ $baseDate->format('Y-m-d') }}" />
                 </div>
+                <div class="flex">
+                    <p class="mr-3 pt-2">表示範囲：</p>
+                    <select name="display_range" id="display_range" class="border border-custom-gray w-40 text-center rounded-md">
+                        <option value="1" {{ $displayRange == 1 ? 'selected' : '' }}>1ヶ月</option>
+                        <option value="3" {{ $displayRange == 3 ? 'selected' : '' }}>3ヶ月</option>
+                        <option value="6" {{ $displayRange == 6 ? 'selected' : '' }}>6ヶ月</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <div class="flex justify-between pt-3">
+            <div class="flex items-center justify-center gap-4 text-black">
+                <a href="{{ route('measure.index', ['base_date' => $baseDate->copy()->subWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
+                    <span class="text-gray-500 text-2xl mr-1 mb-1">&lt;</span>
+                    <span>1週間前へ</span>
+                </a>
+
+                <span class="h-5 border-l border-gray-400"></span>
+
+                <span>
+                    {{ $baseDate->format('Y/m/d') }}
+                </span>
+
+                <span class="h-5 border-l border-gray-400"></span>
+
+                <a href="{{ route('measure.index', ['base_date' => $baseDate->copy()->addWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
+                    <span>1週間後へ</span>
+                    <span class="text-gray-500 text-2xl ml-1 mb-1">&gt;</span>
+                </a>
+            </div>
             <div class="flex overflow-hidden rounded-full border border-gray-400 w-max text-center text-sm mb-3 mr-3">
                 <div class="bg-custom-red text-gray-800 px-4 py-1">
                     未対応
@@ -123,13 +124,13 @@
                     @foreach ($measure->tasks as $task)
                     <tr class="task-row tasks-{{ $measure->id }} hidden border-b">
                         @php
-                            if ($task->status === 1) {
-                                $bgClass = 'bg-chart-gray';
-                            } elseif ($task->status === 0 && \Carbon\Carbon::parse($task->end_date)->isPast()) {
-                                $bgClass = 'bg-light-red';
-                            } else {
-                                $bgClass = 'bg-light-blue';
-                            }
+                        if ($task->status === 1) {
+                        $bgClass = 'bg-chart-gray';
+                        } elseif ($task->status === 0 && \Carbon\Carbon::parse($task->end_date)->isPast()) {
+                        $bgClass = 'bg-light-red';
+                        } else {
+                        $bgClass = 'bg-light-blue';
+                        }
                         @endphp
                         <td class="sticky z-30 left-0 {{ $bgClass }} px-4 py-2 border border-chart-border-gray" colspan="2">
                             <div class="grid grid-cols-4 ">
@@ -190,6 +191,14 @@
             });
         });
 
+        document.getElementById('base_date').addEventListener('change', function() {
+                document.getElementById('dateForm').submit();
+            });
+
+        // selectタグの中身が変更された瞬間にフォームを送信
+            document.getElementById('display_range').addEventListener('change', function() {
+                document.getElementById('dateForm').submit();
+            });
     </script>
 </body>
 </html>

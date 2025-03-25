@@ -35,7 +35,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
-    Route::get('/measures', [MeasureController::class, 'index'])->name('dashboard');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
 });
 
 Route::middleware('auth')->group(function () {

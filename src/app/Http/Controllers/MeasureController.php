@@ -9,15 +9,23 @@ use Carbon\Carbon;
 
 class MeasureController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
     $user = auth()->user();
 
-    $startDate = Carbon::today();
-    $endDate = Carbon::today()->addMonth();
+    // 基準日を取得（クエリパラメータがなければ今日の日付）
+    $baseDate = $request->query('base_date', Carbon::today()->format('Y-m-d'));
+    $baseDate = Carbon::parse($baseDate);
 
-    $measures = Measure::with('tasks.user')->where('status', 0)->get();
-    $tasks = Task::with('user')->whereIn('measure_id', $measures->pluck('id'))->get();
+    $displayRange = $request->query('display_range', 1);
+
+    $startDate = $baseDate->copy();
+    $endDate = $startDate->copy()->addMonths($displayRange);
+
+    // tasksテーブル目線から、measures_idと一致するtaskのうち、1つでもstatus = 0があれば表示する
+    $measures = Measure::whereHas('tasks', function($query) {
+        $query->where('status', 0);
+    })->with('tasks.user')->get();
 
 
     // 表示範囲の開始・終了日
@@ -28,7 +36,7 @@ class MeasureController extends Controller
         $dateList[] = $date->format('Y-m-d');
     }
 
-    return view('measures/index', compact('measures', 'tasks', 'dateList' , 'user'));
+    return view('measures/index', compact('measures', 'dateList' , 'user' , 'baseDate', 'displayRange'));
     }
     // 施策作成フォーム表示
     public function create()
