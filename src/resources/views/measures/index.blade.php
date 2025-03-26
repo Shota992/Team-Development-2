@@ -59,13 +59,13 @@
                 </a>
             </div>
             <div class="flex overflow-hidden rounded-full border border-gray-400 w-max text-center text-sm mb-3 mr-3">
-                <div class="bg-custom-red text-gray-800 px-4 py-1">
-                    未対応
+                <div class="bg-light-red text-gray-800 px-4 py-1">
+                    遅延中
                 </div>
-                <div class="bg-light-red text-gray-800 border-l border-gray-300 px-4 py-1">
+                <div class="bg-light-blue text-gray-800 border-l border-gray-300 px-4 py-1">
                     対応中
                 </div>
-                <div class="bg-good-blue text-gray-800 border-l border-gray-300 px-4 py-1">
+                <div class="bg-chart-do-gray text-gray-800 border-l border-gray-300 px-4 py-1">
                     完了
                 </div>
             </div>
@@ -103,8 +103,15 @@
                             <p class="w-60 pl-20">担当者</p>
                         </th>
                         @foreach ($dateList as $date)
-                        <th class="px-2 py-2 border border-chart-border-gray bg-chart-gray text-center">
-                            <p class="w-5 text-center">{{ \Carbon\Carbon::parse($date)->format('j') }}</p>
+                        @php
+                        $currentDate = \Carbon\Carbon::parse($date);
+
+                        // 今日の日付かどうかを判定
+                        $isToday = $currentDate->isToday();
+                        @endphp
+                        <th class="px-2 py-2 border border-chart-border-gray bg-chart-gray text-center
+                            @if ($isToday) border-2 bg-light-blue  @endif">
+                            <p class="w-5 text-center">{{ $currentDate->format('j') }}</p>
                         </th>
                         @endforeach
                     </tr>
@@ -125,7 +132,7 @@
                     <tr class="task-row tasks-{{ $measure->id }} hidden border-b">
                         @php
                         if ($task->status === 1) {
-                        $bgClass = 'bg-chart-gray';
+                        $bgClass = 'bg-chart-do-gray';
                         } elseif ($task->status === 0 && \Carbon\Carbon::parse($task->end_date)->isPast()) {
                         $bgClass = 'bg-light-red';
                         } else {
@@ -152,11 +159,11 @@
                         $isEnd = $currentDate->equalTo($endDate);
 
                         if ($task->status === 1) {
-                        $taskBarColor = 'bg-good-blue';
-                        } elseif ($startDate->isToday() || $startDate->isPast()) {
+                        $taskBarColor = 'bg-chart-do-gray';
+                        } elseif ($task->status === 0 && \Carbon\Carbon::parse($task->end_date)->isPast()) {
                         $taskBarColor = 'bg-light-red';
-                        } elseif ($startDate->isFuture()) {
-                        $taskBarColor = 'bg-custom-red';
+                        } else {
+                        $taskBarColor = 'bg-light-blue';
                         }
                         @endphp
                         <td id="task{{ $task->id }}_{{ $date }}" class="border bg-white border-chart-border-gray text-center">
@@ -192,13 +199,14 @@
         });
 
         document.getElementById('base_date').addEventListener('change', function() {
-                document.getElementById('dateForm').submit();
-            });
+            document.getElementById('dateForm').submit();
+        });
 
         // selectタグの中身が変更された瞬間にフォームを送信
-            document.getElementById('display_range').addEventListener('change', function() {
-                document.getElementById('dateForm').submit();
-            });
+        document.getElementById('display_range').addEventListener('change', function() {
+            document.getElementById('dateForm').submit();
+        });
+
     </script>
 </body>
 </html>

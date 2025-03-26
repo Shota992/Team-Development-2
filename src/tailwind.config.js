@@ -16,10 +16,11 @@ export default {
             },
             colors: {
                 'custom-gray': '#939393', // 背景色
+                'chart-do-gray': '#DBDBDB', // グラフの背景色
                 'light-gray': '#F7F8FA',// 画面の背景色
                 'chart-gray': '#EBEBEB', //グラフの背景色
                 'chart-border-gray': '#C4C4C4', //グラフの枠線
-                'light-red': '#FFE0E0', // 赤
+                'light-red': '#ffd4d4', // 赤
                 'custom-red': '#FFA1A1', // 青
                 'light-blue': '#E0F4FF', // 青
                 'good-blue': '#99DBFF', // 青
