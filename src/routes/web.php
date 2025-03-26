@@ -77,11 +77,15 @@ Route::middleware('auth')->group(function () {
     ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
     ->name('create-policy');
 
-    Route::post('/store-policy', [MeasureController::class, 'store'])
-        ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
-        ->name('measures.store'); // store-policy を measures.store に変更
+    Route::post('/store-policy', [MeasureController::class, 'store'])->name('measures.store');
+    Route::get('/dashboard', function () {
+        return view('dashboard'); // ダッシュボードへのルート
+    })->name('dashboard');
 
     Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
+    Route::get('/measures', [MeasureController::class, 'index'])
+    ->middleware('auth')
+    ->name('measures.index');
 
 
 require __DIR__.'/auth.php';

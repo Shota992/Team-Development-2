@@ -1,101 +1,100 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const evaluationFrequencySelect = document.getElementById('evaluation_frequency');
-    const customFrequencyField = document.getElementById('custom-frequency-field');
+    // 最初に表示されるタスクフォームの部署選択
+    const initialDepartmentSelect = document.querySelector('[name="task_department_id[]"]'); // 最初のタスクフォームの部署選択
+    const initialAssigneeSelect = document.querySelector('[name="assignee[]"]'); // 最初のタスクフォームの担当者選択
 
-    // 最初にカスタム設定が選ばれている場合の処理
-    toggleCustomFrequencyField(evaluationFrequencySelect.value);
-
-    evaluationFrequencySelect.addEventListener('change', function () {
-        toggleCustomFrequencyField(this.value);
-    });
-
-    function toggleCustomFrequencyField(value) {
-        if (value === 'custom') {
-            customFrequencyField.style.display = 'block';
-        } else {
-            customFrequencyField.style.display = 'none';
-        }
-    }
-});
-
-
-document.addEventListener('DOMContentLoaded', function () {
-    const departmentSelect = document.getElementById('department_id'); // 部署選択
-    const assigneeSelect = document.getElementById('assignee'); // 担当者選択
-
-    departmentSelect.addEventListener('change', function () {
-        const departmentId = this.value;
-
-        // 部署が選ばれていない場合は担当者リストをリセット
-        if (!departmentId) {
-            assigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-            console.log('部署が選ばれていない');
-            return;
-        }
-
-        console.log('部署が選ばれました。ID: ', departmentId); // ここで選択された部署IDが表示されることを確認
-
-        // 部署に対応する担当者をバックエンドから取得
-        fetch(`/get-assignees/${departmentId}`)
-            .then(response => response.json())
-            .then(data => {
-                // 担当者の選択肢をクリア
-                assigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-
-                // 取得した担当者リストを追加
-                data.forEach(employee => {
-                    const option = document.createElement('option');
-                    option.value = employee.id;
-                    option.textContent = employee.name;
-                    assigneeSelect.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('担当者取得時にエラーが発生しました:', error);
-            });
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const addTaskButton = document.getElementById('add-task-btn'); // タスク追加ボタン
-    const tasksContainer = document.getElementById('tasks-container'); // タスクを追加するコンテナ
-
-    addTaskButton.addEventListener('click', function () {
-        // タスクのテンプレートを複製
-        const taskTemplate = document.getElementById('task-entry-template');
-        const newTaskCard = taskTemplate.cloneNode(true);
-        newTaskCard.style.display = 'block'; // 初期状態では非表示のため表示させる
-
-        // 新しいタスクカード内の部署選択と担当者選択を取得
-        const departmentSelectClone = newTaskCard.querySelector('[name="department_id[]"]'); // 新しい部署セレクトボックス
-        const assigneeDropdown = newTaskCard.querySelector('[name="assignee[]"]'); // 新しい担当者セレクトボックス
-
-        // 部署選択時の処理
-        departmentSelectClone.addEventListener('change', function () {
-            const selectedDepartmentId = departmentSelectClone.value;
-            // 担当者リストを更新する
-            fetch(`/get-assignees/${selectedDepartmentId}`)
+    // 最初に表示されるタスクフォームの部署選択がされている場合、担当者を更新
+    if (initialDepartmentSelect && initialAssigneeSelect) {
+        const initialDepartmentId = initialDepartmentSelect.value;
+        if (initialDepartmentId) {
+            fetch(`/get-assignees/${initialDepartmentId}`)
                 .then(response => response.json())
                 .then(data => {
-                    assigneeDropdown.innerHTML = '<option value="">担当者を選んでください</option>'; // リセット
+                    console.log('Initial assignees data:', data); // デバッグ用
+                    initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
                     data.forEach(employee => {
                         const option = document.createElement('option');
                         option.value = employee.id;
                         option.textContent = employee.name;
-                        assigneeDropdown.appendChild(option);
+                        initialAssigneeSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching assignees:', error));
+        }
+
+        // 最初のタスクフォームの部署選択変更時に担当者を更新
+        initialDepartmentSelect.addEventListener('change', function () {
+            const departmentId = this.value;
+
+            if (!departmentId) {
+                initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
+                return;
+            }
+
+            fetch(`/get-assignees/${departmentId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Updated assignees data:', data); // デバッグ用
+                    initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
+                    data.forEach(employee => {
+                        const option = document.createElement('option');
+                        option.value = employee.id;
+                        option.textContent = employee.name;
+                        initialAssigneeSelect.appendChild(option);
                     });
                 })
                 .catch(error => console.error('Error fetching assignees:', error));
         });
+    }
 
-        // 新しいタスクカードを追加する
-        tasksContainer.appendChild(newTaskCard);
+    // タスク追加ボタンがクリックされたとき
+    document.getElementById('add-task-btn').addEventListener('click', function () {
+        const taskTemplate = document.getElementById('task-entry-template');
+        const newTaskCard = taskTemplate.cloneNode(true);
+        newTaskCard.style.display = 'block'; // 最初のタスクフォームを表示
+        document.getElementById('tasks-container').appendChild(newTaskCard);
+
+        const newDepartmentSelect = newTaskCard.querySelector('[name="task_department_id[]"]'); // 新しい部署選択
+        const newAssigneeSelect = newTaskCard.querySelector('[name="assignee[]"]'); // 新しい担当者選択
+
+        newDepartmentSelect.addEventListener('change', function () {
+            const departmentId = this.value;
+
+            if (!departmentId) {
+                newAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
+                return;
+            }
+
+            fetch(`/get-assignees/${departmentId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Updated assignees data:', data); // デバッグ用
+                newAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
+                data.forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id; // 担当者の user_id を value に設定
+                    option.textContent = employee.name;
+                    newAssigneeSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching assignees:', error));
+        });
     });
+
+    // カスタム設定の評価改善頻度の表示
+    const evaluationFrequencySelect = document.getElementById('evaluation_frequency');
+    const customFrequencyField = document.getElementById('custom-frequency-field');
+
+    evaluationFrequencySelect.addEventListener('change', function () {
+        if (this.value === 'custom') {
+            customFrequencyField.style.display = 'block';
+        } else {
+            customFrequencyField.style.display = 'none';
+        }
+    });
+
+    // ページロード時にカスタム設定が選択されている場合の処理
+    if (evaluationFrequencySelect.value === 'custom') {
+        customFrequencyField.style.display = 'block';
+    }
 });
-
-
-
-
-
-
-

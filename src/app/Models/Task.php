@@ -10,17 +10,21 @@ class Task extends Model
     use HasFactory;
 
     protected $fillable = [
-        'measure_id', 'name', 'start_date', 'end_date', 'status'
+        'measure_id',
+        'name',
+        'department_id',
+        'user_id',
+        'start_date',
+        'end_date',
+        'status',
     ];
 
-    // Measureとのリレーション (1対多)
     public function measure()
     {
         return $this->belongsTo(Measure::class);
     }
 
-    // Taskとのリレーション (1対多)
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
