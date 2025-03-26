@@ -9,6 +9,8 @@ use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ItemController;
 
 
 
@@ -34,7 +36,8 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
-    Route::get('/measures', [MeasureController::class, 'index'])->name('dashboard');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
 });
 
 Route::middleware('auth')->group(function () {
@@ -66,7 +69,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
 });
 
+//表示・非表示ボタン
+Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])
+    ->middleware('auth');
 
+//グループ選択画面への画面遷移
+Route::get('/distribution/group-selection', function () {
+    return view('distribution.group_selection');
+})->middleware('auth')->name('survey.group-selection');
+
+//項目編集画面への画面遷移
+Route::get('/distribution/item-edit', function () {
+    return view('distribution.item_edit');
+})->middleware('auth')->name('survey.item-edit');
+
+//アンケート作成画面のセッションへ保存するルート設定
+Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])
+    ->middleware('auth')
+    ->name('survey.save-session');
 
 
     Route::get('/create-policy', function () {
@@ -87,5 +107,10 @@ Route::middleware('auth')->group(function () {
     ->middleware('auth')
     ->name('measures.index');
 
+
+//従業員一覧のルート設定
+    Route::middleware('auth')->group(function () {
+        Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+    });
 
 require __DIR__.'/auth.php';

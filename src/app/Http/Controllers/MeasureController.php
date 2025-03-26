@@ -14,16 +14,26 @@ class MeasureController extends Controller
     /**
      * 施策一覧
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
-        $startDate = Carbon::parse('2025-02-01');
-        $endDate = Carbon::parse('2025-02-28');
+    // 基準日を取得（クエリパラメータがなければ今日の日付）
+    $baseDate = $request->query('base_date', Carbon::today()->format('Y-m-d'));
+    $baseDate = Carbon::parse($baseDate);
 
-        // 施策とタスクを取得
-        $measures = Measure::with('tasks')->where('status', 0)->get();
-        $tasks = Task::whereIn('measure_id', $measures->pluck('id'))->get();
+    $displayRange = $request->query('display_range', 1);
+
+    $startDate = $baseDate->copy();
+    $endDate = $startDate->copy()->addMonths($displayRange);
+
+    // tasksテーブル目線から、measures_idと一致するtaskのうち、1つでもstatus = 0があれば表示する
+    $measures = Measure::whereHas('tasks', function($query) {
+        $query->where('status', 0);
+    })->with('tasks.user')->get();
+
+
+    // 表示範囲の開始・終了日
 
         // 日付リストを作成
         $dateList = [];

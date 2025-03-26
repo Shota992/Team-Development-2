@@ -117,5 +117,15 @@ class SurveyQuestionSeeder extends Seeder
             'department_id' => 1,
             'display_status' => true,
         ]);
+
+        SurveyQuestion::create([
+            'title'         => 'ぴろぷみ',
+            'text'          => 'ぴろぷみテキスト',
+            'description'   => 'ぴろぷみディスクリプション',
+            'common_status' => false,
+            'office_id'     => 1,
+            'department_id' => 1,
+            'display_status' => true,
+        ]);
     }
 }
