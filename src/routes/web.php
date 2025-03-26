@@ -10,6 +10,7 @@ use App\Http\Controllers\DepartmentsController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ItemController;
 
 
 
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
 });
 
 Route::middleware('auth')->group(function () {
