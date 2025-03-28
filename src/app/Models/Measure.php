@@ -10,13 +10,24 @@ class Measure extends Model
     use HasFactory;
 
     protected $fillable = [
-        'office_id', 'department_id', 'title', 'description', 'status', 'evaluation_interval', 'evaluation_status'
+        'office_id',
+        'department_id',
+        'title',
+        'description',
+        'start_date',
+        'end_date',
+        'status',
+        'evaluation_interval',
+        'evaluation_status',
+        'next_evaluation_date',
     ];
 
-    // MeasureとTaskのリレーション (1対多)
+    /**
+     * この施策に紐づくタスク（1対多）
+     */
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(\App\Models\Task::class);
     }
 
     // MeasureとEvaluationのリレーション (1対多)
