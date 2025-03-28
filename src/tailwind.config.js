@@ -22,7 +22,7 @@ export default {
                 'chart-border-gray': '#C4C4C4', //グラフの枠線
                 'light-red': '#ffd4d4', // 赤
                 'custom-red': '#FFA1A1', // 青
-                'light-blue': '#E0F4FF', // 青
+                'light-blue': '#C8EBFF', // 青
                 'good-blue': '#99DBFF', // 青
             },
         },

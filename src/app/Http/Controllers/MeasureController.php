@@ -38,10 +38,32 @@ class MeasureController extends Controller
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             $dateList[] = $date->format('Y-m-d');
         }
-    
+
         return view('measures.index', compact('baseDate', 'displayRange', 'measures', 'dateList'));
     }
 
+    public function toggleStatus(Request $request, $id) { $task = Task::findOrFail($id); 
+        $task->status = $request->status; $task->save();
+            // 関連 Measure を取得（タスクに measure() リレーションが定義済みと仮定）
+    $measure = $task->measure;
+    if ($measure) {
+        // measure に紐づくタスクのうち、status が 0 のタスクがなければ、すべて完了→ Measure の status を 1 にする
+        if ($measure->tasks()->where('status', 0)->count() === 0) {
+            $measure->status = 1;
+            $measure->save();
+        } else {
+            // １つでも未完了があれば Measure の status を 0 に戻すなどの処理も可能
+            $measure->status = 0;
+            $measure->save();
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'new_task_status' => $task->status,
+        'measure_status' => $measure ? $measure->status : null,
+    ]);
+}
 public function create(Request $request)
 {
     $user = auth()->user();
