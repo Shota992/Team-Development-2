@@ -2,145 +2,128 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <!-- 施策カード -->
     <h2 class="text-2xl font-semibold mb-4">施策作成画面</h2>
+
     <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
-        <form action="{{ route('store-policy') }}" method="POST">
+        <form action="{{ route('measures.store') }}" method="POST">
             @csrf
+
+            @if($errors->any())
+            <div class="mb-6 p-4 bg-red-100 text-red-700 rounded">
+                <ul class="list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
 
             <!-- 施策名 -->
             <div class="mb-4">
-                <label for="title" class="block text-sm font-medium text-gray-700">施策名</label>
-                <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="title" name="title" placeholder="施策名を入力してください" value="{{ old('title') }}" required>
-                
-                @error('title')
-                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                @enderror
+                <label class="block text-sm font-medium text-gray-700">施策名</label>
+                <input type="text" name="title" value="{{ old('title') }}" required class="mt-1 w-full px-3 py-2 border rounded" placeholder="施策名を入力してください">
             </div>
 
             <!-- 施策内容 -->
             <div class="mb-4">
-                <label for="description" class="block text-sm font-medium text-gray-700">施策内容</label>
-                <textarea class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="description" name="description" rows="4" placeholder="施策内容を入力してください" required>{{ old('description') }}</textarea>
-                
-                @error('description')
-                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                @enderror
+                <label class="block text-sm font-medium text-gray-700">施策内容</label>
+                <textarea name="description" rows="4" required class="mt-1 w-full px-3 py-2 border rounded" placeholder="施策内容を入力してください">{{ old('description') }}</textarea>
             </div>
 
-            <!-- 評価改善の頻度 -->
+            <!-- 部署 -->
             <div class="mb-4">
-                <label for="evaluation_frequency" class="block text-sm font-medium text-gray-700">評価改善の頻度</label>
-                <select class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" id="evaluation_frequency" name="evaluation_frequency" required>
-                    <option value="1" {{ old('evaluation_frequency') == '1' ? 'selected' : '' }}>毎月1回</option>
-                    <option value="3" {{ old('evaluation_frequency') == '3' ? 'selected' : '' }}>3ヶ月に1回</option>
-                    <option value="6" {{ old('evaluation_frequency') == '6' ? 'selected' : '' }}>6ヶ月に1回</option>
-                    <option value="12" {{ old('evaluation_frequency') == '12' ? 'selected' : '' }}>年1回</option>
-                    <option value="custom" {{ old('evaluation_frequency') == 'custom' ? 'selected' : '' }}>カスタム設定</option>
+                <label class="block text-sm font-medium text-gray-700">部署</label>
+                <select name="department_id" required class="mt-1 w-full px-3 py-2 border rounded">
+                    <option value="">選択してください</option>
+                    @foreach($departments as $department)
+                        <option value="{{ $department->id }}">{{ $department->name }}</option>
+                    @endforeach
                 </select>
-                
-                @error('evaluation_frequency')
-                    <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                @enderror
             </div>
 
-        </form>
-    </div>
+            <!-- 評価頻度 -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">評価頻度</label>
+                <select id="evaluation_frequency" name="evaluation_frequency" class="mt-1 w-full px-3 py-2 border rounded">
+                    <option value="1">1ヶ月</option>
+                    <option value="3">3ヶ月</option>
+                    <option value="6">6ヶ月</option>
+                    <option value="12">12ヶ月</option>
+                    <option value="custom">カスタム</option>
+                </select>
+            </div>
 
-    <!-- タスクカード（動的追加） -->
-    <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 class="text-xl font-semibold mb-4">タスク作成</h3>
-        <form action="{{ route('store-policy') }}" method="POST">
-            @csrf
-            <div id="tasks-container">
-                <!-- 最初の空のタスクフォーム -->
-                <div class="task-entry mb-4">
-                    <label for="task_name_1" class="block text-sm font-medium text-gray-700">タスク</label>
-                    <input type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="task_name[]" id="task_name_1" placeholder="タスクを入力してください">
+            <!-- カスタム頻度 -->
+            <div id="custom-frequency-field" class="mb-4" style="display:none;">
+                <label class="block text-sm font-medium text-gray-700">カスタム頻度の値</label>
+                <input type="number" name="custom_frequency_value" class="mt-1 w-full px-3 py-2 border rounded" placeholder="例:2">
 
-                    @error('task_name.*')
-                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
+                <label class="block text-sm font-medium text-gray-700 mt-4">単位</label>
+                <select name="custom_frequency_unit" class="mt-1 w-full px-3 py-2 border rounded">
+                    <option value="weeks">週間</option>
+                    <option value="months">月間</option>
+                </select>
+            </div>
 
-                <!-- 担当者 -->
-                <div class="mb-4">
-                    <label for="assignee_1" class="block text-sm font-medium text-gray-700">担当者</label>
-                    <select class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="assignee[]" id="assignee_1">
-                        <option value="employee1">社員1</option>
-                        <option value="employee2">社員2</option>
-                        <option value="employee3">社員3</option>
+            <!-- タスク作成 -->
+            <h3 class="text-xl font-semibold mb-4">タスク作成</h3>
+            <div id="tasks-container" class="space-y-4">
+                <div class="task-entry bg-white p-6 rounded shadow">
+                    <label class="block text-sm">タスク</label>
+                    <input type="text" name="task_name[]" required class="mt-1 w-full border rounded">
+
+                    <label class="block text-sm mt-4">部署</label>
+                    <select name="task_department_id[]" required class="mt-1 w-full border rounded">
+                        <option value="">選択してください</option>
+                        @foreach($departments as $d)
+                            <option value="{{ $d->id }}">{{ $d->name }}</option>
+                        @endforeach
                     </select>
-                    @error('assignee.*')
-                        <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
 
-                <!-- 日付入力 -->
-                <div class="mb-4 flex items-center justify-between">
-                    <div class="w-1/3 mr-2">
-                        <label for="start_date_task_1" class="block text-sm font-medium text-gray-700">タスク実行開始日</label>
-                        <input type="date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="start_date_task[]" id="start_date_task_1">
+                    <label class="block text-sm mt-4">担当者</label>
+                    <select name="assignee[]" required class="mt-1 w-full border rounded"></select>
 
-                        @error('start_date_task.*')
-                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <label class="block text-sm mt-4">開始日</label>
+                    <input type="date" name="start_date_task[]" required class="mt-1 w-full border rounded">
 
-                    <div class="w-1/3">
-                        <label for="end_date_task_1" class="block text-sm font-medium text-gray-700">タスク実行終了日</label>
-                        <input type="date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="end_date_task[]" id="end_date_task_1">
-
-                        @error('end_date_task.*')
-                            <div class="text-red-500 text-xs mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <label class="block text-sm mt-4">終了日</label>
+                    <input type="date" name="end_date_task[]" required class="mt-1 w-full border rounded">
                 </div>
             </div>
 
-            <!-- タスク追加ボタン -->
-            <div class="mt-4">
-                <button type="button" id="add-task-btn" class="w-full bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-300">タスクを追加</button>
+            <div id="task-entry-template" style="display:none">
+                <div class="task-entry bg-white p-6 rounded shadow">
+                    <label class="block text-sm">タスク</label>
+                    <input type="text" name="task_name[]" disabled class="mt-1 w-full border rounded">
+
+                    <label class="block text-sm mt-4">部署</label>
+                    <select name="task_department_id[]" disabled class="mt-1 w-full border rounded">
+                        <option value="">選択してください</option>
+                        @foreach($departments as $d)
+                            <option value="{{ $d->id }}">{{ $d->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <label class="block text-sm mt-4">担当者</label>
+                    <select name="assignee[]" disabled class="mt-1 w-full border rounded"></select>
+
+                    <label class="block text-sm mt-4">開始日</label>
+                    <input type="date" name="start_date_task[]" disabled class="mt-1 w-full border rounded">
+
+                    <label class="block text-sm mt-4">終了日</label>
+                    <input type="date" name="end_date_task[]" disabled class="mt-1 w-full border rounded">
+                </div>
             </div>
 
-            <!-- 登録ボタン -->
-            <div class="mt-4">
-                <button type="submit" class="w-full bg-[#86D4FE] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#67C1E3]">登録</button>
-            </div>
+            <button type="button" id="add-task-btn" class="mt-4 w-full py-2 bg-gray-200 rounded">タスクを追加</button>
 
-            <!-- キャンセルボタン -->
-            <div class="mt-2">
-                <button type="button" class="w-full bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-md hover:bg-gray-400">キャンセル</button>
-            </div>
+            <button type="submit" class="mt-4 w-full py-2 bg-[#86D4FE] text-white rounded">登録</button>
+            <button type="button" id="cancel-btn" class="mt-4 w-full py-2 bg-red-200 text-red-700 rounded">キャンセル</button>
         </form>
     </div>
 </div>
-
-<!-- JavaScript -->
-@section('scripts')
-<script>
-    document.getElementById('add-task-btn').addEventListener('click', function() {
-        var taskContainer = document.getElementById('tasks-container');
-        
-        // 最初のタスクフォームを取得
-        var taskEntry = taskContainer.querySelector('.task-entry');
-        
-        // クローンを作成
-        var newTaskEntry = taskEntry.cloneNode(true); 
-        
-        // 新しいタスクにインデックスを追加（idとnameに番号を付与）
-        var taskCount = taskContainer.querySelectorAll('.task-entry').length; // 現在のタスク数をカウント
-        
-        // 新しいタスクにインデックスを追加（idとnameに番号を付与）
-        newTaskEntry.querySelector('[name="task_name[]"]').setAttribute('name', 'task_name[' + taskCount + ']');
-        newTaskEntry.querySelector('[name="assignee[]"]').setAttribute('name', 'assignee[' + taskCount + ']');
-        newTaskEntry.querySelector('[name="start_date_task[]"]').setAttribute('name', 'start_date_task[' + taskCount + ']');
-        newTaskEntry.querySelector('[name="end_date_task[]"]').setAttribute('name', 'end_date_task[' + taskCount + ']');
-        
-        // タスクフォームを追加
-        taskContainer.appendChild(newTaskEntry);
-    });
-</script>
 @endsection
 
+@section('scripts')
+<script src="{{ mix('js/taskForm.js') }}"></script>
 @endsection

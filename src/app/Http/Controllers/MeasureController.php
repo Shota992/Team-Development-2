@@ -2,92 +2,140 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Models\Measure;
 use App\Models\Task;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
 
 class MeasureController extends Controller
 {
+    /**
+     * 施策一覧
+     */
     public function index(Request $request)
     {
+        $user = auth()->user();
+    
+        // 基準日を取得（クエリパラメータがなければ今日の日付）
+        $baseDate = $request->query('base_date', now()->format('Y-m-d'));
+        $baseDate = \Carbon\Carbon::parse($baseDate);
+    
+        // 表示範囲を取得（デフォルトは1ヶ月）
+        $displayRange = $request->query('display_range', 1);
+    
+        $startDate = $baseDate->copy();
+        $endDate = $startDate->copy()->addMonths($displayRange);
+    
+        // 施策とタスクを取得
+        $measures = Measure::with('tasks')->get();
+    
+        // 日付リストを作成
+        $dateList = [];
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            $dateList[] = $date->format('Y-m-d');
+        }
+    
+        return view('measures.index', compact('baseDate', 'displayRange', 'measures', 'dateList'));
+    }
+
+public function create(Request $request)
+{
     $user = auth()->user();
-
-    // 基準日を取得（クエリパラメータがなければ今日の日付）
-    $baseDate = $request->query('base_date', Carbon::today()->format('Y-m-d'));
-    $baseDate = Carbon::parse($baseDate);
-
-    $displayRange = $request->query('display_range', 1);
-
-    $startDate = $baseDate->copy();
-    $endDate = $startDate->copy()->addMonths($displayRange);
-
-    // tasksテーブル目線から、measures_idと一致するtaskのうち、1つでもstatus = 0があれば表示する
-    $measures = Measure::whereHas('tasks', function($query) {
-        $query->where('status', 0);
-    })->with('tasks.user')->get();
-
-
-    // 表示範囲の開始・終了日
-
-    // 日付リストを作成
-    $dateList = [];
-    for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-        $dateList[] = $date->format('Y-m-d');
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'ログインが必要です。');
     }
 
-    return view('measures/index', compact('measures', 'dateList' , 'user' , 'baseDate', 'displayRange'));
-    }
-    // 施策作成フォーム表示
-    public function create()
+    $officeId = $user->office_id;
+
+    // 部署リストを取得
+    $departments = Department::where('office_id', $officeId)->get();
+
+    // 全ユーザーを取得
+    $Users = User::where('office_id', $officeId)->get();
+
+    return view('create-policy', compact('departments', 'Users'));
+}
+
+    public function getAssignees($departmentId)
     {
-        return view('create-policy');
+        $assignees = User::where('department_id', $departmentId)->get();
+
+        if ($assignees->isEmpty()) {
+            return response()->json([]);
+        }
+
+        return response()->json($assignees);
     }
 
     public function store(Request $request)
     {
-        // バリデーションの追加
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'evaluation_frequency' => 'required|in:1,3,6,12,custom',
-            'task_name' => 'required|array', // タスク名の配列
-            'task_name.*' => 'required|string|max:255', // 各タスク名の検証
-            'assignee' => 'required|array',
-            'assignee.*' => 'required|string', // 各担当者の検証
-            'start_date_task' => 'required|array',
-            'start_date_task.*' => 'required|date', // 各タスク開始日の検証
-            'end_date_task' => 'required|array',
-            'end_date_task.*' => 'required|date', // 各タスク終了日の検証
-        ]);
-
-        // 施策のデータ保存
-        $measure = Measure::create([
-            'office_id' => $request->input('office_id'),
-            'department_id' => $request->input('department_id'),
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'status' => $request->input('status'),
-            'evaluation_interval' => $request->input('evaluation_interval'),
-            'evaluation_status' => $request->input('evaluation_status'),
+            'title'                   => 'required|string|max:255',
+            'description'             => 'required|string',
+            'department_id'           => 'required|exists:departments,id',
+            'evaluation_frequency'    => 'required|in:1,3,6,12,custom',
+            'custom_frequency_value'  => 'required_if:evaluation_frequency,custom|integer|min:1',
+            'custom_frequency_unit'   => 'required_if:evaluation_frequency,custom|in:weeks,months',
+    
+            'task_name.*'             => 'required|string|max:255',
+            'task_department_id.*'    => 'required|exists:departments,id',
+            'assignee.*'              => 'required|exists:users,id',
+            'start_date_task.*'       => 'required|date',
+            'end_date_task.*'         => 'required|date|after_or_equal:start_date_task.*',
         ]);
     
-        // タスクデータの保存
-        $tasks = $request->input('task_name');
-        $assignees = $request->input('assignee');
-        $startDates = $request->input('start_date_task');
-        $endDates = $request->input('end_date_task');
-    
-        foreach ($tasks as $key => $task) {
-            Task::create([
-                'measure_id' => $measure->id, // 施策ID
-                'name' => $task,
-                'start_date' => $startDates[$key],
-                'end_date' => $endDates[$key],
-                'status' => 'pending', // デフォルトのステータス
-            ]);
+        /** @var Carbon $today */
+        $today = Carbon::today();
+        if ($request->evaluation_frequency === 'custom') {
+            $next = $request->custom_frequency_unit === 'weeks'
+                ? $today->addWeeks($request->custom_frequency_value)->next(Carbon::MONDAY)
+                : $today->addMonths($request->custom_frequency_value)->startOfMonth();
+        } else {
+            $next = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
         }
-
-        return redirect()->route('measure.index'); // 保存後、一覧画面へリダイレクト
+    
+        $measure = DB::transaction(function() use ($request, $next, &$measure) {
+            $m = Measure::create([
+                'office_id'                => auth()->user()->office_id,
+                'department_id'            => $request->department_id,
+                'title'                    => $request->title,
+                'description'              => $request->description,
+                'evaluation_interval_value'=> $request->evaluation_frequency === 'custom'
+                                              ? $request->custom_frequency_value
+                                              : (int)$request->evaluation_frequency,
+                'evaluation_interval_unit' => $request->evaluation_frequency === 'custom'
+                                              ? $request->custom_frequency_unit
+                                              : 'months',
+                'evaluation_status'        => 'pending',
+                'next_evaluation_date'     => $next,
+            ]);
+    
+            foreach ($request->task_name as $i => $name) {
+                $measure->tasks()->create([
+                    'name'          => $name,
+                    'department_id' => $request->task_department_id[$i],
+                    'user_id'       => $request->assignee[$i],
+                    'start_date'    => $request->start_date_task[$i],
+                    'end_date'      => $request->end_date_task[$i],
+                    'status'        => 0,
+                ]);
+            }
+        });
+    
+        // JSONリクエストなら JSON 返却、それ以外はリダイレクト
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'measure' => $measure->load('tasks'),
+            ], 201);
+        }
+    
+        return redirect()->route('measures.index')->with('success', '施策が作成されました。');
     }
+    
+    
 }
