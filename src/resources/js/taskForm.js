@@ -1,100 +1,100 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // 最初に表示されるタスクフォームの部署選択
-    const initialDepartmentSelect = document.querySelector('[name="task_department_id[]"]'); // 最初のタスクフォームの部署選択
-    const initialAssigneeSelect = document.querySelector('[name="assignee[]"]'); // 最初のタスクフォームの担当者選択
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('tasks-container');
+  const template = document.getElementById('task-entry-template');
+  const addBtn = document.getElementById('add-task-btn');
+  const form = document.querySelector('form');
+  const freq = document.getElementById('evaluation_frequency');
+  const customField = document.getElementById('custom-frequency-field');
 
-    // 最初に表示されるタスクフォームの部署選択がされている場合、担当者を更新
-    if (initialDepartmentSelect && initialAssigneeSelect) {
-        const initialDepartmentId = initialDepartmentSelect.value;
-        if (initialDepartmentId) {
-            fetch(`/get-assignees/${initialDepartmentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Initial assignees data:', data); // デバッグ用
-                    initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-                    data.forEach(employee => {
-                        const option = document.createElement('option');
-                        option.value = employee.id;
-                        option.textContent = employee.name;
-                        initialAssigneeSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching assignees:', error));
-        }
+  if (!template || !container || !addBtn || !form) {
+    console.error('必須要素が見つかりません');
+    return;
+  }
 
-        // 最初のタスクフォームの部署選択変更時に担当者を更新
-        initialDepartmentSelect.addEventListener('change', function () {
-            const departmentId = this.value;
+  // Fetch assignees when dept changes
+  function fetchAssignees(dept, assignee) {
+    assignee.innerHTML = '<option value="">担当者を選んでください</option>';
+    if (!dept.value) return;
+    fetch(`/get-assignees/${dept.value}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(users => users.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.id; opt.textContent = u.name;
+        assignee.appendChild(opt);
+      }))
+      .catch(console.error);
+  }
 
-            if (!departmentId) {
-                initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-                return;
-            }
-
-            fetch(`/get-assignees/${departmentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Updated assignees data:', data); // デバッグ用
-                    initialAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-                    data.forEach(employee => {
-                        const option = document.createElement('option');
-                        option.value = employee.id;
-                        option.textContent = employee.name;
-                        initialAssigneeSelect.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching assignees:', error));
-        });
-    }
-
-    // タスク追加ボタンがクリックされたとき
-    document.getElementById('add-task-btn').addEventListener('click', function () {
-        const taskTemplate = document.getElementById('task-entry-template');
-        const newTaskCard = taskTemplate.cloneNode(true);
-        newTaskCard.style.display = 'block'; // 最初のタスクフォームを表示
-        document.getElementById('tasks-container').appendChild(newTaskCard);
-
-        const newDepartmentSelect = newTaskCard.querySelector('[name="task_department_id[]"]'); // 新しい部署選択
-        const newAssigneeSelect = newTaskCard.querySelector('[name="assignee[]"]'); // 新しい担当者選択
-
-        newDepartmentSelect.addEventListener('change', function () {
-            const departmentId = this.value;
-
-            if (!departmentId) {
-                newAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-                return;
-            }
-
-            fetch(`/get-assignees/${departmentId}`)
-            .then(response => response.json())
-            .then(data => {
-                console.log('Updated assignees data:', data); // デバッグ用
-                newAssigneeSelect.innerHTML = '<option value="">担当者を選んでください</option>';
-                data.forEach(employee => {
-                    const option = document.createElement('option');
-                    option.value = employee.id; // 担当者の user_id を value に設定
-                    option.textContent = employee.name;
-                    newAssigneeSelect.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching assignees:', error));
-        });
+  // Initialize a new task entry
+  function initTaskEntry(clone) {
+    clone.querySelectorAll('input, select').forEach(el => {
+      el.disabled = false;
+      el.required = true;
+      if (el.tagName === 'INPUT') el.value = '';
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
     });
+    const dept = clone.querySelector('[name="task_department_id[]"]');
+    const assignee = clone.querySelector('[name="assignee[]"]');
+    dept.addEventListener('change', () => fetchAssignees(dept, assignee));
+  }
 
-    // カスタム設定の評価改善頻度の表示
-    const evaluationFrequencySelect = document.getElementById('evaluation_frequency');
-    const customFrequencyField = document.getElementById('custom-frequency-field');
+  // Add initial row assignee fetch
+  const firstDept = container.querySelector('[name="task_department_id[]"]');
+  const firstAssignee = container.querySelector('[name="assignee[]"]');
+  if (firstDept && firstAssignee) {
+    fetchAssignees(firstDept, firstAssignee);
+    firstDept.addEventListener('change', () => fetchAssignees(firstDept, firstAssignee));
+  }
 
-    evaluationFrequencySelect.addEventListener('change', function () {
-        if (this.value === 'custom') {
-            customFrequencyField.style.display = 'block';
-        } else {
-            customFrequencyField.style.display = 'none';
-        }
-    });
+  // Add new task row
+  addBtn.addEventListener('click', () => {
+    const clone = template.firstElementChild.cloneNode(true);
+    clone.style.display = 'block';
+    initTaskEntry(clone);
+    container.appendChild(clone);
+  });
 
-    // ページロード時にカスタム設定が選択されている場合の処理
-    if (evaluationFrequencySelect.value === 'custom') {
-        customFrequencyField.style.display = 'block';
+  // Toggle custom frequency fields
+  const toggleCustom = () => customField.style.display = freq.value === 'custom' ? 'block' : 'none';
+  freq.addEventListener('change', toggleCustom);
+  toggleCustom();
+
+  // Submit handler → API call
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+    const payload = {
+      title: form.title.value,
+      description: form.description.value,
+      department_id: form.department_id.value,
+      evaluation_frequency: freq.value,
+      custom_frequency_value: freq.value === 'custom' ? form.custom_frequency_value.value : null,
+      custom_frequency_unit: freq.value === 'custom' ? form.custom_frequency_unit.value : null,
+      task_name: [...document.querySelectorAll('[name="task_name[]]')].map(i => i.value),
+      task_department_id: [...document.querySelectorAll('[name="task_department_id[]]')].map(i => i.value),
+      assignee: [...document.querySelectorAll('[name="assignee[]]')].map(i => i.value),
+      start_date_task: [...document.querySelectorAll('[name="start_date_task[]]')].map(i => i.value),
+      end_date_task: [...document.querySelectorAll('[name="end_date_task[]]')].map(i => i.value),
+    };
+
+    try {
+      const res = await fetch('/api/measures', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok) throw json;
+      alert('保存完了！ID=' + json.measure.id);
+      window.location.href = '/measures';
+    } catch(err) {
+      console.error(err);
+      alert('保存失敗：コンソールを確認してください');
     }
+  });
 });

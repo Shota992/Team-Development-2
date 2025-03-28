@@ -12,8 +12,6 @@ use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ItemController;
 
-
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,6 +23,7 @@ use App\Http\Controllers\ItemController;
 |
 */
 
+// 公開ルート
 Route::get('/', function () {
     return view('welcome');
 });
@@ -33,84 +32,58 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->group(function() {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
-    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
-    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
-});
-
+// 認証が必要なルート
 Route::middleware('auth')->group(function () {
+    // ダッシュボード
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // プロフィール管理
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
 
-Route::get('/sidebar', function () {
-    return view('components.sidebar');
-});
+    // 施策関連
+    Route::get('/create-policy', [MeasureController::class, 'create'])->name('create-policy');
+    Route::post('/store-policy', [MeasureController::class, 'store'])
+    ->name('measures.store');
 
-//従業員アンケートのルート設定
-Route::get('/survey/employee', function () {
-    return view('survey.employee_survey');
-});
-
-// Route::get('/api/survey/{surveyId}/questions', [SurveyController::class, 'getSurveyQuestions']);
-
-
-Route::get('/mindmap', [MindMapController::class, 'index'])
-    ->middleware('auth')
-    ->name('mindmap.index');
-
-Route::middleware('auth')->group(function () {
-    // 配信設定のアンケート作成画面を表示する
-    Route::get('/distribution/survey/create', [DistributionController::class, 'create'])->name('survey.create');
-    // アンケートをデータベースに保存する
-    Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
-});
-
-//表示・非表示ボタン
-Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])
-    ->middleware('auth');
-
-//グループ選択画面への画面遷移
-Route::get('/distribution/group-selection', function () {
-    return view('distribution.group_selection');
-})->middleware('auth')->name('survey.group-selection');
-
-//項目編集画面への画面遷移
-Route::get('/distribution/item-edit', function () {
-    return view('distribution.item_edit');
-})->middleware('auth')->name('survey.item-edit');
-
-//アンケート作成画面のセッションへ保存するルート設定
-Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])
-    ->middleware('auth')
-    ->name('survey.save-session');
-
-
-    Route::get('/create-policy', function () {
-        return view('create-policy');
-    })->middleware(['auth']);
-
-    Route::get('/create-policy', [MeasureController::class, 'create'])
-    ->middleware('auth') // authミドルウェアで認証済みユーザーのみ
-    ->name('create-policy');
-
-    Route::post('/store-policy', [MeasureController::class, 'store'])->name('measures.store');
-    Route::get('/dashboard', function () {
-        return view('dashboard'); // ダッシュボードへのルート
-    })->name('dashboard');
-
-    Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
-    Route::get('/measures', [MeasureController::class, 'index'])
-    ->middleware('auth')
+Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
 
+    Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
 
-//従業員一覧のルート設定
-    Route::middleware('auth')->group(function () {
-        Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+    // 従業員関連
+    Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+
+    // マインドマップ
+    Route::get('/mindmap', [MindMapController::class, 'index'])->name('mindmap.index');
+
+    // 配信設定
+    Route::get('/distribution/survey/create', [DistributionController::class, 'create'])->name('survey.create');
+    Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
+    Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])->name('survey.toggle-display');
+    Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])->name('survey.save-session');
+
+    // グループ選択画面
+    Route::get('/distribution/group-selection', function () {
+        return view('distribution.group_selection');
+    })->name('survey.group-selection');
+
+    // 項目編集画面
+    Route::get('/distribution/item-edit', function () {
+        return view('distribution.item_edit');
+    })->name('survey.item-edit');
+
+    // サイドバー
+    Route::get('/sidebar', function () {
+        return view('components.sidebar');
     });
 
+    // 従業員アンケート
+    Route::get('/survey/employee', function () {
+        return view('survey.employee_survey');
+    });
+});
+
+// 認証関連のルート
 require __DIR__.'/auth.php';

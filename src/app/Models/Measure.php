@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,14 @@ class Measure extends Model
         'status',
         'evaluation_interval',
         'evaluation_status',
-        'next_evaluation_date', // 次回評価日
+        'next_evaluation_date',
     ];
+
+    /**
+     * この施策に紐づくタスク（1対多）
+     */
+    public function tasks()
+    {
+        return $this->hasMany(\App\Models\Task::class);
+    }
 }

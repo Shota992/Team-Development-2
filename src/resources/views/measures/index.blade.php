@@ -22,7 +22,7 @@
                 <p class="ml-2 text-2xl font-bold">施策一覧 ー実行施策一覧ー</p>
             </div>
         </div>
-        <form method="GET" action="{{ route('measure.index') }}" id="dateForm">
+        <form method="GET" action="{{ route('measures.index') }}" id="dateForm">
             <div class="flex ml-2">
                 <div class="flex mr-40">
                     <p class="mr-3 pt-2">タスク実行開始日：</p>
@@ -40,7 +40,7 @@
         </form>
         <div class="flex justify-between pt-3">
             <div class="flex items-center justify-center gap-4 text-black">
-                <a href="{{ route('measure.index', ['base_date' => $baseDate->copy()->subWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
+                <a href="{{ route('measures.index', ['base_date' => $baseDate->copy()->subWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
                     <span class="text-gray-500 text-2xl mr-1 mb-1">&lt;</span>
                     <span>1週間前へ</span>
                 </a>
@@ -52,8 +52,8 @@
                 </span>
 
                 <span class="h-5 border-l border-gray-400"></span>
-
-                <a href="{{ route('measure.index', ['base_date' => $baseDate->copy()->addWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
+                
+                <a href="{{ route('measures.index', ['base_date' => $baseDate->copy()->addWeek()->format('Y-m-d')]) }}" class="flex items-center text-sky-500">
                     <span>1週間後へ</span>
                     <span class="text-gray-500 text-2xl ml-1 mb-1">&gt;</span>
                 </a>
