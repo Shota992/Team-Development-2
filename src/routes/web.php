@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
 
+    Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
+
     Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
 
     // 従業員関連
