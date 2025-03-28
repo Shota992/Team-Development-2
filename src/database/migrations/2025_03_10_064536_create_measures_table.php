@@ -19,13 +19,12 @@ return new class extends Migration
             $table->text('description');
             $table->date('start_date');
             $table->date('end_date');
-            $table->string('status');
+            $table->tinyInteger('status');
             $table->string('evaluation_interval');
-            $table->string('evaluation_status');
+            $table->tinyInteger('evaluation_status');
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.

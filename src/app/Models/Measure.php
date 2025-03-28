@@ -18,4 +18,10 @@ class Measure extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    // MeasureとEvaluationのリレーション (1対多)
+    public function evaluation()
+    {
+        return $this->hasMany(Evaluation::class);
+    }
 }

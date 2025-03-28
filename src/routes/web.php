@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.create');
     Route::get('/items', [ItemController::class, 'index'])->name('item.index');
 });
 
