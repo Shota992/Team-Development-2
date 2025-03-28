@@ -17,15 +17,14 @@ return new class extends Migration
             $table->unsignedBigInteger('department_id');
             $table->string('title');
             $table->text('description');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('status');
-            $table->string('evaluation_interval');
+            $table->integer('status')->default(0); // デフォルト値を0に設定
+            $table->integer('evaluation_interval_value')->nullable(); // 例: 2
+            $table->string('evaluation_interval_unit')->nullable(); // 'weeks' または 'months'
             $table->string('evaluation_status');
+            $table->date('next_evaluation_date')->nullable(); // 次回評価日
             $table->timestamps();
         });
     }
-    
 
     /**
      * Reverse the migrations.
