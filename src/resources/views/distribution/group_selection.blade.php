@@ -40,11 +40,12 @@
             </button>
         </div>
 
-        {{-- ✅ 配信を確定する --}}
+        {{-- ✅ アンケート詳細設定へ --}}
         <div class="mt-6 text-center">
-            <button type="submit" class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
-                配信を確定する
-            </button>
+            <a href="{{ route('survey.advanced-setting') }}"
+                class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 inline-block">
+                アンケート詳細設定へ
+            </a>
         </div>
     </form>
 </div>
