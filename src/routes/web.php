@@ -87,5 +87,12 @@ Route::get('/measures', [MeasureController::class, 'index'])
     });
 });
 
+    //部署選択画面のルート設定
+    Route::middleware('auth')->group(function () {
+        Route::get('/distribution/group-selection', [DistributionController::class, 'groupSelection'])->name('survey.group-selection');
+        Route::post('/distribution/finalize-distribution', [DistributionController::class, 'finalizeDistribution'])->name('survey.finalize-distribution');
+    });
+
+
 // 認証関連のルート
 require __DIR__.'/auth.php';

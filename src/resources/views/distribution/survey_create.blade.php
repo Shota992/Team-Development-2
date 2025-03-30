@@ -98,14 +98,14 @@
     <div class="flex justify-center mt-10">
         <a href="javascript:void(0);" id="goToItemEdit"
             class="px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
-            項目編集画面へ
+            設問編集画面へ
         </a>
     </div>
 
     <div class="flex justify-center mt-10">
         <a href="javascript:void(0);" id="goToGroupSelection"
             class="px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
-            グループ選択画面へ
+            部署選択画面へ
         </a>
     </div>
 </div>
