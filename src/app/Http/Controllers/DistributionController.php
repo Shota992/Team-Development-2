@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Department;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 
 class DistributionController extends Controller
 {
@@ -116,5 +117,37 @@ class DistributionController extends Controller
         }
 
         return redirect()->route('dashboard')->with('success', 'アンケート配信が設定されました！');
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $sendType = $request->input('send_type');
+        $isAnonymous = $request->has('is_anonymous') ? 1 : 0;
+
+        // 初期化
+        $startDate = null;
+        $endDate = null;
+
+        // 📅 予約配信の場合、日付と時間を結合
+        if ($sendType === 'schedule') {
+            $startDate = Carbon::parse($request->input('scheduled_date') . ' ' . $request->input('scheduled_time'));
+        } elseif ($sendType === 'now') {
+            $startDate = now(); // 今すぐ
+        }
+
+        // 提出期限の結合
+        if ($request->filled('deadline_date') && $request->filled('deadline_time')) {
+            $endDate = Carbon::parse($request->input('deadline_date') . ' ' . $request->input('deadline_time'));
+        }
+
+        // 🧠 セッションに保存
+        session([
+            'survey_input.send_type' => $sendType,
+            'survey_input.start_date' => $startDate,
+            'survey_input.end_date' => $endDate,
+            'survey_input.is_anonymous' => $isAnonymous,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'アンケートの詳細設定を保存しました！');
     }
 }
