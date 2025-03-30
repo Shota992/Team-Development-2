@@ -103,6 +103,9 @@ Route::post('/survey/save-session', [DistributionController::class, 'saveToSessi
 //従業員一覧のルート設定
     Route::middleware('auth')->group(function () {
         Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+        Route::delete('/setting/employee-delete/{id}', [SettingController::class, 'deleteEmployee'])->name('employee.delete');
     });
+
+
 
 require __DIR__.'/auth.php';
