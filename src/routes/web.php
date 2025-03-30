@@ -98,7 +98,8 @@ Route::get('/measures', [MeasureController::class, 'index'])
     Route::get('/distribution/advanced-setting', function () {
         return view('distribution.advanced_setting');
     })->name('survey.advanced-setting');
-
+    //アンケート詳細画面のルート設定
+    Route::post('/distribution/advanced-setting/save', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
 
 
 // 認証関連のルート
