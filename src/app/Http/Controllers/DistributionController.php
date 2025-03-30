@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Survey;
 use App\Models\SurveyQuestion;
+use App\Models\User;
+use App\Models\Department;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 
 class DistributionController extends Controller
@@ -91,4 +94,27 @@ class DistributionController extends Controller
     }
 
 
+    public function groupSelection()
+    {
+        $users = User::with('position')->get();
+        $departments = Department::all();
+        return view('distribution.group_selection', compact('users', 'departments'));
+    }
+
+    public function finalizeDistribution(Request $request)
+    {
+        $surveyId = session('latest_survey_id'); // 直前に作成されたアンケートIDを使用
+
+        foreach ($request->input('users', []) as $userId) {
+            DB::table('survey_user')->insert([
+                'survey_id' => $surveyId,
+                'user_id' => $userId,
+                'is_delivered' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'アンケート配信が設定されました！');
+    }
 }
