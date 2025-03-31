@@ -24,6 +24,9 @@ export default {
                 'light-blue': '#E0F4FF', // 青
                 'good-blue': '#99DBFF', // 青
             },
+            width: {
+                '49/50': '98%',
+            },
         },
     },
 

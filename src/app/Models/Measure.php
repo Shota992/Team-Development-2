@@ -35,4 +35,16 @@ class Measure extends Model
     {
         return $this->hasMany(Evaluation::class);
     }
+
+    // カスタムアクセサ: 評価回数
+    public function getEvaluationCountAttribute()
+    {
+        return $this->evaluation->count();
+    }
+
+    // カスタムアクセサ: 最新の評価日
+    public function getEvaluationLastDateAttribute()
+    {
+        return $this->evaluation->sortByDesc('created_at')->first()?->created_at;
+    }
 }

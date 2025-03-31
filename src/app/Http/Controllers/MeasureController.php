@@ -143,7 +143,7 @@ public function create(Request $request)
     $currentDate = Carbon::today();
 
     // Measureを全件、関連タスクおよび振り返り(evaluation)情報とともに取得
-    $measures = Measure::with(['tasks', 'evaluation'])->get()->filter(function($measure) use ($currentDate) {
+    $measures = Measure::with(['tasks.user', 'evaluation'])->get()->filter(function($measure) use ($currentDate) {
         // まず、完全完了（status=2 または evaluation_status=2）のものは表示しない
         if ($measure->status == 2 || $measure->evaluation_status == 2) {
             return false;
@@ -154,32 +154,16 @@ public function create(Request $request)
             return true;
         }
 
-        // ② statusが0の場合、施策作成日時にevaluation_interval（日数）を足した日付が
-        // 現在の日付になっているか、またはそれ以前なら表示
+        // ② statusが0の場合、measure->next_evaluation_dateの日付が現在の日付と同日もしくはそれ以前なら表示
         if ($measure->status == 0) {
-            if ($measure->created_at->copy()->addDays($measure->evaluation_interval)->lessThanOrEqualTo($currentDate)) {
-                return true;
-            }
-        }
-
-        // ③ evaluation_statusが1の場合
-        //  該当Measureに関連するevaluationが存在するならば、そのevaluationの作成日時に
-        //  evaluation_interval（日数）を足した日付が現在の日付になっているか、またはそれ以前なら表示
-        if ($measure->evaluation_status == 1) {
-            if ($measure->evaluation && $measure->evaluation->isNotEmpty()) {
-                // 複数のevaluationの中で最新のcreated_atを取得
-                $latestEvaluation = $measure->evaluation->sortByDesc('created_at')->first();
-                // if ($latestEvaluation && $latestEvaluation->created_at->copy()->addDays($measure->evaluation_interval)->greaterThanOrEqualTo($currentDate)) {
-                if ($latestEvaluation && $currentDate->greaterThanOrEqualTo($latestEvaluation->created_at->copy()->addDays($measure->evaluation_interval))) {
-                    return true;
-                }
+            if ($currentDate->greaterThanOrEqualTo($measure->next_evaluation_date)) {
+            return true;
             }
         }
 
         return false;
     });
 
-    dd($measures);
-    return view('measures/evaluation', compact('measures', 'user'));
+    return view('measures/no-evaluation', compact('measures', 'user'));
 }
 }
