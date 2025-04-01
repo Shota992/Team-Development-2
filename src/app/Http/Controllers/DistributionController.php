@@ -13,16 +13,12 @@ use Carbon\Carbon;
 
 class DistributionController extends Controller
 {
-    // アンケート作成画面を表示
     public function create()
     {
-        // 設問を ID の昇順で取得
         $questions = SurveyQuestion::with('surveyQuestionOptions')->orderBy('id', 'asc')->get();
-
         return view('distribution.survey_create', compact('questions'));
     }
 
-    // アンケートを保存
     public function store(Request $request)
     {
         $request->validate([
@@ -39,7 +35,6 @@ class DistributionController extends Controller
             'questions.*.common_status' => 'required|boolean',
         ]);
 
-        // アンケートの保存
         $survey = Survey::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -49,14 +44,13 @@ class DistributionController extends Controller
             'department_id' => $request->department_id,
         ]);
 
-        // 設問の保存
         foreach ($request->questions as $questionData) {
             SurveyQuestion::create([
                 'title' => $questionData['title'] ?? '未設定',
                 'text' => $questionData['text'] ?? '未設定',
                 'description' => $questionData['description'] ?? null,
                 'common_status' => $questionData['common_status'] ?? 0,
-                'display_status' => true, // デフォルトは表示
+                'display_status' => true,
             ]);
         }
 
@@ -67,7 +61,6 @@ class DistributionController extends Controller
     {
         $question = SurveyQuestion::findOrFail($id);
 
-        // common_status が true の設問は変更不可
         if ($question->common_status) {
             return response()->json([
                 'success' => false,
@@ -84,7 +77,7 @@ class DistributionController extends Controller
         ]);
     }
 
-    public function saveToSession(Request $request): \Illuminate\Http\JsonResponse
+    public function saveToSession(Request $request): JsonResponse
     {
         session([
             'survey_input.name' => $request->input('name'),
@@ -93,7 +86,6 @@ class DistributionController extends Controller
 
         return response()->json(['success' => true]);
     }
-
 
     public function groupSelection()
     {
@@ -104,7 +96,7 @@ class DistributionController extends Controller
 
     public function finalizeDistribution(Request $request)
     {
-        $surveyId = session('latest_survey_id'); // 直前に作成されたアンケートIDを使用
+        $surveyId = session('latest_survey_id');
 
         foreach ($request->input('users', []) as $userId) {
             DB::table('survey_user')->insert([
@@ -116,31 +108,27 @@ class DistributionController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard')->with('success', 'アンケート配信が設定されました！');
+        return redirect()->route('survey.advanced-setting');
     }
 
     public function saveSettings(Request $request)
     {
         $sendType = $request->input('send_type');
-        $isAnonymous = $request->has('is_anonymous') ? 1 : 0;
+        $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
 
-        // 初期化
         $startDate = null;
         $endDate = null;
 
-        // 📅 予約配信の場合、日付と時間を結合
         if ($sendType === 'schedule') {
             $startDate = Carbon::parse($request->input('scheduled_date') . ' ' . $request->input('scheduled_time'));
         } elseif ($sendType === 'now') {
-            $startDate = now(); // 今すぐ
+            $startDate = now();
         }
 
-        // 提出期限の結合
         if ($request->filled('deadline_date') && $request->filled('deadline_time')) {
             $endDate = Carbon::parse($request->input('deadline_date') . ' ' . $request->input('deadline_time'));
         }
 
-        // 🧠 セッションに保存
         session([
             'survey_input.send_type' => $sendType,
             'survey_input.start_date' => $startDate,
