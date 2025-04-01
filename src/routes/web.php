@@ -85,8 +85,6 @@ Route::get('/measures', [MeasureController::class, 'index'])
     Route::get('/survey/employee', function () {
         return view('survey.employee_survey');
     });
-});
-
 
     //部署選択画面のルート設定
     Route::middleware('auth')->group(function () {
@@ -100,6 +98,10 @@ Route::get('/measures', [MeasureController::class, 'index'])
     })->name('survey.advanced-setting');
     //アンケート詳細画面のルート設定
     Route::post('/distribution/advanced-setting/save', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
+});
+
+
+
 
 
 // 認証関連のルート
