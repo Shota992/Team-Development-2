@@ -10,6 +10,8 @@ use App\Models\Department;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Session;
+
 
 class DistributionController extends Controller
 {
@@ -108,6 +110,8 @@ class DistributionController extends Controller
             ]);
         }
 
+        session(['survey_selected_users' => $request->input('users', [])]);
+
         return redirect()->route('survey.advanced-setting');
     }
 
@@ -137,5 +141,40 @@ class DistributionController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success', 'アンケートの詳細設定を保存しました！');
+    }
+
+    public function sendSurvey(Request $request)
+    {
+    $input = session('survey_input');
+
+    // 📝 Survey作成
+    $survey = Survey::create([
+        'name'         => $input['name'] ?? 'タイトル未設定',
+        'description'  => $input['description'] ?? null,
+        'start_date'   => $input['start_date'] ?? now(),
+        'end_date'     => $input['end_date'] ?? null,
+        'office_id'    => auth()->user()->office_id,
+        'department_id' => null, // 部署単体ではなく複数選択のためnull
+        'is_active'    => true,
+    ]);
+
+    // ✅ ユーザー情報保存（group_selectionで選択したusers[]がセッションに入っている想定）
+    $selectedUserIds = session('survey_selected_users', []);
+
+    foreach ($selectedUserIds as $userId) {
+        DB::table('survey_user')->insert([
+            'survey_id' => $survey->id,
+            'user_id' => $userId,
+            'is_delivered' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    // ✅ 完了後セッションをクリア（必要なら）
+    session()->forget('survey_input');
+    session()->forget('survey_selected_users');
+
+    return redirect()->route('dashboard')->with('success', 'アンケートが配信されました！');
     }
 }
