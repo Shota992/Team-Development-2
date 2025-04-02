@@ -4,7 +4,7 @@
 <div class="max-w-4xl mx-auto bg-white p-8 shadow-md">
     <h2 class="text-2xl font-bold mb-10">⚙️ アンケート詳細設定</h2>
 
-    <form action="{{ route('survey.save-settings') }}" method="POST">
+    <form method="POST">
         @csrf
 
         {{-- ✅ 配信日時を設定 --}}
@@ -24,7 +24,6 @@
                 </div>
             </div>
 
-            {{-- 日付・時間入力 --}}
             <div class="flex flex-wrap items-center space-x-6 mt-4">
                 <label class="text-gray-700">配信日：</label>
                 <input type="date" name="scheduled_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
@@ -78,14 +77,16 @@
 
         {{-- ✅ ボタンエリア --}}
         <div class="mt-10 text-center space-y-4">
-            <button type="submit"
-                class="w-60 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
+            {{-- 配信内容確認へ --}}
+            <a href="{{ route('survey.confirmation') }}" id="confirm-link"
+                class="inline-block w-60 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 text-center">
                 配信内容確認へ
-            </button>
+            </a>
 
+            {{-- 戻る --}}
             <div>
                 <a href="{{ route('survey.group-selection') }}"
-                class="inline-block w-60 py-3 bg-gray-300 text-gray-800 font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
+                    class="inline-block w-60 py-3 bg-gray-300 text-gray-800 font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
                     戻る
                 </a>
             </div>
@@ -94,7 +95,7 @@
 </div>
 
 <script>
-    // ラジオボタンによる表示切り替え（配信タイミング）
+    // ラジオボタンによる表示切り替え
     document.querySelectorAll('input[name="send_type"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isScheduled = document.querySelector('input[name="send_type"]:checked').value === 'schedule';
@@ -103,7 +104,6 @@
         });
     });
 
-    // ラジオボタンによる表示切り替え（提出期限）
     document.querySelectorAll('input[name="deadline_type"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isSet = document.querySelector('input[name="deadline_type"]:checked').value === 'set';
@@ -112,12 +112,18 @@
         });
     });
 
-    // 初期無効化（読み込み時対応）
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelector('input[name="scheduled_date"]').disabled = true;
         document.querySelector('input[name="scheduled_time"]').disabled = true;
         document.querySelector('input[name="deadline_date"]').disabled = true;
         document.querySelector('input[name="deadline_time"]').disabled = true;
+    });
+
+    // ✅ 保存中表示（リンクボタン用）
+    document.getElementById('confirm-link')?.addEventListener('click', function (e) {
+        const link = this;
+        link.classList.add('pointer-events-none', 'opacity-70');
+        link.textContent = '保存中...';
     });
 </script>
 @endsection
