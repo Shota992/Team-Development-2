@@ -32,6 +32,14 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::middleware('auth')->group(function() {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.create');
+    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
+});
+
 // 認証が必要なルート
 Route::middleware('auth')->group(function () {
     // ダッシュボード

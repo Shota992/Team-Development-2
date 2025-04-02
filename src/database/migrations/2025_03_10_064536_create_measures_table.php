@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('status')->default(0); // デフォルト値を0に設定
             $table->integer('evaluation_interval_value')->nullable(); // 例: 2
             $table->string('evaluation_interval_unit')->nullable(); // 'weeks' または 'months'
-            $table->string('evaluation_status');
+            $table->tinyInteger('evaluation_status');
             $table->date('next_evaluation_date')->nullable(); // 次回評価日
             $table->timestamps();
         });

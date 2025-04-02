@@ -158,6 +158,34 @@ public function create(Request $request)
     
         return redirect()->route('measures.index')->with('success', '施策が作成されました。');
     }
-    
-    
+
+    public function noEvaluation(Request $request)
+{
+    $user = auth()->user();
+    $currentDate = Carbon::today();
+
+    // Measureを全件、関連タスクおよび振り返り(evaluation)情報とともに取得
+    $measures = Measure::with(['tasks.user', 'evaluation'])->get()->filter(function($measure) use ($currentDate) {
+        // まず、完全完了（status=2 または evaluation_status=2）のものは表示しない
+        if ($measure->status == 2 || $measure->evaluation_status == 2) {
+            return false;
+        }
+
+        // ① statusが1（完了）の場合は問答無用で表示
+        if ($measure->status == 1) {
+            return true;
+        }
+
+        // ② statusが0の場合、measure->next_evaluation_dateの日付が現在の日付と同日もしくはそれ以前なら表示
+        if ($measure->status == 0) {
+            if ($currentDate->greaterThanOrEqualTo($measure->next_evaluation_date)) {
+            return true;
+            }
+        }
+
+        return false;
+    });
+
+    return view('measures/no-evaluation', compact('measures', 'user'));
+}
 }
