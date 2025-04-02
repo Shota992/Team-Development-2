@@ -11,6 +11,8 @@ use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChatDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +85,12 @@ Route::get('/measures', [MeasureController::class, 'index'])
     Route::get('/survey/employee', function () {
         return view('survey.employee_survey');
     });
+});
+
+Route::group(['middleware' => ['mentor']], function () {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
+    Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
 
 // 認証関連のルート

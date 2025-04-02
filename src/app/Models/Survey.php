@@ -48,6 +48,6 @@ class Survey extends Model
 
     public function department()
     {
-        return $this->belongsToMany('App\Models\Department');
+        return $this->belongsTo(\App\Models\Department::class, 'department_id');
     }
 }

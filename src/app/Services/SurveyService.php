@@ -6,6 +6,7 @@ use App\Models\Survey;
 use App\Models\SurveyResponseDetail;
 use App\Models\SurveyQuestion;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class SurveyService
 {
@@ -193,4 +194,32 @@ class SurveyService
             default                   => 'default.png',
         };
     }
+    public function getLatestSurveyWithQuestions()
+    {
+        $user = Auth::user();
+
+        // 最新のアンケートを取得（office_id が一致または null）
+        $latestSurvey = Survey::where(function ($query) use ($user) {
+                $query->where('office_id', $user->office_id)
+                      ->orWhereNull('office_id');
+            })
+            ->orderBy('end_date', 'desc')
+            ->first();
+
+        if (!$latestSurvey) return null;
+
+        // 設問（共通 or office_id が null または一致）
+        $questions = $latestSurvey->questions()
+            ->orWhere(function ($query) use ($user) {
+                $query->whereNull('office_id')
+                      ->orWhere('office_id', $user->office_id);
+            })
+            ->get();
+
+        return [
+            'survey' => $latestSurvey,
+            'questions' => $questions,
+        ];
+    }
 }
+

@@ -73,47 +73,69 @@ public function create(Request $request)
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'title'                   => 'required|string|max:255',
             'description'             => 'required|string',
             'department_id'           => 'required|exists:departments,id',
-            'evaluation_frequency'    => 'required|in:1,3,6,12,custom',
-            'custom_frequency_value'  => 'required_if:evaluation_frequency,custom|integer|min:1',
-            'custom_frequency_unit'   => 'required_if:evaluation_frequency,custom|in:weeks,months',
-    
+            'evaluation_frequency'    => 'required|string|in:1,3,6,12,custom',
+            'custom_frequency_value'  => 'required_if:evaluation_frequency,custom|nullable|integer|min:1',
+            'custom_frequency_unit'   => 'required_if:evaluation_frequency,custom|nullable|string|in:weeks,months',
+
+            'task_name'               => 'required|array|min:1',
             'task_name.*'             => 'required|string|max:255',
+            'task_department_id'      => 'required|array',
             'task_department_id.*'    => 'required|exists:departments,id',
+            'assignee'                => 'required|array',
             'assignee.*'              => 'required|exists:users,id',
+            'start_date_task'         => 'required|array',
             'start_date_task.*'       => 'required|date',
-            'end_date_task.*'         => 'required|date|after_or_equal:start_date_task.*',
+            'end_date_task'           => 'required|array',
+            'end_date_task.*'         => [
+                'required',
+                'date',
+                function($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1];
+                    $start = $request->input("start_date_task.$index");
+                    if ($start && $value < $start) {
+                        $fail("タスク".($index+1)."の終了日は開始日以降である必要があります。");
+                    }
+                },
+            ],
         ]);
-    
+
         /** @var Carbon $today */
         $today = Carbon::today();
+
         if ($request->evaluation_frequency === 'custom') {
-            $next = $request->custom_frequency_unit === 'weeks'
-                ? $today->addWeeks($request->custom_frequency_value)->next(Carbon::MONDAY)
-                : $today->addMonths($request->custom_frequency_value)->startOfMonth();
+            $value = $request->custom_frequency_value;
+            if ($request->custom_frequency_unit === 'weeks') {
+                $nextEvaluationDate = $today->addWeeks($value)->next(Carbon::MONDAY);
+            } else {
+                $nextEvaluationDate = $today->addMonths($value)->startOfMonth();
+            }
         } else {
-            $next = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
+            $nextEvaluationDate = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
         }
-    
-        $measure = DB::transaction(function() use ($request, $next, &$measure) {
-            $m = Measure::create([
-                'office_id'                => auth()->user()->office_id,
-                'department_id'            => $request->department_id,
-                'title'                    => $request->title,
-                'description'              => $request->description,
-                'evaluation_interval_value'=> $request->evaluation_frequency === 'custom'
-                                              ? $request->custom_frequency_value
-                                              : (int)$request->evaluation_frequency,
-                'evaluation_interval_unit' => $request->evaluation_frequency === 'custom'
-                                              ? $request->custom_frequency_unit
-                                              : 'months',
-                'evaluation_status'        => 'pending',
-                'next_evaluation_date'     => $next,
+
+        DB::transaction(function() use ($request, $nextEvaluationDate) {
+            $measure = Measure::create([
+                'office_id'                 => auth()->user()->office_id,
+                'department_id'             => $request->department_id,
+                'title'                     => $request->title,
+                'description'               => $request->description,
+                'status'                    => 0,
+                'evaluation_interval_value' => $request->evaluation_frequency === 'custom'
+                                               ? $request->custom_frequency_value
+                                               : (int)$request->evaluation_frequency,
+                'evaluation_interval_unit'  => $request->evaluation_frequency === 'custom'
+                                               ? $request->custom_frequency_unit
+                                               : 'months',
+                'evaluation_status'         => 'pending',
+                'next_evaluation_date'      => $nextEvaluationDate,
             ]);
-    
+            
+
             foreach ($request->task_name as $i => $name) {
                 $measure->tasks()->create([
                     'name'          => $name,
@@ -125,17 +147,8 @@ public function create(Request $request)
                 ]);
             }
         });
-    
-        // JSONリクエストなら JSON 返却、それ以外はリダイレクト
-        if ($request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'measure' => $measure->load('tasks'),
-            ], 201);
-        }
-    
+
         return redirect()->route('measures.index')->with('success', '施策が作成されました。');
     }
-    
-    
+
 }
