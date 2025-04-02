@@ -23,7 +23,12 @@ export default {
                 'light-red': '#ffd4d4', // 赤
                 'custom-red': '#FFA1A1', // 青
                 'light-blue': '#C8EBFF', // 青
+                'custom-blue': '#00A6FF', // 青
+                'button-blue': '#86D4FE', // 青
                 'good-blue': '#99DBFF', // 青
+            },
+            width: {
+                '49/50': '98%',
             },
         },
     },

@@ -32,6 +32,14 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+Route::middleware('auth')->group(function() {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.create');
+    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
+});
+
 // 認証が必要なルート
 Route::middleware('auth')->group(function () {
     // ダッシュボード
@@ -49,6 +57,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
+
+    Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
 
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
 
@@ -90,10 +100,34 @@ Route::get('/measures', [MeasureController::class, 'index'])
     Route::get('/survey/employee', function () {
         return view('survey.employee_survey');
     });
+
+    //部署選択画面のルート設定
+    Route::middleware('auth')->group(function () {
+        Route::get('/distribution/group-selection', [DistributionController::class, 'groupSelection'])->name('survey.group-selection');
+        Route::post('/distribution/finalize-distribution', [DistributionController::class, 'finalizeDistribution'])->name('survey.finalize-distribution');
+    });
+
+    // アンケート詳細設定画面（部署選択画面の次ステップ）
+    Route::get('/distribution/advanced-setting', function () {
+        return view('distribution.advanced_setting');
+    })->name('survey.advanced-setting');
+    //アンケート詳細画面のルート設定
+    Route::post('/distribution/advanced-setting/save', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
+
+    // 配信内容確認画面へ遷移
+    Route::get('/distribution/confirmation', function () {
+        return view('distribution.confirmation');
+    })->name('survey.confirmation');
+
+
+    // 配信内容確認画面
+    Route::get('/distribution/confirmation', function () {
+        return view('distribution.confirmation');
+    })->name('survey.confirmation');
+
+    // 実際に配信を実行
+    Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
 });
-
-
-
 
 // 認証関連のルート
 require __DIR__.'/auth.php';
