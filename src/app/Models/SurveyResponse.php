@@ -16,28 +16,26 @@ class SurveyResponse extends Model
         'free_message'
     ];
 
+    /**
+     * この回答が属するアンケート
+     */
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class, 'survey_id');
     }
 
-    public function surveyQuestion()
-    {
-        return $this->belongsTo('App\Models\SurveyQuestion');
-    }
-
-
-    public function surveyResponseDetail()
-    {
-        return $this->hasMany('App\Models\SurveyResponseDetail');
-    }
-
+    /**
+     * この回答をしたユーザー
+     */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function details(): HasMany
+    /**
+     * この回答に属する詳細回答（各設問への回答）
+     */
+    public function responseDetails(): HasMany
     {
         return $this->hasMany(SurveyResponseDetail::class, 'response_id');
     }

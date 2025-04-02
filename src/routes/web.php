@@ -7,12 +7,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MindMapController;
 use App\Http\Controllers\MeasureController;
 use App\Http\Controllers\DepartmentsController;
-use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
+use App\Http\Controllers\SurveyController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +138,12 @@ Route::group(['middleware' => ['mentor']], function () {
     Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
     Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
+});
+
+
 
 // 認証関連のルート
 require __DIR__.'/auth.php';
