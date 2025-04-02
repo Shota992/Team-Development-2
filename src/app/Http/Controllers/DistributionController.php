@@ -141,9 +141,6 @@ class DistributionController extends Controller
 
     public function saveSettings(Request $request)
     {
-        \Log::debug('📝 saveSettings に入ったよ！', [
-            'request_all' => $request->all()
-        ]);
         
         $sendType = $request->input('send_type');
         $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
