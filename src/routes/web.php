@@ -78,10 +78,12 @@ Route::middleware('auth')->group(function () {
 });
 
 
+// 認証関連のルート（FortifyとかJetstream使ってたら）
 Route::group(['middleware' => ['mentor']], function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
     Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
+
 
 require __DIR__.'/auth.php';
