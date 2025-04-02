@@ -4,7 +4,7 @@
 <div class="max-w-4xl mx-auto bg-white p-8 shadow-md">
     <h2 class="text-2xl font-bold mb-10">⚙️ アンケート詳細設定</h2>
 
-    <form method="POST">
+    <form id="detail-settings-form" method="POST" action="{{ route('survey.save-settings') }}">
         @csrf
 
         {{-- ✅ 配信日時を設定 --}}
@@ -77,8 +77,8 @@
 
         {{-- ✅ ボタンエリア --}}
         <div class="mt-10 text-center space-y-4">
-            {{-- 配信内容確認へ --}}
-            <a href="{{ route('survey.confirmation') }}" id="confirm-link"
+            {{-- 配信内容確認へ（aタグ + JSで submit） --}}
+            <a href="#" id="confirm-link"
                 class="inline-block w-60 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 text-center">
                 配信内容確認へ
             </a>
@@ -95,7 +95,7 @@
 </div>
 
 <script>
-    // ラジオボタンによる表示切り替え
+    // ✅ ラジオ切替でフォーム活性/非活性
     document.querySelectorAll('input[name="send_type"]').forEach(radio => {
         radio.addEventListener('change', () => {
             const isScheduled = document.querySelector('input[name="send_type"]:checked').value === 'schedule';
@@ -112,6 +112,7 @@
         });
     });
 
+    // ✅ ページ読み込み時 初期非活性
     window.addEventListener('DOMContentLoaded', () => {
         document.querySelector('input[name="scheduled_date"]').disabled = true;
         document.querySelector('input[name="scheduled_time"]').disabled = true;
@@ -119,11 +120,13 @@
         document.querySelector('input[name="deadline_time"]').disabled = true;
     });
 
-    // ✅ 保存中表示（リンクボタン用）
+    // ✅ 「配信内容確認へ」ボタンが押されたら form を submit
     document.getElementById('confirm-link')?.addEventListener('click', function (e) {
+        e.preventDefault();
         const link = this;
         link.classList.add('pointer-events-none', 'opacity-70');
         link.textContent = '保存中...';
+        document.getElementById('detail-settings-form').submit();
     });
 </script>
 @endsection

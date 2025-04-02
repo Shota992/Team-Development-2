@@ -8,6 +8,7 @@
 
     <form id="group-selection-form" method="POST" action="{{ route('survey.finalize-distribution') }}">
         @csrf
+        <input type="hidden" name="groups_json" id="groups-json">
 
         {{-- ✅ 部署選択セクション --}}
         <div id="department-sections" class="space-y-6 mb-6">
@@ -34,7 +35,7 @@
             </div>
         </div>
 
-        {{-- ✅ プラスボタン（部署を追加） --}}
+        {{-- ✅ プラスボタン --}}
         <div class="flex justify-center mb-6">
             <button type="button" onclick="addDepartmentBlock()" class="w-48 h-12 flex items-center justify-center space-x-2 bg-white border rounded-full shadow hover:bg-gray-100">
                 <span class="text-2xl text-[#C4C4C4]">＋</span>
@@ -44,14 +45,11 @@
 
         {{-- ✅ ボタンエリア --}}
         <div class="mt-10 flex flex-col items-center space-y-4">
-            {{-- 配信詳細設定へ --}}
-            <a id="next-button"
-                href="#"
+            <button type="submit" id="next-button"
                 class="inline-block w-60 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 text-center">
                 配信詳細設定へ
-            </a>
+            </button>
 
-            {{-- 戻る --}}
             <a href="{{ route('survey.create') }}"
                 class="inline-block w-60 py-3 bg-gray-300 text-gray-800 font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
                 戻る
@@ -60,7 +58,6 @@
     </form>
 </div>
 
-{{-- ✅ スタイル補正 --}}
 <style>
     .delete-btn {
         white-space: nowrap;
@@ -83,7 +80,7 @@
             const div = document.createElement('div');
             div.classList.add('flex', 'items-center', 'space-x-3', 'p-2', 'border', 'rounded', 'bg-gray-50');
             div.innerHTML = `
-                <input type="checkbox" name="users[]" value="${user.id}" checked class="form-checkbox text-blue-500">
+                <input type="checkbox" value="${user.id}" class="form-checkbox text-blue-500 user-checkbox" data-dept="${selectedDeptId}" checked>
                 <span>${user.name}（${user.position?.name || '役職なし'}）</span>
             `;
             userListDiv.appendChild(div);
@@ -119,28 +116,36 @@
         block.remove();
     }
 
-    // ✅ 「配信詳細設定へ」ボタン制御
-    document.getElementById('next-button').addEventListener('click', function (e) {
-    e.preventDefault();
+    // ✅ フォーム送信時に groups_json を構築して hidden に入れる
+    document.getElementById('group-selection-form').addEventListener('submit', function (e) {
+        const firstSelect = document.querySelector('.required-select');
+        if (!firstSelect || firstSelect.value === '') {
+            e.preventDefault();
+            alert('部署を一つ選んでください。');
+            return;
+        }
 
-    const firstSelect = document.querySelector('.required-select');
+        const groups = [];
 
-    if (!firstSelect || firstSelect.value === '') {
-        alert('部署を一つ選んでください。');
-        return;
-    }
+        document.querySelectorAll('.department-block').forEach(block => {
+            const deptSelect = block.querySelector('.department-select');
+            const deptId = deptSelect.value;
+            if (!deptId) return;
 
-    const button = this;
-    const originalText = button.textContent;
+            const userCheckboxes = block.querySelectorAll('.user-checkbox:checked');
+            const userIds = Array.from(userCheckboxes).map(cb => cb.value);
 
-    // ローディング表示
-    button.textContent = '保存中...';
-    button.classList.add('opacity-70', 'pointer-events-none');
+            groups.push({
+                department_id: deptId,
+                user_ids: userIds
+            });
+        });
 
-    // 疑似保存処理（今回は即遷移）
-    setTimeout(() => {
-        window.location.href = "{{ route('survey.advanced-setting') }}";
-    }, 500); // ほんの少しディレイ入れると自然です
-});
+        document.getElementById('groups-json').value = JSON.stringify(groups);
+
+        const button = document.getElementById('next-button');
+        button.textContent = '保存中...';
+        button.classList.add('opacity-70', 'pointer-events-none');
+    });
 </script>
 @endsection

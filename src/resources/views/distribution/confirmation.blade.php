@@ -11,25 +11,40 @@
         <p><strong>説明：</strong>{{ session('survey_input.description') }}</p>
     </div>
 
-    {{-- ✅ 配信対象部署（仮に部署ID表示。後で名前に変更可） --}}
+    {{-- ✅ 配信対象部署 --}}
     <div>
-        <h3 class="text-lg font-semibold border-b pb-2 mb-2">配信対象部署</h3>
-        @if(session('selected_departments'))
-            <ul class="list-disc list-inside">
-                @foreach(session('selected_departments') as $deptId)
-                    <li>部署ID: {{ $deptId }}</li>
-                @endforeach
-            </ul>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-2">配信対象部署とユーザー</h3>
+        @if(session('survey_selected_users_grouped'))
+            @foreach(session('survey_selected_users_grouped') as $dept => $userIds)
+                <div class="mb-4">
+                    <p class="font-semibold text-gray-700">{{ $dept }}</p>
+                    <ul class="list-disc list-inside ml-4 text-sm text-gray-800">
+                        @foreach($userIds as $userId)
+                            @php $user = \App\Models\User::find($userId); @endphp
+                            @if($user)
+                                <li>{{ $user->name }}（{{ $user->position->name ?? '役職なし' }}）</li>
+                            @endif
+                        @endforeach
+                    </ul>
+                </div>
+            @endforeach
         @else
             <p class="text-gray-500">選択された部署がありません。</p>
         @endif
     </div>
+    
+
+
 
     {{-- ✅ 配信設定 --}}
     <div>
         <h3 class="text-lg font-semibold border-b pb-2 mb-2">配信日時・期限</h3>
-        <p><strong>配信日時：</strong>{{ session('survey_input.start_date') }}</p>
-        <p><strong>提出期限：</strong>{{ session('survey_input.end_date') ?? '設定なし' }}</p>
+        <p><strong>配信日時：</strong>
+            {{ session('survey_input.start_date') ? \Carbon\Carbon::parse(session('survey_input.start_date'))->format('Y年m月d日 H:i') : '未設定' }}
+        </p>
+        <p><strong>提出期限：</strong>
+            {{ session('survey_input.end_date') ? \Carbon\Carbon::parse(session('survey_input.end_date'))->format('Y年m月d日 H:i') : '未設定' }}
+        </p>
     </div>
 
     {{-- ✅ 匿名設定 --}}
@@ -37,7 +52,7 @@
         <h3 class="text-lg font-semibold border-b pb-2 mb-2">匿名設定</h3>
         <p>
             <strong>
-                {{ session('survey_input.is_anonymous') ? '匿名で回答させる' : '名前を記入させる' }}
+                {{ session('survey_input.is_anonymous') == 1 ? '匿名で回答させる' : '名前を記入させる' }}
             </strong>
         </p>
     </div>
