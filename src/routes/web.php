@@ -109,6 +109,12 @@ Route::get('/measures', [MeasureController::class, 'index'])
     //アンケート詳細画面のルート設定
     Route::post('/distribution/advanced-setting/save', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
 
+    // 配信内容確認画面へ遷移
+    Route::get('/distribution/confirmation', function () {
+        return view('distribution.confirmation');
+    })->name('survey.confirmation');
+
+
     // 配信内容確認画面
     Route::get('/distribution/confirmation', function () {
         return view('distribution.confirmation');
