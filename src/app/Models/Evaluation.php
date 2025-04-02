@@ -22,4 +22,9 @@ class Evaluation extends Model
     {
         return $this->belongsTo(Measure::class);
     }
+
+    public function evaluationTask()
+    {
+        return $this->hasMany(EvaluationTask::class);
+    }
 }
