@@ -22,10 +22,16 @@
                 <p class="ml-2 text-2xl font-bold">施策の評価/改善</p>
             </div>
         </div>
-        <div class="text-gray-500 text-sm">評価/改善未対応施策一覧 > 施策の評価/改善 > （新入社員研修/Slackの使い方について理解する）</div>
+        <div class="text-gray-500 text-sm">
+            <a href="{{ route('measure.no-evaluation') }}">評価/改善未対応施策一覧</a> > 施策の評価/改善（{{ $measure->title }}）
+        </div>
         <!-- ヘッダー -->
         <div class="flex items-center justify-between bg-custom-gray text-white px-4 py-2 w-49/50 mt-4">
-            <span class="text-lg font-semibold">施策 (2025-03-25) ー (2025-07-20)</span>
+            <span class="text-lg font-semibold">施策 ({{ $measure->created_at->format('Y-m-d') }}) ～
+                @if ($measure->evaluation_status == 2 && $measure->evaluation->isNotEmpty())
+                    ({{ $measure->evaluation->max('created_at')->format('Y-m-d') }})
+                @endif
+            </span>
         </div>
         <!-- 内容 -->
         <div class="flex items-start p-4 px-8 font-semibold bg-white w-49/50">
