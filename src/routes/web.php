@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
-    Route::get('/items', [ItemController::class, 'index'])->name('item.index');
+    Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
 });
 
 // 認証が必要なルート
@@ -139,9 +139,6 @@ Route::group(['middleware' => ['mentor']], function () {
     Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
-});
 
 
 
