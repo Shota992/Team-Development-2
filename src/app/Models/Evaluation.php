@@ -10,7 +10,7 @@ class Evaluation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'measure_Id',
+        'measure_id',
         'keep',
         'try',
         'problem',
