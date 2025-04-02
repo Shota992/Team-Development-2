@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+
 
 
 class DistributionController extends Controller
@@ -98,25 +100,51 @@ class DistributionController extends Controller
 
     public function finalizeDistribution(Request $request)
     {
-        $surveyId = session('latest_survey_id');
+        $groupsJson = $request->input('groups_json');
 
-        foreach ($request->input('users', []) as $userId) {
-            DB::table('survey_user')->insert([
-                'survey_id' => $surveyId,
-                'user_id' => $userId,
-                'is_delivered' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        // ここでログ出力！ 👇
+        Log::debug('🚀 groups_json 受け取り', ['groups_json' => $groupsJson]);
+
+        $groups = json_decode($groupsJson, true);
+
+        // 念のため null チェック
+        if (!is_array($groups)) {
+            Log::error('❌ groups_json のパースに失敗しました', ['raw' => $groupsJson]);
+            return back()->with('error', 'データが正しく送信されていません');
         }
 
-        session(['survey_selected_users' => $request->input('users', [])]);
+        $groups = json_decode($groupsJson, true);
+
+        $selectedDepartments = [];
+        $selectedUsers = [];
+
+        foreach ($groups as $group) {
+            $deptId = $group['department_id'];
+            $dept = Department::find($deptId);
+
+            if ($dept) {
+                $selectedDepartments[] = $dept->name;
+                $selectedUsers[$dept->name] = $group['user_ids'];
+            }
+        }
+
+        session([
+            'selected_departments' => $selectedDepartments,
+            'survey_selected_users_grouped' => $selectedUsers
+        ]);
 
         return redirect()->route('survey.advanced-setting');
     }
 
+
+
+
     public function saveSettings(Request $request)
     {
+        \Log::debug('📝 saveSettings に入ったよ！', [
+            'request_all' => $request->all()
+        ]);
+        
         $sendType = $request->input('send_type');
         $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
 
@@ -140,7 +168,7 @@ class DistributionController extends Controller
             'survey_input.is_anonymous' => $isAnonymous,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'アンケートの詳細設定を保存しました！');
+        return redirect()->route('survey.confirmation');
     }
 
     public function sendSurvey(Request $request)
@@ -176,5 +204,11 @@ class DistributionController extends Controller
     session()->forget('survey_selected_users');
 
     return redirect()->route('dashboard')->with('success', 'アンケートが配信されました！');
+    }
+
+    public function confirmation()
+    {
+        Log::debug('🧾 確認画面に渡されたセッション', session('survey_input'));
+        return view('distribution.confirmation');
     }
 }
