@@ -231,7 +231,7 @@ class MeasureController extends Controller
             return false;
         });
 
-        return view('measures.evaluation', compact('measures', 'user'));
+        return view('measures.evaluation-list', compact('measures', 'user'));
     }
     public function evaluationDetail($id)
     {
