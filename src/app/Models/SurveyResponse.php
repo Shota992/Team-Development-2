@@ -12,7 +12,6 @@ class SurveyResponse extends Model
 
     protected $fillable = [
         'survey_id',
-        'user_id',
         'free_message'
     ];
 
@@ -30,11 +29,6 @@ class SurveyResponse extends Model
     public function surveyResponseDetail()
     {
         return $this->hasMany('App\Models\SurveyResponseDetail');
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     public function details(): HasMany
