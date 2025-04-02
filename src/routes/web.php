@@ -61,6 +61,8 @@ Route::get('/measures', [MeasureController::class, 'index'])
 
     Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
 
+    Route::post('/measures/evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
+
     Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.no-evaluation');
 
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
