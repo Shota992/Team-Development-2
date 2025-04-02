@@ -11,6 +11,8 @@ use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ChatDataController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +130,12 @@ Route::get('/measures', [MeasureController::class, 'index'])
 
     // 実際に配信を実行
     Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
+});
+
+Route::group(['middleware' => ['mentor']], function () {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
+    Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
 
 // 認証関連のルート
