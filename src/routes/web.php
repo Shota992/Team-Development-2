@@ -59,9 +59,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
 
-    Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
+    Route::get('/measures/no-evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
 
-    Route::post('/measures/evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
+    Route::post('/measures/no-evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
 
     Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.no-evaluation');
 

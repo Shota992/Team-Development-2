@@ -291,12 +291,22 @@ class MeasureController extends Controller
         if ($measure->status == 1) {
             $measure->status = 2; // statusを2に更新
             $measure->evaluation_status = 2; // evaluation_statusも2に更新
-        }
+        } else {
+            // 次回評価日を計算
+            $today = Carbon::today();
+            $intervalValue = $measure->evaluation_interval_value;
+            $intervalUnit = $measure->evaluation_interval_unit;
+
+            if ($intervalUnit === 'weeks') {
+                $measure->next_evaluation_date = $today->addWeeks($intervalValue);
+            } elseif ($intervalUnit === 'months') {
+                $measure->next_evaluation_date = $today->addMonths($intervalValue);
+            }}
 
         $measure->save(); // 更新を保存
 
 
-        return redirect()->route('evaluation.index')->with('success', '評価が追加されました。');
+        return redirect()->route('measures.evaluation-list')->with('success', '評価が追加されました。');
     } catch (\Exception $e) {
         // エラー時の処理
         return redirect()->back()->withErrors(['error' => '評価の保存中にエラーが発生しました。もう一度お試しください。 ']);
