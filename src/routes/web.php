@@ -36,7 +36,6 @@ Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('dashboard');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
-    Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.create');
     Route::get('/items', [ItemController::class, 'index'])->name('item.index');
 });
 
@@ -59,6 +58,8 @@ Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
 
     Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
+
+    Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.no-evaluation');
 
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
 

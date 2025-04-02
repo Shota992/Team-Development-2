@@ -22,18 +22,28 @@
                 <p class="ml-2 text-2xl font-bold">施策の評価/改善</p>
             </div>
         </div>
-        <div class="text-gray-500 text-sm">評価/改善未対応施策一覧 > 施策の評価/改善 > （新入社員研修/Slackの使い方について理解する）</div>
+        <div class="text-gray-500 text-sm">
+            <a href="{{ route('measure.no-evaluation') }}">評価/改善未対応施策一覧</a> > 施策の評価/改善（{{ $measure->title }}）
+        </div>
         <!-- ヘッダー -->
         <div class="flex items-center justify-between bg-custom-gray text-white px-4 py-2 w-49/50 mt-4">
-            <span class="text-lg font-semibold">施策 (2025-03-25) ー (2025-07-20)</span>
+            <span class="text-lg font-semibold">施策 ({{ $measure->created_at->format('Y-m-d') }}) ～
+                @if ($measure->evaluation_status == 2 && $measure->evaluation->isNotEmpty())
+                ({{ $measure->evaluation->max('created_at')->format('Y-m-d') }})
+                @endif
+            </span>
         </div>
         <!-- 内容 -->
         <div class="flex items-start p-4 px-8 font-semibold bg-white w-49/50">
-            新入社員研修/Slackの使い方について理解する
+            {{ $measure->title}}
         </div>
-        <div class="mt-6 bg-white text-black p-8 font-sans w-49/50">
+            @foreach ($measure->evaluation->sortByDesc('created_at') as $index => $evaluation)
+            <div class="mt-6 bg-white text-black p-8 font-sans w-49/50">
             <!-- タイトル -->
-            <h1 class="text-xl font-bold mb-4">●第1回の評価/改善 <span class="ml-4 text-gray-600">(2025/05/01)</span></h1>
+            <h1 class="text-xl font-bold mb-4">
+                ●第{{ $measure->evaluation->count() - $index }}回の評価/改善
+                <span class="ml-4 text-gray-600">({{ $evaluation->created_at->format('Y/m/d') }})</span>
+            </h1>
 
             <!-- 施策の実行状況 -->
             <section class="mb-6">
@@ -51,18 +61,34 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach ($evaluation->evaluationTask as $task)
                         <tr>
-                            <td class="border px-4 py-2">ウェビナーに参加する</td>
-                            <td class="border px-4 py-2">雫井 琴</td>
-                            <td class="border px-4 py-2 text-center">◎</td>
+                            <td class="border px-4 py-2">{{ $task->task->name }}</td>
+                            <td class="border px-4 py-2">{{ $task->task->user->name ?? '未割り当て' }}</td>
+                            <td class="border px-4 py-2 text-center">
+                                @switch($task->score)
+                                    @case(1)
+                                        ◎
+                                        @break
+                                    @case(2)
+                                        ◯
+                                        @break
+                                    @case(3)
+                                        △
+                                        @break
+                                    @case(4)
+                                        ✕
+                                        @break
+                                    @case(5)
+                                        ー
+                                        @break
+                                    @default
+                                        -
+                                @endswitch
+                            </td>
                             <td class="border px-4 py-2">計画より早めに対処できた</td>
                         </tr>
-                        <tr>
-                            <td class="border px-4 py-2">Wiki機能について理解する</td>
-                            <td class="border px-4 py-2">雫井 琴</td>
-                            <td class="border px-4 py-2 text-center">○</td>
-                            <td class="border px-4 py-2">計画通り実行できた</td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </section>
@@ -76,8 +102,7 @@
                         <h3 class="text-custom-blue font-bold text-center text-2xl">KEEP</h3>
                         <p class="text-custom-blue text-sm text-center mb-2">うまくいったこと/継続すべきこと</p>
                         <ul class="list-disc pl-6">
-                            <li>ああああああああああ</li>
-                            <li>ああああああああああああああああ</li>
+                            <li>{{ $evaluation->keep }}</li>
                         </ul>
                     </div>
 
@@ -86,8 +111,7 @@
                         <h3 class="text-red-500 font-bold text-center text-2xl">PROBLEM</h3>
                         <p class="text-red-400 text-sm text-center mb-2">うまくいかなかったこと/発生した課題</p>
                         <ul class="list-disc pl-6">
-                            <li>ああああああああああ</li>
-                            <li>ああああああああああああああああ</li>
+                            <li>{{ $evaluation->problem }}</li>
                         </ul>
                     </div>
 
@@ -96,13 +120,14 @@
                         <h3 class="text-green-500 font-bold text-center text-2xl">TRY</h3>
                         <p class="text-green-400 text-sm text-center mb-2">改善すべきこと/新たに実践すべきこと</p>
                         <ul class="list-disc pl-6">
-                            <li>ああああああああああ</li>
-                            <li>ああああああああああああああああ</li>
+                            <li>{{ $evaluation->try }}</li>
                         </ul>
                     </div>
                 </div>
             </section>
-        </div>
+            </div>
+            @endforeach
+            @if ($displayStatus == 1)
         <div class="mt-6 bg-white text-black p-8 font-sans w-49/50">
             <!-- タイトル -->
             <h1 class="text-xl font-bold mb-4">●第2回の評価/改善 <span class="ml-4 text-gray-600">(2025/05/01)</span></h1>
@@ -173,30 +198,21 @@
                     <div class="border border-custom-blue p-4">
                         <h3 class="text-custom-blue font-bold text-center text-2xl">KEEP</h3>
                         <p class="text-custom-blue text-sm text-center mb-2">うまくいったこと/継続すべきこと</p>
-                        <textarea
-                            class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none"
-                            rows="4"
-                            placeholder="こちらから入力します"></textarea>
+                        <textarea class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none" rows="4" placeholder="こちらから入力します"></textarea>
                     </div>
 
                     <!-- PROBLEM -->
                     <div class="border border-red-300 p-4">
                         <h3 class="text-red-500 font-bold text-center text-2xl">PROBLEM</h3>
                         <p class="text-red-400 text-sm text-center mb-2">うまくいかなかったこと/発生した課題</p>
-                        <textarea
-                            class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none"
-                            rows="4"
-                            placeholder="こちらから入力します"></textarea>
+                        <textarea class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none" rows="4" placeholder="こちらから入力します"></textarea>
                     </div>
 
                     <!-- TRY -->
                     <div class="border border-green-400 p-4">
                         <h3 class="text-green-500 font-bold text-center text-2xl">TRY</h3>
                         <p class="text-green-400 text-sm text-center mb-2">改善すべきこと/新たに実践すべきこと</p>
-                        <textarea
-                            class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none"
-                            rows="4"
-                            placeholder="こちらから入力します"></textarea>
+                        <textarea class="w-full border rounded p-2 focus:outline-none border-none focus:ring-0 resize-none" rows="4" placeholder="こちらから入力します"></textarea>
                     </div>
                 </div>
             </section>
@@ -209,5 +225,6 @@
         <div class="mt-8 mb-6 flex justify-center">
             <button class="bg-button-blue text-white px-12 py-2 rounded-full shadow text-xl font-bold">評価/改善未対応施策一覧へ</button>
         </div>
+        @endif
     </div>
 </body

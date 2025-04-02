@@ -194,8 +194,18 @@ class MeasureController extends Controller
 
     public function evaluationDetail($id)
     {
-        $measure = Measure::with(['tasks.user', 'evaluation.evaluationTask'])->findOrFail($id);
+        $currentDate = Carbon::today();
 
-        return view('measures.evaluation-detail', compact('measure'));
+        // Measureを取得し、関連データをロード
+        $measure = Measure::with(['tasks.user', 'evaluation.evaluationTask.task.user'])
+            ->orderBy('created_at', 'desc') // created_atの降順で並べる
+            ->findOrFail($id);
+
+        $displayStatus = 1;
+        if($measure->status == 2 || $measure->evaluation_status == 2) {
+            $displayStatus = 0;
+        }
+
+        return view('measures.evaluation-detail', compact('measure', 'displayStatus'));
     }
 }
