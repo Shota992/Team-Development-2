@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
             'email' => 'suzuki.takuma@example.com',
             'password' => Hash::make('Password123'),
             'birthday' => '1984-07-27',
-            'gender' => '0',
+            'gender' => rand(1, 3),
             'office_id' => 1,
             'department_id' => 1,
             'position_id' => 3,

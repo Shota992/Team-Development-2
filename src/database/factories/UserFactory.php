@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'email' => $this->faker->unique()->safeEmail,
             'password' => Hash::make('Password123'), // パスワードはハッシュ化して保存
             'birthday' => $this->faker->date,
-            'gender' => $this->faker->randomElement(['0', '1']), // 0:男性, 1:女性,
+            'gender' => $this->faker->randomElement(['1', '2', '3']), // 1:男性, 2:女性, 3:その他,
             'office_id' => null,
             'department_id' => null,
             'position_id' => null,

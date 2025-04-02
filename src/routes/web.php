@@ -91,6 +91,11 @@ Route::get('/measures', [MeasureController::class, 'index'])
         return view('components.sidebar');
     });
 
+//従業員一覧のルート設定
+    Route::middleware('auth')->group(function () {
+        Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
+        Route::delete('/setting/employee-delete/{id}', [SettingController::class, 'deleteEmployee'])->name('employee.delete');
+
     // 従業員アンケート
     Route::get('/survey/employee', function () {
         return view('survey.employee_survey');
@@ -124,9 +129,6 @@ Route::get('/measures', [MeasureController::class, 'index'])
     Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
 });
 
-
-
-
-
 // 認証関連のルート
 require __DIR__.'/auth.php';
+});
