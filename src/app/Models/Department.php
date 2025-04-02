@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Department extends Model
 {
@@ -33,8 +33,9 @@ class Department extends Model
         return $this->belongsTo('App\Models\Office');
     }
 
+    // 修正：外部キーとして 'department_id' を明示的に指定する
     public function surveyQuestion()
     {
-        return $this->hasMany('App\Models\SurveyQuestion');
+        return $this->hasMany('App\Models\SurveyQuestion', 'department_id');
     }
 }

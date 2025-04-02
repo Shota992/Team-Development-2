@@ -8,7 +8,10 @@ use App\Models\Measure;
 use App\Models\Task;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Evaluation;
+use App\Models\EvaluationTask;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class MeasureController extends Controller
@@ -98,29 +101,48 @@ class MeasureController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'title'                   => 'required|string|max:255',
             'description'             => 'required|string',
             'department_id'           => 'required|exists:departments,id',
+            'task_name'               => 'required|array|min:1',
             'evaluation_frequency'    => 'required|in:1,3,6,12,custom',
             'custom_frequency_value'  => 'required_if:evaluation_frequency,custom|integer|min:1',
             'custom_frequency_unit'   => 'required_if:evaluation_frequency,custom|in:weeks,months',
-
             'task_name.*'             => 'required|string|max:255',
+            'task_department_id'      => 'required|array',
             'task_department_id.*'    => 'required|exists:departments,id',
+            'assignee'                => 'required|array',
             'assignee.*'              => 'required|exists:users,id',
+            'start_date_task'         => 'required|array',
             'start_date_task.*'       => 'required|date',
-            'end_date_task.*'         => 'required|date|after_or_equal:start_date_task.*',
+            'end_date_task'           => 'required|array',
+            'end_date_task.*'         => [
+                'required',
+                'date',
+                function($attribute, $value, $fail) use ($request) {
+                    $index = explode('.', $attribute)[1];
+                    $start = $request->input("start_date_task.$index");
+                    if ($start && $value < $start) {
+                        $fail("タスク".($index+1)."の終了日は開始日以降である必要があります。");
+                    }
+                },
+            ],
         ]);
 
         /** @var Carbon $today */
         $today = Carbon::today();
+
         if ($request->evaluation_frequency === 'custom') {
-            $next = $request->custom_frequency_unit === 'weeks'
-                ? $today->addWeeks($request->custom_frequency_value)->next(Carbon::MONDAY)
-                : $today->addMonths($request->custom_frequency_value)->startOfMonth();
+            $value = $request->custom_frequency_value;
+            if ($request->custom_frequency_unit === 'weeks') {
+                $nextEvaluationDate = $today->addWeeks($value)->next(Carbon::MONDAY);
+            } else {
+                $nextEvaluationDate = $today->addMonths($value)->startOfMonth();
+            }
         } else {
-            $next = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
+            $nextEvaluationDate = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
         }
 
         $measure = DB::transaction(function () use ($request, $next, &$measure) {
@@ -138,7 +160,6 @@ class MeasureController extends Controller
                 'evaluation_status'        => 'pending',
                 'next_evaluation_date'     => $next,
             ]);
-
             foreach ($request->task_name as $i => $name) {
                 $measure->tasks()->create([
                     'name'          => $name,
@@ -202,10 +223,50 @@ class MeasureController extends Controller
             ->findOrFail($id);
 
         $displayStatus = 1;
-        if($measure->status == 2 || $measure->evaluation_status == 2) {
+        if ($measure->status == 2 || $measure->evaluation_status == 2) {
             $displayStatus = 0;
         }
 
         return view('measures.evaluation-detail', compact('measure', 'displayStatus'));
     }
+
+    public function storeEvaluation(Request $request, $id)
+{
+    // バリデーション
+    $validated = $request->validate([
+        'keep' => 'required|string|max:1000',
+        'problem' => 'required|string|max:1000',
+        'try' => 'required|string|max:1000',
+        'tasks' => 'required|array',
+        'tasks.*.score' => 'required|integer|min:1|max:5',
+        'tasks.*.comment' => 'nullable|string|max:255',
+    ]);
+
+    try {
+        $measure = Measure::findOrFail($id);
+
+        // 改善点の保存
+        $evaluation = Evaluation::create([
+            'measure_id' => $measure->id,
+            'keep' => $validated['keep'],
+            'problem' => $validated['problem'],
+            'try' => $validated['try'],
+        ]);
+
+        // タスク情報の保存
+        foreach ($validated['tasks'] as $taskId => $taskData) {
+            EvaluationTask::create([
+                'evaluation_id' => $evaluation->id, // 作成したEvaluationのIDを使用
+                'task_id' => $taskId,
+                'score' => $taskData['score'],
+                'comment' => $taskData['comment'] ?? null, // コメントはnullable
+            ]);
+        }
+
+        return redirect()->route('evaluation.index')->with('success', '評価が追加されました。');
+    } catch (\Exception $e) {
+        // エラー時の処理
+        return redirect()->back()->withErrors(['error' => '評価の保存中にエラーが発生しました。もう一度お試しください。 ']);
+    }
+}
 }
