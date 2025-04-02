@@ -213,6 +213,26 @@ class MeasureController extends Controller
         return view('measures/no-evaluation', compact('measures', 'user'));
     }
 
+    public function evaluationList(Request $request)
+    {
+        $user = auth()->user();
+        $currentDate = Carbon::today();
+
+        $measures = Measure::with(['tasks.user', 'evaluation'])->get()->filter(function ($measure) use ($currentDate) {
+            // まず、完全完了（status=2 または evaluation_status=2）のものを表示する
+            if ($measure->status == 2 || $measure->evaluation_status == 2) {
+                return true;
+            }
+
+            if ($measure->evaluation_status == 1) {
+                return true;
+            }
+
+            return false;
+        });
+
+        return view('measures.evaluation', compact('measures', 'user'));
+    }
     public function evaluationDetail($id)
     {
         $currentDate = Carbon::today();
@@ -262,6 +282,19 @@ class MeasureController extends Controller
                 'comment' => $taskData['comment'] ?? null, // コメントはnullable
             ]);
         }
+
+        // 状態の更新
+        if ($measure->evaluation_status == 0) {
+            $measure->evaluation_status = 1; // evaluation_statusを1に更新
+        }
+
+        if ($measure->status == 1) {
+            $measure->status = 2; // statusを2に更新
+            $measure->evaluation_status = 2; // evaluation_statusも2に更新
+        }
+
+        $measure->save(); // 更新を保存
+
 
         return redirect()->route('evaluation.index')->with('success', '評価が追加されました。');
     } catch (\Exception $e) {
