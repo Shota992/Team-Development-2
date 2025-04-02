@@ -5,20 +5,24 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Survey;
 use App\Models\SurveyQuestion;
+use App\Models\User;
+use App\Models\Department;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
+
+
 
 class DistributionController extends Controller
 {
-    // アンケート作成画面を表示
     public function create()
     {
-        // 設問を ID の昇順で取得
         $questions = SurveyQuestion::with('surveyQuestionOptions')->orderBy('id', 'asc')->get();
-
         return view('distribution.survey_create', compact('questions'));
     }
 
-    // アンケートを保存
     public function store(Request $request)
     {
         $request->validate([
@@ -35,7 +39,6 @@ class DistributionController extends Controller
             'questions.*.common_status' => 'required|boolean',
         ]);
 
-        // アンケートの保存
         $survey = Survey::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -45,14 +48,13 @@ class DistributionController extends Controller
             'department_id' => $request->department_id,
         ]);
 
-        // 設問の保存
         foreach ($request->questions as $questionData) {
             SurveyQuestion::create([
                 'title' => $questionData['title'] ?? '未設定',
                 'text' => $questionData['text'] ?? '未設定',
                 'description' => $questionData['description'] ?? null,
                 'common_status' => $questionData['common_status'] ?? 0,
-                'display_status' => true, // デフォルトは表示
+                'display_status' => true,
             ]);
         }
 
@@ -63,7 +65,6 @@ class DistributionController extends Controller
     {
         $question = SurveyQuestion::findOrFail($id);
 
-        // common_status が true の設問は変更不可
         if ($question->common_status) {
             return response()->json([
                 'success' => false,
@@ -80,7 +81,7 @@ class DistributionController extends Controller
         ]);
     }
 
-    public function saveToSession(Request $request): \Illuminate\Http\JsonResponse
+    public function saveToSession(Request $request): JsonResponse
     {
         session([
             'survey_input.name' => $request->input('name'),
@@ -90,5 +91,124 @@ class DistributionController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function groupSelection()
+    {
+        $users = User::with('position')->get();
+        $departments = Department::all();
+        return view('distribution.group_selection', compact('users', 'departments'));
+    }
 
+    public function finalizeDistribution(Request $request)
+    {
+        $groupsJson = $request->input('groups_json');
+
+        // ここでログ出力！ 👇
+        Log::debug('🚀 groups_json 受け取り', ['groups_json' => $groupsJson]);
+
+        $groups = json_decode($groupsJson, true);
+
+        // 念のため null チェック
+        if (!is_array($groups)) {
+            Log::error('❌ groups_json のパースに失敗しました', ['raw' => $groupsJson]);
+            return back()->with('error', 'データが正しく送信されていません');
+        }
+
+        $groups = json_decode($groupsJson, true);
+
+        $selectedDepartments = [];
+        $selectedUsers = [];
+
+        foreach ($groups as $group) {
+            $deptId = $group['department_id'];
+            $dept = Department::find($deptId);
+
+            if ($dept) {
+                $selectedDepartments[] = $dept->name;
+                $selectedUsers[$dept->name] = $group['user_ids'];
+            }
+        }
+
+        session([
+            'selected_departments' => $selectedDepartments,
+            'survey_selected_users_grouped' => $selectedUsers
+        ]);
+
+        return redirect()->route('survey.advanced-setting');
+    }
+
+
+
+
+    public function saveSettings(Request $request)
+    {
+        \Log::debug('📝 saveSettings に入ったよ！', [
+            'request_all' => $request->all()
+        ]);
+        
+        $sendType = $request->input('send_type');
+        $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
+
+        $startDate = null;
+        $endDate = null;
+
+        if ($sendType === 'schedule') {
+            $startDate = Carbon::parse($request->input('scheduled_date') . ' ' . $request->input('scheduled_time'));
+        } elseif ($sendType === 'now') {
+            $startDate = now();
+        }
+
+        if ($request->filled('deadline_date') && $request->filled('deadline_time')) {
+            $endDate = Carbon::parse($request->input('deadline_date') . ' ' . $request->input('deadline_time'));
+        }
+
+        session([
+            'survey_input.send_type' => $sendType,
+            'survey_input.start_date' => $startDate,
+            'survey_input.end_date' => $endDate,
+            'survey_input.is_anonymous' => $isAnonymous,
+        ]);
+
+        return redirect()->route('survey.confirmation');
+    }
+
+    public function sendSurvey(Request $request)
+    {
+    $input = session('survey_input');
+
+    // 📝 Survey作成
+    $survey = Survey::create([
+        'name'         => $input['name'] ?? 'タイトル未設定',
+        'description'  => $input['description'] ?? null,
+        'start_date'   => $input['start_date'] ?? now(),
+        'end_date'     => $input['end_date'] ?? null,
+        'office_id'    => auth()->user()->office_id,
+        'department_id' => null, // 部署単体ではなく複数選択のためnull
+        'is_active'    => true,
+    ]);
+
+    // ✅ ユーザー情報保存（group_selectionで選択したusers[]がセッションに入っている想定）
+    $selectedUserIds = session('survey_selected_users', []);
+
+    foreach ($selectedUserIds as $userId) {
+        DB::table('survey_user')->insert([
+            'survey_id' => $survey->id,
+            'user_id' => $userId,
+            'is_delivered' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    // ✅ 完了後セッションをクリア（必要なら）
+    session()->forget('survey_input');
+    session()->forget('survey_selected_users');
+
+    return redirect()->route('dashboard')->with('success', 'アンケートが配信されました！');
+    }
+
+    public function confirmation()
+    {
+        Log::debug('🧾 確認画面に渡されたセッション', session('survey_input'));
+        return view('distribution.confirmation');
+    }
 }
