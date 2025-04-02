@@ -97,3 +97,4 @@ Route::get('/measures', [MeasureController::class, 'index'])
 
 // 認証関連のルート
 require __DIR__.'/auth.php';
+});
