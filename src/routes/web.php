@@ -58,6 +58,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/measures', [MeasureController::class, 'index'])
     ->name('measures.index');
 
+    Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
+
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
 
     Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
