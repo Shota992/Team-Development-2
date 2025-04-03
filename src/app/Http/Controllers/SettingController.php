@@ -48,4 +48,33 @@ class SettingController extends Controller
         return redirect()->back()->with('success', '従業員を削除しました。');
     }
 
+    public function createEmployee()
+    {
+        $officeId = Auth::user()->office_id;
+        $departments = Department::where('office_id', $officeId)->get();
+        $positions = Position::where('office_id', $officeId)->get();
+    
+        return view('set.employee_registration', compact('departments', 'positions'));
+    }
+    
+    public function storeEmployee(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'gender' => 'required|in:1,2,3',
+            'birthday' => 'nullable|date',
+            'position_id' => 'required|exists:positions,id',
+            'email' => 'required|email|unique:users,email',
+            'department_id' => 'required|exists:departments,id',
+        ]);
+    
+        $validated['office_id'] = Auth::user()->office_id;
+    
+        User::create($validated);
+    
+        return redirect()->route('setting.employee-list')->with('success', '従業員を登録しました。');
+    }
+    
+
+
 }
