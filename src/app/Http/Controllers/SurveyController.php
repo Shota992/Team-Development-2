@@ -9,15 +9,24 @@ use App\Models\SurveyResponseOptionDetail;
 use App\Models\SurveyResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use App\Models\Department;
+use Illuminate\Http\Request;
 
 class SurveyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $departmentId = $user->department_id;
-
-        $surveys = Survey::where('department_id', $departmentId)
+        $officeId = $user->office_id;
+    
+        // 全部署取得（所属オフィスのみ）
+        $departments = Department::where('office_id', $officeId)->get();
+    
+        // 表示対象の部署ID（クエリパラメータ or デフォルト: 自部署）
+        $selectedDepartmentId = $request->input('department_id', $user->department_id);
+    
+        // ↓ 現在の $departmentId を $selectedDepartmentId に置き換えるだけでOK
+        $surveys = Survey::where('department_id', $selectedDepartmentId)
             ->orderBy('end_date', 'desc')
             ->take(6)
             ->get();
@@ -29,7 +38,9 @@ class SurveyController extends Controller
             ]);
         }
 
-        $surveyDates = $surveys->slice(1)->pluck('end_date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
+        $surveyDates = $surveys->slice(1)->pluck('end_date')->map(function($d) {
+            return Carbon::parse($d)->format('Y-m-d');
+        })->toArray();
         $causeDates = $surveys->pluck('end_date')->map(fn($d) => Carbon::parse($d)->format('n/j'))->reverse()->values()->toArray();
 
         $questions = SurveyQuestion::where(function ($q) {
@@ -128,14 +139,10 @@ class SurveyController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
-        return view('items.index', compact(
-            'cards',
-            'surveyDates',
-            'questions',
-            'ratingDistributions',
-            'causeTables',
-            'causeDates',
-            'comments'
-        ));
+            return view('items.index', compact(
+                'departments', 'selectedDepartmentId',
+                'cards', 'surveyDates', 'questions',
+                'ratingDistributions', 'causeTables', 'causeDates', 'comments'
+            ));
     }
 }

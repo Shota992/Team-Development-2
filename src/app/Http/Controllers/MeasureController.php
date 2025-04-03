@@ -8,7 +8,10 @@ use App\Models\Measure;
 use App\Models\Task;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Evaluation;
+use App\Models\EvaluationTask;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class MeasureController extends Controller
@@ -220,10 +223,50 @@ class MeasureController extends Controller
             ->findOrFail($id);
 
         $displayStatus = 1;
-        if($measure->status == 2 || $measure->evaluation_status == 2) {
+        if ($measure->status == 2 || $measure->evaluation_status == 2) {
             $displayStatus = 0;
         }
 
         return view('measures.evaluation-detail', compact('measure', 'displayStatus'));
     }
+
+    public function storeEvaluation(Request $request, $id)
+{
+    // バリデーション
+    $validated = $request->validate([
+        'keep' => 'required|string|max:1000',
+        'problem' => 'required|string|max:1000',
+        'try' => 'required|string|max:1000',
+        'tasks' => 'required|array',
+        'tasks.*.score' => 'required|integer|min:1|max:5',
+        'tasks.*.comment' => 'nullable|string|max:255',
+    ]);
+
+    try {
+        $measure = Measure::findOrFail($id);
+
+        // 改善点の保存
+        $evaluation = Evaluation::create([
+            'measure_id' => $measure->id,
+            'keep' => $validated['keep'],
+            'problem' => $validated['problem'],
+            'try' => $validated['try'],
+        ]);
+
+        // タスク情報の保存
+        foreach ($validated['tasks'] as $taskId => $taskData) {
+            EvaluationTask::create([
+                'evaluation_id' => $evaluation->id, // 作成したEvaluationのIDを使用
+                'task_id' => $taskId,
+                'score' => $taskData['score'],
+                'comment' => $taskData['comment'] ?? null, // コメントはnullable
+            ]);
+        }
+
+        return redirect()->route('evaluation.index')->with('success', '評価が追加されました。');
+    } catch (\Exception $e) {
+        // エラー時の処理
+        return redirect()->back()->withErrors(['error' => '評価の保存中にエラーが発生しました。もう一度お試しください。 ']);
+    }
+}
 }

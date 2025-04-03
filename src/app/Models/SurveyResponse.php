@@ -12,7 +12,6 @@ class SurveyResponse extends Model
 
     protected $fillable = [
         'survey_id',
-        'user_id',
         'free_message'
     ];
 
@@ -24,12 +23,21 @@ class SurveyResponse extends Model
         return $this->belongsTo(Survey::class, 'survey_id');
     }
 
-    /**
-     * この回答をしたユーザー
-     */
+
+    public function surveyQuestion()
+    {
+        return $this->belongsTo('App\Models\SurveyQuestion');
+    }
+
+
+    public function surveyResponseDetail()
+    {
+        return $this->hasMany('App\Models\SurveyResponseDetail');
+    }
+
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     /**
