@@ -46,7 +46,8 @@
                     <!-- ▼ 施策 -->
                     <tr class="border-t">
                         <td class="px-4 py-2 border w-1/3 border-chart-border-gray font-medium text-sky-500 cursor-pointer toggle-btn" data-target="task-{{ $measure->id }}">
-                            {{ $measure->title }} <span class="arrow text-black">▶</span>
+                            <a href="{{ route('measures.evaluation-list-detail', ['id' => $measure->id]) }}" class="hover:underline toggle-disable">
+                                {{ $measure->title }}</a><span class="arrow ml-3 text-black">▶</span>
                         </td>
                         <td class="px-4 py-2 border border-chart-border-gray text-center">
                             @php
@@ -126,6 +127,13 @@
 
                     // 矢印の表示を切り替え
                     arrow.textContent = isHidden ? "▼" : "▶";
+                });
+            });
+
+            const links = document.querySelectorAll(".toggle-disable");
+            links.forEach(link => {
+                link.addEventListener("click", function(event) {
+                    event.stopPropagation(); // クリックイベントの伝播を停止
                 });
             });
         });
