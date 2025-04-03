@@ -145,4 +145,14 @@ class SurveyController extends Controller
                 'ratingDistributions', 'causeTables', 'causeDates', 'comments'
             ));
     }
+
+    public function employeeSurveyShow($id)
+    {
+        $user = Auth::user();
+
+        $surveys = Survey::where('id', $id)->get();
+        $surveyItems = SurveyQuestion::all();
+
+        return view('items.index', compact('survey', 'surveyItems'));
+    }
 }
