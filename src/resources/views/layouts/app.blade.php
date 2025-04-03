@@ -13,5 +13,6 @@
     <div id="app">
         @yield('content')
     </div>
+    @yield('scripts')
 </body>
 </html>

@@ -15,10 +15,14 @@ class SurveyResponse extends Model
         'free_message'
     ];
 
+    /**
+     * この回答が属するアンケート
+     */
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class, 'survey_id');
     }
+
 
     public function surveyQuestion()
     {
@@ -31,7 +35,15 @@ class SurveyResponse extends Model
         return $this->hasMany('App\Models\SurveyResponseDetail');
     }
 
-    public function details(): HasMany
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+
+    /**
+     * この回答に属する詳細回答（各設問への回答）
+     */
+    public function responseDetails(): HasMany
     {
         return $this->hasMany(SurveyResponseDetail::class, 'response_id');
     }
