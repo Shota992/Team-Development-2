@@ -170,37 +170,51 @@ class DistributionController extends Controller
 
     public function sendSurvey(Request $request)
     {
-    $input = session('survey_input');
+        $input = session('survey_input');
 
-    // 📝 Survey作成
-    $survey = Survey::create([
-        'name'         => $input['name'] ?? 'タイトル未設定',
-        'description'  => $input['description'] ?? null,
-        'start_date'   => $input['start_date'] ?? now(),
-        'end_date'     => $input['end_date'] ?? null,
-        'office_id'    => auth()->user()->office_id,
-        'department_id' => null, // 部署単体ではなく複数選択のためnull
-        'is_active'    => true,
-    ]);
+        // ✅ 1つ目の部署名からIDを取得（仮対応）
+        $deptNames = session('selected_departments', []);
+        $firstDepartmentName = $deptNames[0] ?? null;
+        $firstDepartmentId = null;
 
-    // ✅ ユーザー情報保存（group_selectionで選択したusers[]がセッションに入っている想定）
-    $selectedUserIds = session('survey_selected_users', []);
+        if ($firstDepartmentName) {
+            $deptModel = \App\Models\Department::where('name', $firstDepartmentName)->first();
+            if ($deptModel) {
+                $firstDepartmentId = $deptModel->id;
+            }
+        }
 
-    foreach ($selectedUserIds as $userId) {
-        DB::table('survey_user')->insert([
-            'survey_id' => $survey->id,
-            'user_id' => $userId,
-            'is_delivered' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
+        // 📝 Survey作成（department_idにNULLは入れない）
+        $survey = Survey::create([
+            'name'         => $input['name'] ?? 'タイトル未設定',
+            'description'  => $input['description'] ?? null,
+            'start_date'   => $input['start_date'] ?? now(),
+            'end_date'     => $input['end_date'] ?? null,
+            'office_id'    => auth()->user()->office_id,
+            'department_id' => $firstDepartmentId, // ←重要！！
+            'is_active'    => true,
         ]);
-    }
 
-    // ✅ 完了後セッションをクリア（必要なら）
-    session()->forget('survey_input');
-    session()->forget('survey_selected_users');
+        // ✅ ユーザー情報保存
+        $selectedUserIds = session('survey_selected_users', []);
+        foreach ($selectedUserIds as $userId) {
+            DB::table('survey_user')->insert([
+                'survey_id' => $survey->id,
+                'user_id' => $userId,
+                'is_delivered' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
-    return redirect()->route('dashboard')->with('success', 'アンケートが配信されました！');
+        // ✅ セッション片付け
+        session()->forget('survey_input');
+        session()->forget('survey_selected_users');
+        session()->forget('selected_departments');
+        session()->forget('survey_selected_users_grouped');
+
+        // ✅ 配信完了画面へリダイレクト
+        return redirect()->route('survey.completion');
     }
 
     public function confirmation()
