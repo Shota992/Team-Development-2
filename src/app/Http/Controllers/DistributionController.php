@@ -12,6 +12,9 @@ use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SurveyNotificationMail;
+
 
 
 
@@ -194,6 +197,17 @@ class DistributionController extends Controller
             'department_id' => $firstDepartmentId, // ←重要！！
             'is_active'    => true,
         ]);
+
+        // ✅ ユーザーにメール送信
+        $grouped = session('survey_selected_users_grouped', []);
+        foreach ($grouped as $deptName => $userIds) {
+            foreach ($userIds as $userId) {
+                $user = \App\Models\User::find($userId);
+                if ($user) {
+                    Mail::to($user->email)->send(new SurveyNotificationMail($survey, $user));
+                }
+            }
+        }
 
         // ✅ ユーザー情報保存
         $selectedUserIds = session('survey_selected_users', []);
