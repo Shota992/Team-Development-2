@@ -10,7 +10,7 @@
         <!-- タイトル -->
         <div class="flex flex-col items-center">
             <div class="mt-4 bg-white shadow-md rounded-lg w-full max-w-3xl">
-                <div class="h-8 bg-blue-300 rounded-t-lg"></div>
+                <div class="h-8 bg-button-blue rounded-t-lg"></div>
                 <div class="p-6">
                     <h2 class="font-bold text-xl">社内改善アンケートへのご協力のお願い</h2>
                     <p class="mt-2 text-base leading-relaxed">
@@ -26,10 +26,10 @@
         </div>
     
         <!-- 進捗バー -->
-        <div class="w-full max-w-3xl mx-auto my-4">
-            <p class="text-sm text-gray-700">15%</p>
-            <div class="w-full h-2 bg-gray-200 rounded-full">
-                <div class="w-1/6 h-full bg-blue-500 rounded-full"></div>
+        <div class="w-full flex max-w-3xl mx-auto my-4">
+            <p class="text-lg font-bold text-gray-700 mr-4 pt-1">15%</p>
+            <div class="w-full h-2 bg-gray-200 rounded-full mt-4">
+                <div class="w-1/6 h-full bg-button-blue rounded-full"></div>
             </div>
         </div>
     
@@ -41,18 +41,18 @@
                 </h3>
                 <div class="flex justify-between items-center my-6 px-6">
                     <span class="font-bold">満足している</span>
-                    <div class="flex gap-4 items-center">
+                    <div class="flex gap-12 items-center">
                         <input type="radio" name="satisfaction" id="choice-5" class="hidden">
-                        <label for="choice-5" class="w-14 h-14 border-4 border-blue-500 rounded-full block"></label>
+                        <label for="choice-5" class="w-14 h-14 border-4 border-custom-blue rounded-full block"></label>
     
                         <input type="radio" name="satisfaction" id="choice-4" class="hidden">
-                        <label for="choice-4" class="w-10 h-10 border-4 border-blue-500 rounded-full block"></label>
+                        <label for="choice-4" class="w-12 h-12 border-4 border-custom-blue rounded-full block"></label>
     
                         <input type="radio" name="satisfaction" id="choice-3" class="hidden">
-                        <label for="choice-3" class="w-8 h-8 border-4 border-gray-300 rounded-full block"></label>
+                        <label for="choice-3" class="w-10 h-10 border-4 border-gray-300 rounded-full block"></label>
     
                         <input type="radio" name="satisfaction" id="choice-2" class="hidden">
-                        <label for="choice-2" class="w-10 h-10 border-4 border-red-300 rounded-full block"></label>
+                        <label for="choice-2" class="w-12 h-12 border-4 border-red-300 rounded-full block"></label>
     
                         <input type="radio" name="satisfaction" id="choice-1" class="hidden">
                         <label for="choice-1" class="w-14 h-14 border-4 border-red-300 rounded-full block"></label>
@@ -68,23 +68,23 @@
             </h3>
             <div class="mt-4 flex flex-col space-y-4 w-full max-w-md"> 
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5"> 
+                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
                     <span class="leading-none">既存のお客様との取引が安定していると感じるため</span>
                 </label>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5"> 
+                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
                     <span class="leading-none">新規顧客の獲得が順調であると感じるため</span>
                 </label>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5"> 
+                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
                     <span class="leading-none">顧客との関係性が強く、長期的な信頼が築けているため</span>
                 </label>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5"> 
+                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
                     <span class="leading-none">顧客の入れ替わりが激しく、不安定であると感じるため</span>
                 </label>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5"> 
+                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
                     <span class="leading-none">競合他社と比較して、当社の顧客基盤に不安を感じるため</span>
                 </label>
 
@@ -101,7 +101,7 @@
     
             <!-- 次へボタン -->
             <div class="mt-10">
-                <button class="bg-blue-300 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95" id="next-btn">
+                <button class="bg-button-blue text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95 mb-6" id="next-btn">
                     次へ →
                 </button>
             </div>

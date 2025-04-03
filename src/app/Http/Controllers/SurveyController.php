@@ -153,6 +153,6 @@ class SurveyController extends Controller
         $surveys = Survey::where('id', $id)->get();
         $surveyItems = SurveyQuestion::all();
 
-        return view('items.index', compact('survey', 'surveyItems'));
+        return view('survey.employee-survey', compact('surveys', 'surveyItems'));
     }
 }
