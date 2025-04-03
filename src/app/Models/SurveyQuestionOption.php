@@ -5,33 +5,32 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SurveyQuestionOption extends Model
 {
-
     use HasFactory;
 
     protected $table = 'survey_question_options';
 
     protected $fillable = [
-        'option',
-        'survey_question_id',
-        'question_id', 'text'
+        'question_id',
+        'text',
     ];
 
-    public function surveyQuestion()
-    {
-        return $this->belongsTo('App\Models\SurveyQuestion');
-    }
-
+    /**
+     * 紐づく設問（SurveyQuestion）
+     */
     public function question(): BelongsTo
     {
         return $this->belongsTo(SurveyQuestion::class, 'question_id');
     }
 
-    public function surveyResponseOptionDetail()
+    /**
+     * この選択肢に対する回答（複数）
+     */
+    public function surveyResponseOptionDetails()
     {
-        return $this->hasMany('App\Models\SurveyResponseOptionDetail');
-
+        return $this->hasMany(SurveyResponseOptionDetail::class, 'option_id');
     }
 }

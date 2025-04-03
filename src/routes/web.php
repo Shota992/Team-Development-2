@@ -13,6 +13,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
+use App\Http\Controllers\SurveyQuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,11 +102,13 @@ Route::group(['middleware' => ['mentor']], function () {
     Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
 
-// 項目一覧
-Route::get('/item_list', function () {
-    return view('Configuration file.item_list');
-});
-// 項目追加
-Route::get('/item_create', function () {
-    return view('Configuration file.item_create');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/configuration-file/item_list', [SurveyQuestionController::class, 'index'])->name('survey_questions.index');
+    Route::get('/configuration-file/item_create', [SurveyQuestionController::class, 'create'])->name('survey_questions.create');
+    Route::post('/configuration-file/item_store', [SurveyQuestionController::class, 'store'])->name('survey_questions.store');
+
+    // 編集・更新・削除ルート（追加）
+    Route::get('/configuration-file/item_edit/{id}', [SurveyQuestionController::class, 'edit'])->name('survey_questions.edit');
+    Route::put('/configuration-file/item_update/{id}', [SurveyQuestionController::class, 'update'])->name('survey_questions.update');
+    Route::delete('/configuration-file/item_delete/{id}', [SurveyQuestionController::class, 'destroy'])->name('survey_questions.destroy');
 });
