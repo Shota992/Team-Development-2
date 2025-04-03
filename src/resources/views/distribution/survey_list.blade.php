@@ -17,25 +17,25 @@
         </form>
     </div>
 
-    <div class="bg-[#FEFEFE] shadow-md shadow-black/25 rounded p-6">
-        <div class="overflow-x-auto border border-gray-300 rounded">
+    <div class="bg-[#FEFEFE] shadow-md shadow-black/25 rounded p-0">
+        <div class="overflow-x-auto border border-[#C4C4C4] rounded">
             <table class="min-w-full border-collapse text-sm text-center">
-                <thead class="bg-white border-b border-gray-300 text-gray-700">
+                <thead class="bg-[#EBEBEB] text-gray-700">
                     <tr>
-                        <th class="px-4 py-2 border-b">タイトル</th>
-                        <th class="px-4 py-2 border-b">部署</th>
-                        <th class="px-4 py-2 border-b">ステータス</th>
-                        <th class="px-4 py-2 border-b">回答数（回答率）</th>
-                        <th class="px-4 py-2 border-b">配信日</th>
-                        <th class="px-4 py-2 border-b">提出期限</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">タイトル</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">部署</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">ステータス</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">回答数（回答率）</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">配信日</th>
+                        <th class="px-4 py-2 border border-[#C4C4C4]">提出期限</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($surveys as $survey)
                         @php
-                            $delivered = $survey->responseUsers->count();
-                            $answered = $survey->responses->pluck('user_id')->unique()->count();
-                            $rate = $delivered > 0 ? round(($answered / $delivered) * 100) : 0;
+                            $answered = $responseCounts[$survey->id] ?? 0;
+                            $totalUsers = $departmentUserCounts[$survey->department_id] ?? 0;
+                            $rate = $totalUsers > 0 ? round(($answered / $totalUsers) * 100) : 0;
 
                             $status = '未配信';
                             $statusClass = 'bg-gray-200 text-gray-600';
@@ -49,21 +49,21 @@
                                 }
                             }
                         @endphp
-                        <tr class="border-b border-gray-200">
-                            <td class="px-4 py-2">{{ $survey->name }}</td>
-                            <td class="px-4 py-2">{{ $survey->department->name ?? '-' }}</td>
-                            <td class="px-4 py-2">
-                                <span class="px-3 py-1 rounded font-semibold {{ $statusClass }}">{{ $status }}</span>
+                        <tr class="border-b border-[#C4C4C4]">
+                            <td class="px-4 py-2 border border-[#C4C4C4]">{{ $survey->name }}</td>
+                            <td class="px-4 py-2 border border-[#C4C4C4]">{{ $survey->department->name ?? '-' }}</td>
+                            <td class="px-4 py-2 border border-[#C4C4C4]">
+                                <span class="inline-block w-24 px-3 py-1 rounded font-semibold {{ $statusClass }}">{{ $status }}</span>
                             </td>
-                            <td class="px-4 py-2">
-                                @if($delivered > 0)
-                                    {{ $answered }}/{{ $delivered }}（{{ $rate }}%）
+                            <td class="px-4 py-2 border border-[#C4C4C4]">
+                                @if($totalUsers > 0)
+                                    {{ $answered }}/{{ $totalUsers }}（{{ $rate }}%）
                                 @else
                                     ―
                                 @endif
                             </td>
-                            <td class="px-4 py-2">{{ \Carbon\Carbon::parse($survey->start_date)->format('Y/m/d') }}</td>
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 border border-[#C4C4C4]">{{ \Carbon\Carbon::parse($survey->start_date)->format('Y/m/d') }}</td>
+                            <td class="px-4 py-2 border border-[#C4C4C4]">
                                 {{ $survey->end_date ? \Carbon\Carbon::parse($survey->end_date)->format('Y/m/d') : '―' }}
                             </td>
                         </tr>
