@@ -23,11 +23,10 @@ class Survey extends Model
     ];
     protected $dates = ['start_date', 'end_date'];
 
-        // アンケートに属する設問
-        public function questions(): HasMany
-        {
-            return $this->hasMany(SurveyQuestion::class, 'survey_id');
-        }
+    public function questions()
+    {
+        return $this->hasMany(SurveyQuestion::class);
+    }
 
     // リレーション: このアンケートに対する回答
     public function surveyResponses()
@@ -54,4 +53,5 @@ class Survey extends Model
     {
         return $this->hasMany('App\Models\SurveyResponseUser');
     }
+
 }
