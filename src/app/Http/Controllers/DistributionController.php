@@ -239,7 +239,7 @@ class DistributionController extends Controller
 
     public function list(Request $request)
     {
-        $query = Survey::with(['department', 'responseUsers', 'responses']);
+        $query = Survey::with('department');
 
         if ($request->filled('department_id')) {
             $query->where('department_id', $request->input('department_id'));
@@ -248,10 +248,23 @@ class DistributionController extends Controller
         $surveys = $query->orderByDesc('start_date')->get();
         $departments = \App\Models\Department::all();
 
+        // 回答数と部署ユーザー数を集計して連想配列で渡す
+        $responseCounts = \App\Models\SurveyResponse::select('survey_id', DB::raw('COUNT(DISTINCT user_id) as answered_count'))
+            ->groupBy('survey_id')
+            ->pluck('answered_count', 'survey_id')
+            ->toArray();
+
+        $departmentUserCounts = \App\Models\User::select('department_id', DB::raw('COUNT(*) as user_count'))
+            ->groupBy('department_id')
+            ->pluck('user_count', 'department_id')
+            ->toArray();
+
         return view('distribution.survey_list', [
             'surveys' => $surveys,
             'departments' => $departments,
-            'selectedDepartmentId' => $request->input('department_id'), // ←選択状態の保持用
+            'selectedDepartmentId' => $request->input('department_id'),
+            'responseCounts' => $responseCounts,
+            'departmentUserCounts' => $departmentUserCounts,
         ]);
     }
 
