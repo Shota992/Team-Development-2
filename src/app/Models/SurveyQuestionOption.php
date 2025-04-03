@@ -31,6 +31,6 @@ class SurveyQuestionOption extends Model
      */
     public function surveyResponseOptionDetails()
     {
-        return $this->hasMany(SurveyResponseOptionDetail::class, 'option_id');
+        return $this->hasMany(\App\Models\SurveyResponseOptionDetail::class, 'option_id');
     }
 }

@@ -134,16 +134,19 @@
                                     </a>
                             
                                     {{-- 削除するボタン --}}
-                                    <form action="{{ route('survey_questions.destroy', $question->id) }}" method="POST"
-                                          onsubmit="return confirm('本当に削除しますか？');">
+                                    <form action="{{ route('survey_questions.destroy', $question->id) }}" method="POST" onsubmit="return confirmDelete();">
                                         @csrf
                                         @method('DELETE')
-                            
-                                        <button type="submit"
-                                                class="px-5 py-3 rounded-[15px] text-[#FF7676] bg-[#FF76761A] hover:bg-[#FF767633] transition">
+                                        <button type="submit" class="px-5 py-3 rounded-[15px] text-[#FF7676] bg-[#FF76761A] hover:bg-[#FF767633] transition">
                                             削除する
                                         </button>
                                     </form>
+                                    
+                                    <script>
+                                        function confirmDelete() {
+                                            return confirm('この項目とすべての回答データを削除します。よろしいですか？');
+                                        }
+                                    </script>
                                 </div>
                             </td>
                             
