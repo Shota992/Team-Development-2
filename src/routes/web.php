@@ -60,18 +60,24 @@ Route::middleware('auth')->group(function () {
 
     // 配信関連
     Route::get('/distribution/survey/create', [DistributionController::class, 'create'])->name('survey.create');
+    Route::get('/distribution/group-selection', [DistributionController::class, 'groupSelection'])->name('survey.group-selection');
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
     Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])->name('survey.toggle-display');
     Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])->name('survey.save-session');
     Route::post('/distribution/finalize-distribution', [DistributionController::class, 'finalizeDistribution'])->name('survey.finalize-distribution');
     Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
+    Route::post('/distribution/save-settings', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
+
+
+    
 
     // View表示系
-    Route::view('/distribution/group-selection', 'distribution.group_selection')->name('survey.group-selection');
     Route::view('/distribution/item-edit', 'distribution.item_edit')->name('survey.item-edit');
     Route::view('/distribution/advanced-setting', 'distribution.advanced_setting')->name('survey.advanced-setting');
     Route::view('/distribution/confirmation', 'distribution.confirmation')->name('survey.confirmation');
     Route::view('/sidebar', 'components.sidebar');
+    Route::view('/distribution/completion', 'distribution.completion')->name('survey.completion');
+
 
     // 従業員アンケート
     Route::view('/survey/employee', 'survey.employee_survey');
