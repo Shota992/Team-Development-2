@@ -312,4 +312,15 @@ class MeasureController extends Controller
         return redirect()->back()->withErrors(['error' => '評価の保存中にエラーが発生しました。もう一度お試しください。 ']);
     }
 }
+    public function evaluationListDetail($id)
+    {
+        $currentDate = Carbon::today();
+
+        // Measureを取得し、関連データをロード
+        $measure = Measure::with(['tasks.user', 'evaluation.evaluationTask.task.user'])
+            ->orderBy('created_at', 'desc') // created_atの降順で並べる
+            ->findOrFail($id);
+
+        return view('measures.evaluation-list-detail', compact('measure'));
+    }
 }

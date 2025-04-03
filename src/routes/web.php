@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/measures/no-evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
     Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.no-evaluation');
     Route::get('/measures/evaluation-list', [MeasureController::class, 'evaluationList'])->name('measures.evaluation-list');
+    Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationListDetail'])->name('measures.evaluation-list-detail');
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
     Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
 
