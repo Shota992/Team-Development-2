@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>評価/改善未対応施策一覧</title>
+    <title>評価/改善済み施策一覧</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Fonts -->
@@ -14,12 +14,17 @@
 <body>
     @include('components.sidebar')
     <div class="ml-64">
+        @if (session('success'))
+        <div id="alert-message" class="fixed top-0 left-0 w-full bg-green-500 text-white text-center py-3 transform -translate-y-full transition-transform duration-500">
+            {{ session('success') }}
+        </div>
+        @endif
         <div class="flex justify-between p-5">
             <div class="flex">
                 <figure>
                     <img src="{{ asset('images/title_logo.png') }}" alt="" />
                 </figure>
-                <p class="ml-2 text-2xl font-bold">評価/改善未対応施策一覧</p>
+                <p class="ml-2 text-2xl font-bold">評価/改善済み施策一覧</p>
             </div>
         </div>
         <div class="overflow-x-auto">
@@ -41,7 +46,7 @@
                     <!-- ▼ 施策 -->
                     <tr class="border-t">
                         <td class="px-4 py-2 border w-1/3 border-chart-border-gray font-medium text-sky-500 cursor-pointer toggle-btn" data-target="task-{{ $measure->id }}">
-                            <a href="{{ route('measures.evaluation-detail', ['id' => $measure->id]) }}" class="hover:underline toggle-disable">
+                            <a href="{{ route('measures.evaluation-list-detail', ['id' => $measure->id]) }}" class="hover:underline toggle-disable">
                                 {{ $measure->title }}</a><span class="arrow ml-3 text-black">▶</span>
                         </td>
                         <td class="px-4 py-2 border border-chart-border-gray text-center">
@@ -53,7 +58,7 @@
                         <td class="px-4 py-2 border border-chart-border-gray text-center">{{ $measure->evaluation_count }}回</td>
                         <td class="px-4 py-2 border border-chart-border-gray text-center">{{ $measure->evaluation_last_date ? $measure->evaluation_last_date->format('Y-m-d') : 'ー' }}</td>
                         <td class="px-4 py-2 border border-chart-border-gray text-center">
-                            {{ $measure->next_evaluation_date }}
+                            {{ $measure->evaluation_status == 2 ? 'ー' : $measure->next_evaluation_date }}
                         </td>
                         <td class="px-4 py-2 border border-chart-border-gray text-center">
                             @if ($measure->status == 1)
@@ -62,6 +67,8 @@
                             <span class="inline-block px-3 py-1 rounded-full bg-gray-200 text-gray-700">未評価</span>
                             @elseif ($measure->evaluation_status == 1)
                             <span class="inline-block px-3 py-1 rounded-full bg-blue-200 text-blue-700">評価済</span>
+                            @elseif ($measure->evaluation_status == 2)
+                            <span class="inline-block px-3 py-1 rounded-full bg-red-200 text-red-700">完了</span>
                             @endif
                         </td>
                     </tr>
@@ -88,6 +95,17 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const toggleButtons = document.querySelectorAll(".toggle-btn");
+            const alertMessage = document.getElementById("alert-message");
+
+            if (alertMessage) {
+                setTimeout(() => {
+                    alertMessage.style.transform = "translateY(0)";
+                }, 100);
+
+                setTimeout(() => {
+                    alertMessage.style.transform = "translateY(-100%)";
+                }, 5500);
+            }
 
             toggleButtons.forEach(btn => {
                 btn.addEventListener("click", function() {

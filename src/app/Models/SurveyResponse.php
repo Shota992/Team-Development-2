@@ -12,14 +12,17 @@ class SurveyResponse extends Model
 
     protected $fillable = [
         'survey_id',
-        'user_id',
         'free_message'
     ];
 
+    /**
+     * この回答が属するアンケート
+     */
     public function survey(): BelongsTo
     {
         return $this->belongsTo(Survey::class, 'survey_id');
     }
+
 
     public function surveyQuestion()
     {
@@ -37,7 +40,10 @@ class SurveyResponse extends Model
         return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
-    public function details(): HasMany
+    /**
+     * この回答に属する詳細回答（各設問への回答）
+     */
+    public function responseDetails(): HasMany
     {
         return $this->hasMany(SurveyResponseDetail::class, 'response_id');
     }
