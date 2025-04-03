@@ -64,6 +64,9 @@ Route::middleware('auth')->group(function () {
     // 従業員
     Route::get('/setting/employee-list', [SettingController::class, 'employeeList'])->name('setting.employee-list');
     Route::delete('/setting/employee-delete/{id}', [SettingController::class, 'deleteEmployee'])->name('employee.delete');
+    Route::get('/setting/employee-create', [SettingController::class, 'createEmployee'])->name('employee.create');
+    Route::post('/setting/employee-store', [SettingController::class, 'storeEmployee'])->name('employee.store');
+
 
     // マインドマップ
     Route::get('/mindmap', [MindMapController::class, 'index'])->name('mindmap.index');
