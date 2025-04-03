@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
     // 配信関連
     Route::get('/distribution/survey/create', [DistributionController::class, 'create'])->name('survey.create');
     Route::get('/distribution/group-selection', [DistributionController::class, 'groupSelection'])->name('survey.group-selection');
+    Route::get('/distribution/survey/list', [DistributionController::class, 'list'])->name('survey.list');
     Route::post('/distribution/survey/store', [DistributionController::class, 'store'])->name('survey.store');
     Route::post('/survey-question/toggle-display/{id}', [DistributionController::class, 'toggleDisplayStatus'])->name('survey.toggle-display');
     Route::post('/survey/save-session', [DistributionController::class, 'saveToSession'])->name('survey.save-session');

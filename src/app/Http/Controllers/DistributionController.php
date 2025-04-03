@@ -236,4 +236,23 @@ class DistributionController extends Controller
         Log::debug('🧾 確認画面に渡されたセッション', session('survey_input'));
         return view('distribution.confirmation');
     }
+
+    public function list(Request $request)
+    {
+        $query = Survey::with(['department', 'responseUsers', 'responses']);
+
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->input('department_id'));
+        }
+
+        $surveys = $query->orderByDesc('start_date')->get();
+        $departments = \App\Models\Department::all();
+
+        return view('distribution.survey_list', [
+            'surveys' => $surveys,
+            'departments' => $departments,
+            'selectedDepartmentId' => $request->input('department_id'), // ←選択状態の保持用
+        ]);
+    }
+
 }
