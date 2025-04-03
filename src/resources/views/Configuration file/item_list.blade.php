@@ -17,7 +17,7 @@
         background-color: #ccc;
         border-radius: 6px;
         }
-      </style>
+    </style>
 </head>
 <body>
     @include('components.sidebar')
