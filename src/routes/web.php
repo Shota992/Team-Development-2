@@ -143,3 +143,8 @@ Route::group(['middleware' => ['mentor']], function () {
 // 認証関連のルート
 require __DIR__.'/auth.php';
 });
+
+// 項目一覧
+Route::get('/item_list', function () {
+    return view('Configuration file.item_list');
+});
