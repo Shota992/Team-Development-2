@@ -219,7 +219,7 @@
         </div>
         @endforeach
         <div class="mt-8 mb-6 flex justify-center">
-            <button class="bg-button-blue text-white px-12 py-2 rounded-full shadow text-xl font-bold">評価/改善未対応施策一覧へ</button>
+            <a href="{{ route('measure.no-evaluation') }}" class="bg-button-blue hover:bg-custom-blue text-white px-12 py-2 rounded-full shadow text-xl font-bold">評価/改善未対応施策一覧へ</a>
         </div>
     </div>
     <script>

@@ -45,9 +45,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/create-policy', [MeasureController::class, 'create'])->name('create-policy');
     Route::post('/store-policy', [MeasureController::class, 'store'])->name('measures.store');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measures.index');
-    Route::get('/measures/evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
-    Route::post('/measures/evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
+    Route::get('/measures/no-evaluation/{id}', [MeasureController::class, 'evaluationDetail'])->name('measures.evaluation-detail');
+    Route::post('/measures/no-evaluation/{id}', [MeasureController::class, 'storeEvaluation'])->name('measures.evaluation-store');
     Route::get('/measures/no-evaluation', [MeasureController::class, 'noEvaluation'])->name('measure.no-evaluation');
+    Route::get('/measures/evaluation-list', [MeasureController::class, 'evaluationList'])->name('measures.evaluation-list');
     Route::post('/tasks/{id}/toggle', [MeasureController::class, 'toggleStatus'])->name('tasks.toggle');
     Route::get('/get-assignees/{department_id}', [MeasureController::class, 'getAssignees']);
 
