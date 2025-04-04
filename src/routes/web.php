@@ -15,24 +15,15 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
 use App\Http\Controllers\SurveyQuestionController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-Route::get('/', fn() => view('welcome'));
+// 公開ルート（ログイン不要）
+Route::get('/', fn () => view('welcome'));
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // 管理者のみアクセス可能なルート
 Route::middleware(['auth', 'admin.only'])->group(function () {
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // プロフィール
@@ -79,10 +70,8 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::view('/sidebar', 'components.sidebar');
     Route::view('/distribution/completion', 'distribution.completion')->name('survey.completion');
 
-    // 従業員アンケート
-    // Route::view('/survey/employee', 'survey.employee_survey');
+    // 従業員アンケート（個別表示）
     Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
-});
 
     // 設問設定
     Route::get('/configuration-file/item_list', [SurveyQuestionController::class, 'index'])->name('survey_questions.index');
@@ -93,7 +82,7 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::delete('/configuration-file/item_delete/{id}', [SurveyQuestionController::class, 'destroy'])->name('survey_questions.destroy');
 });
 
-// Chatのみ mentor ミドルウェアで制御
+// mentorミドルウェア（AIチャット機能のみ）
 Route::middleware(['mentor'])->group(function () {
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
