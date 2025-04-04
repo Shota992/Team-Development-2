@@ -26,22 +26,13 @@ use App\Http\Controllers\SurveyQuestionController;
 |
 */
 
-// 公開ルート（ログイン不要）
 Route::get('/', fn() => view('welcome'));
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::middleware('auth')->group(function() {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
-    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
-    Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
-});
-
-// 認証が必要なルート
-Route::middleware('auth')->group(function () {
-
+// 管理者のみアクセス可能なルート
+Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // プロフィール
@@ -67,7 +58,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/setting/employee-create', [SettingController::class, 'createEmployee'])->name('employee.create');
     Route::post('/setting/employee-store', [SettingController::class, 'storeEmployee'])->name('employee.store');
 
-
     // マインドマップ
     Route::get('/mindmap', [MindMapController::class, 'index'])->name('mindmap.index');
 
@@ -82,9 +72,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
     Route::post('/distribution/save-settings', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
 
-
-    
-
     // View表示系
     Route::view('/distribution/item-edit', 'distribution.item_edit')->name('survey.item-edit');
     Route::view('/distribution/advanced-setting', 'distribution.advanced_setting')->name('survey.advanced-setting');
@@ -92,26 +79,21 @@ Route::middleware('auth')->group(function () {
     Route::view('/sidebar', 'components.sidebar');
     Route::view('/distribution/completion', 'distribution.completion')->name('survey.completion');
 
-
     // 従業員アンケート
     Route::view('/survey/employee', 'survey.employee_survey');
-});
 
-
-// 認証関連のルート（FortifyとかJetstream使ってたら）
-Route::group(['middleware' => ['mentor']], function () {
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-    Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
-    Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
-});
-
-Route::middleware(['auth'])->group(function () {
+    // 設問設定
     Route::get('/configuration-file/item_list', [SurveyQuestionController::class, 'index'])->name('survey_questions.index');
     Route::get('/configuration-file/item_create', [SurveyQuestionController::class, 'create'])->name('survey_questions.create');
     Route::post('/configuration-file/item_store', [SurveyQuestionController::class, 'store'])->name('survey_questions.store');
-
-    // 編集・更新・削除ルート（追加）
     Route::get('/configuration-file/item_edit/{id}', [SurveyQuestionController::class, 'edit'])->name('survey_questions.edit');
     Route::put('/configuration-file/item_update/{id}', [SurveyQuestionController::class, 'update'])->name('survey_questions.update');
     Route::delete('/configuration-file/item_delete/{id}', [SurveyQuestionController::class, 'destroy'])->name('survey_questions.destroy');
+});
+
+// Chatのみ mentor ミドルウェアで制御
+Route::middleware(['mentor'])->group(function () {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
+    Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });

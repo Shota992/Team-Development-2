@@ -7,6 +7,8 @@ use App\Models\User;
 use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log; 
 
 class SettingController extends Controller
 {
@@ -66,15 +68,19 @@ class SettingController extends Controller
             'position_id' => 'required|exists:positions,id',
             'email' => 'required|email|unique:users,email',
             'department_id' => 'required|exists:departments,id',
+            'administrator' => 'required|in:0,1',
         ]);
-    
+
         $validated['office_id'] = Auth::user()->office_id;
-    
+
+        $validated['password'] = Hash::make('Password123');
+
+        Log::info('【従業員登録】バリデーション通過:', $validated);
+
         User::create($validated);
-    
+
         return redirect()->route('setting.employee-list')->with('success', '従業員を登録しました。');
     }
-    
 
 
 }
