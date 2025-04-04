@@ -84,36 +84,42 @@ class SurveyQuestionController extends Controller
             'options.*' => 'nullable|string|max:255',
             'option_ids' => 'nullable|array',
         ]);
-
+    
         $question = SurveyQuestion::where('id', $id)
             ->where('common_status', false)
             ->firstOrFail();
-
+    
         $question->update([
             'title' => $request->title,
             'text' => $request->text,
             'description' => $request->description,
         ]);
-
+    
+        // 既存の選択肢を取得（ID => Model の形にする）
         $existingOptions = $question->surveyQuestionOptions()->get()->keyBy('id');
+    
         $newOptionTexts = $request->input('options', []);
         $newOptionIds = $request->input('option_ids', []);
         $keepIds = [];
-
+    
         foreach ($newOptionTexts as $i => $text) {
             $text = trim($text);
-            if (empty($text)) continue;
-
+            if ($text === '') continue;
+    
             $optionId = $newOptionIds[$i] ?? null;
-
+    
             if ($optionId && isset($existingOptions[$optionId])) {
+                // 既存 → 更新
                 $existingOptions[$optionId]->update(['text' => $text]);
                 $keepIds[] = $optionId;
             } else {
-                $question->surveyQuestionOptions()->create(['text' => $text]);
+                // 新規 → 作成
+                $new = $question->surveyQuestionOptions()->create(['text' => $text]);
+                $keepIds[] = $new->id;
             }
         }
-
+    
+        // 削除処理（使われなかった option_id を削除する）
         foreach ($existingOptions as $id => $option) {
             if (!in_array($id, $keepIds)) {
                 if ($option->surveyResponseOptionDetails()->count() === 0) {
@@ -121,9 +127,10 @@ class SurveyQuestionController extends Controller
                 }
             }
         }
-
+    
         return redirect()->route('survey_questions.index')->with('success', '項目を更新しました');
     }
+    
 
     public function destroy($id)
     {

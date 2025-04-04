@@ -19,7 +19,7 @@ class SurveyResponseDetailSeeder extends Seeder
 
         for ($i = 0; $i < 5; $i++) {
             for ($responseId = 1 + ($i * 13); $responseId <= 13 + ($i * 13); $responseId++) {
-                for ($questionId = 1; $questionId <= 17; $questionId++) {
+                for ($questionId = 1; $questionId <= 16; $questionId++) {
                     SurveyResponseDetail::create([
                         'response_id' => $responseId,
                         'question_id' => $questionId,
@@ -31,7 +31,7 @@ class SurveyResponseDetailSeeder extends Seeder
         }
 
         for ($responseId = 66; $responseId <= 77; $responseId++) {
-            for ($questionId = 1; $questionId <= 17; $questionId++) {
+            for ($questionId = 1; $questionId <= 16; $questionId++) {
                 SurveyResponseDetail::create([
                     'response_id' => $responseId,
                     'question_id' => $questionId,
@@ -43,7 +43,7 @@ class SurveyResponseDetailSeeder extends Seeder
 
         for ($i = 0; $i < 4; $i++) {
             for ($responseId = 78 + ($i * 10); $responseId <= 87 + ($i * 10); $responseId++) {
-                for ($questionId = 1; $questionId <= 17; $questionId++) {
+                for ($questionId = 1; $questionId <= 16; $questionId++) {
                     SurveyResponseDetail::create([
                         'response_id' => $responseId,
                         'question_id' => $questionId,

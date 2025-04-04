@@ -80,7 +80,9 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::view('/distribution/completion', 'distribution.completion')->name('survey.completion');
 
     // 従業員アンケート
-    Route::view('/survey/employee', 'survey.employee_survey');
+    // Route::view('/survey/employee', 'survey.employee_survey');
+    Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
+});
 
     // 設問設定
     Route::get('/configuration-file/item_list', [SurveyQuestionController::class, 'index'])->name('survey_questions.index');
