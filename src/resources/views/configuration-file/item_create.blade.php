@@ -6,17 +6,15 @@
 
 <div class="ml-64 p-10">
     <h2 class="text-2xl font-bold mb-6">項目追加</h2>
-    <p class="text-sm text-gray-500 mb-4">項目一覧 &gt; 項目追加</p>
-
-    @if ($errors->any())
-        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <nav class="text-sm text-gray-500 mb-4" aria-label="パンくずリスト">
+        <ol class="list-reset flex items-center space-x-2">
+            <li>
+                <a href="{{ route('survey_questions.index') }}" class="hover:underline text-gray-500">項目一覧</a>
+            </li>
+            <li><span>&gt;</span></li>
+            <li class="text-gray-500">項目追加</li>
+        </ol>
+    </nav>
 
     <!-- 可愛いトースト通知 -->
     <div id="error-toast" class="hidden fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow z-50 transition-opacity duration-500">
@@ -56,7 +54,7 @@
                 @endphp
                 @foreach ($oldOptions as $option)
                     <div class="option-item flex items-center gap-2 mb-2">
-                        <span class="text-gray-400 cursor-move">≡</span>
+                        <span class="handle text-gray-400 cursor-move">≡</span>
                         <input type="text" name="options[]" value="{{ $option }}" placeholder="例）どう思いますか？" class="flex-1 border rounded px-3 py-2">
                         <button type="button" class="remove-option text-gray-500 hover:text-red-500">×</button>
                     </div>
@@ -80,7 +78,14 @@
     </form>
 </div>
 
+{{-- 並び替え用 SortableJS CDN --}}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
+    new Sortable(document.getElementById('options-wrapper'), {
+        handle: '.handle',
+        animation: 150,
+    });
+
     function showErrorToast(message) {
         const toast = document.getElementById('error-toast');
         const msg = document.getElementById('error-toast-message');
@@ -102,7 +107,7 @@
         const option = document.createElement('div');
         option.classList.add('option-item', 'flex', 'items-center', 'gap-2', 'mb-2');
         option.innerHTML = `
-            <span class="text-gray-400 cursor-move">≡</span>
+            <span class="handle text-gray-400 cursor-move">≡</span>
             <input type="text" name="options[]" placeholder="例）どう思いますか？" class="flex-1 border rounded px-3 py-2">
             <button type="button" class="remove-option text-gray-500 hover:text-red-500">×</button>
         `;
