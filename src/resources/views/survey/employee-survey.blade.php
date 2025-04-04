@@ -69,8 +69,8 @@
 
             <!-- 理由選択 -->
             <div class="w-11/12 md:w-full flex flex-col items-center mx-auto">
-                <h3 class="font-bold text-lg mt-4 mb:mt-10 text-center">
-                    上記をお選びいただいた理由（該当するものがあれば選択してください）
+                <h3 class="font-bold text-lg mt-4 mb:mt-10 text-left">
+                    上記の項目に関して不満な点があれば、以下の項目を選択してください
                 </h3>
                 <div class="mt-4 flex flex-col space-y-4 w-full max-w-md">
                     @foreach ($item->surveyQuestionOptions as $option)
