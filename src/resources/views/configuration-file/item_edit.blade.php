@@ -6,7 +6,15 @@
 
 <div class="ml-64 p-10">
     <h2 class="text-2xl font-bold mb-6">項目編集</h2>
-    <p class="text-sm text-gray-500 mb-2">項目一覧 &gt; 項目編集</p>
+    <nav class="text-sm text-gray-500 mb-4" aria-label="パンくずリスト">
+        <ol class="list-reset flex items-center space-x-2">
+            <li>
+                <a href="{{ route('survey_questions.index') }}" class="hover:underline text-gray-500">項目一覧</a>
+            </li>
+            <li><span>&gt;</span></li>
+            <li class="text-gray-500">項目追加</li>
+        </ol>
+    </nav>
 
     <form action="{{ route('survey_questions.update', $question->id) }}" method="POST">
         @csrf
@@ -39,7 +47,7 @@
             <div id="options-wrapper">
                 @foreach ($question->surveyQuestionOptions as $index => $option)
                     <div class="option-item flex items-center gap-2 mb-2">
-                        <span class="text-gray-400 cursor-move">≡</span>
+                        <span class="handle text-gray-400 cursor-move">≡</span>
                         <input type="hidden" name="option_ids[]" value="{{ $option->id }}">
                         <input type="text" name="options[]" value="{{ old('options.' . $index, $option->text) }}" class="flex-1 border rounded px-3 py-2">
                         <button type="button" class="remove-option text-gray-500 hover:text-red-500">×</button>
@@ -64,13 +72,21 @@
     </form>
 </div>
 
+{{-- 並び替えにSortableJSを使用 --}}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
+    // 並び替え対応
+    new Sortable(document.getElementById('options-wrapper'), {
+        handle: '.handle',
+        animation: 150,
+    });
+
     document.getElementById('add-option').addEventListener('click', function () {
         const wrapper = document.getElementById('options-wrapper');
         const option = document.createElement('div');
         option.classList.add('option-item', 'flex', 'items-center', 'gap-2', 'mb-2');
         option.innerHTML = `
-            <span class="text-gray-400 cursor-move">≡</span>
+            <span class="handle text-gray-400 cursor-move">≡</span>
             <input type="hidden" name="option_ids[]" value="">
             <input type="text" name="options[]" class="flex-1 border rounded px-3 py-2">
             <button type="button" class="remove-option text-gray-500 hover:text-red-500">×</button>
