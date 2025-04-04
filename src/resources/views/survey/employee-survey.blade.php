@@ -7,154 +7,222 @@
     @vite('resources/css/app.css')
 </head>
 <body>
-        <!-- タイトル -->
-        <div class="flex flex-col items-center">
-            <div class="mt-4 bg-white shadow-md rounded-lg w-full max-w-3xl">
-                <div class="h-8 bg-button-blue rounded-t-lg"></div>
-                <div class="p-6">
-                    <h2 class="font-bold text-xl">社内改善アンケートへのご協力のお願い</h2>
-                    <p class="mt-2 text-base leading-relaxed">
-                        皆さまの日々の業務環境をより良くするため、社内改善に関するアンケートを実施いたします。<br>
-                        お手数ですが、ご自身の率直なご意見をお聞かせください。<br>
-                        回答は 約3分 で完了します。<br>
-                        すべての質問にお答えいただいた後、送信をお願いいたします。<br>
-                        本アンケートは匿名で実施し、個別の回答が特定されることはありません。<br>
-                        皆さまの貴重なご意見をもとに、社内環境の向上に努めてまいります。ご協力のほど、よろしくお願いいたします。
-                    </p>
-                </div>
+    <!-- タイトル -->
+    <div class="flex flex-col items-center">
+        <div class="mt-4 bg-white shadow-md rounded-lg w-11/12 md:w-full max-w-3xl">
+            <div class="h-8 bg-button-blue rounded-t-lg"></div>
+            <div class="p-6">
+                <h2 class="font-bold text-xl">{{ $survey->name}}</h2>
+                <p class="mt-2 text-base leading-relaxed">
+                    {{ $survey->description }}
+                </p>
             </div>
         </div>
-    
-        <!-- 進捗バー -->
-        <div class="w-full flex max-w-3xl mx-auto my-4">
-            <p class="text-lg font-bold text-gray-700 mr-4 pt-1">15%</p>
-            <div class="w-full h-2 bg-gray-200 rounded-full mt-4">
-                <div class="w-1/6 h-full bg-button-blue rounded-full"></div>
-            </div>
+    </div>
+
+    <!-- 進捗バー -->
+    <div class="w-11/12 md:w-full flex max-w-3xl mx-auto my-4">
+        <p id="progress-text" class="text-lg font-bold text-gray-700 mr-4 pt-1">0%</p>
+        <div class="w-full h-2 bg-gray-200 rounded-full mt-4">
+            <div id="progress-bar" class="h-full bg-button-blue rounded-full w-0"></div>
         </div>
-    
-        <!-- 質問と理由 -->
-        <div class="flex flex-col items-center w-full max-w-3xl mx-auto">
-            <div class="w-full">
-                <h3 class="font-bold text-lg mt-10 text-center">
-                    Q1. 当社の顧客基盤の安定性について、どの程度満足していますか？
-                </h3>
-                <div class="flex justify-between items-center my-6 px-6">
-                    <span class="font-bold">満足している</span>
-                    <div class="flex gap-12 items-center">
-                        <input type="radio" name="satisfaction" id="choice-5" class="hidden">
-                        <label for="choice-5" class="w-14 h-14 border-4 border-custom-blue rounded-full block"></label>
-    
-                        <input type="radio" name="satisfaction" id="choice-4" class="hidden">
-                        <label for="choice-4" class="w-12 h-12 border-4 border-custom-blue rounded-full block"></label>
-    
-                        <input type="radio" name="satisfaction" id="choice-3" class="hidden">
-                        <label for="choice-3" class="w-10 h-10 border-4 border-gray-300 rounded-full block"></label>
-    
-                        <input type="radio" name="satisfaction" id="choice-2" class="hidden">
-                        <label for="choice-2" class="w-12 h-12 border-4 border-red-300 rounded-full block"></label>
-    
-                        <input type="radio" name="satisfaction" id="choice-1" class="hidden">
-                        <label for="choice-1" class="w-14 h-14 border-4 border-red-300 rounded-full block"></label>
-                    </div>
-                    <span class="font-bold">満足していない</span>
-                </div>
-            </div>
-    
-                    <!-- 理由選択 -->
-        <div class="w-full flex flex-col items-center"> 
-            <h3 class="font-bold text-lg mt-10 text-center">
-                上記をお選びいただいた理由（該当するものを全て選択してください）
+    </div>
+
+    <!-- 質問と理由 -->
+    <div id="survey-container">
+        @foreach ($surveyItems as $index => $item)
+        <div class="question {{ $index !== 0 ? 'hidden' : '' }}" data-question-id="{{ $item->id }}">
+            <h3 class="w-11/12 md:w-full font-bold text-lg mt-4 md:mt-10 text-center mx-auto">
+                Q{{ $index + 1 }}. {{ $item->text }}
             </h3>
-            <div class="mt-4 flex flex-col space-y-4 w-full max-w-md"> 
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
-                    <span class="leading-none">既存のお客様との取引が安定していると感じるため</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
-                    <span class="leading-none">新規顧客の獲得が順調であると感じるため</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
-                    <span class="leading-none">顧客との関係性が強く、長期的な信頼が築けているため</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
-                    <span class="leading-none">顧客の入れ替わりが激しく、不安定であると感じるため</span>
-                </label>
-                <label class="flex items-center gap-2">
-                    <input type="checkbox" class="w-5 h-5 text-custom-blue"> 
-                    <span class="leading-none">競合他社と比較して、当社の顧客基盤に不安を感じるため</span>
-                </label>
+            <div class="flex items-center my-6 md:px-6 justify-center">
+                <div class="font-bold hidden md:block mr-4">満足している</div>
+                <div class="flex gap-6 md:gap-12 items-center">
+                    <div>
+                        <input type="radio" name="response-{{ $item->id }}" id="choice-5-{{ $item->id }}" value="5" class="hidden peer">
+                        <label for="choice-5-{{ $item->id }}" class="w-14 h-14 border-4 border-custom-blue rounded-full block transition peer-checked:bg-custom-blue peer-checked:text-white">
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="response-{{ $item->id }}" id="choice-4-{{ $item->id }}" value="4" class="hidden peer">
+                        <label for="choice-4-{{ $item->id }}" class="w-12 h-12 border-4 border-custom-blue rounded-full block transition peer-checked:bg-custom-blue peer-checked:text-white">
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="response-{{ $item->id }}" id="choice-3-{{ $item->id }}" value="3" class="hidden peer">
+                        <label for="choice-3-{{ $item->id }}" class="w-10 h-10 border-4 border-gray-300 rounded-full block transition peer-checked:bg-gray-300 peer-checked:text-white">
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="response-{{ $item->id }}" id="choice-2-{{ $item->id }}" value="2" class="hidden peer">
+                        <label for="choice-2-{{ $item->id }}" class="w-12 h-12 border-4 border-red-300 rounded-full block transition peer-checked:bg-red-300 peer-checked:text-white">
+                        </label>
+                    </div>
+                    <div>
+                        <input type="radio" name="response-{{ $item->id }}" id="choice-1-{{ $item->id }}" value="1" class="hidden peer">
+                        <label for="choice-1-{{ $item->id }}" class="w-14 h-14 border-4 border-red-300 rounded-full block transition peer-checked:bg-red-300 peer-checked:text-white">
+                        </label>
+                    </div>
+                </div>
+                <div class="font-bold hidden md:block ml-4">満足していない</div>
+            </div>
 
-                <!-- その他 -->
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="otherCheckbox" class="w-5 h-5">
-                    <label for="otherCheckbox" class="cursor-pointer leading-none">その他</label>
-                    <input type="text" id="otherText" class="border-b border-gray-400 focus:border-black outline-none px-2 w-48 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
+            <!-- 理由選択 -->
+            <div class="w-11/12 md:w-full flex flex-col items-center mx-auto">
+                <h3 class="font-bold text-lg mt-4 mb:mt-10 text-center">
+                    上記をお選びいただいた理由（該当するものがあれば選択してください）
+                </h3>
+                <div class="mt-4 flex flex-col space-y-4 w-full max-w-md">
+                    @foreach ($item->surveyQuestionOptions as $option)
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" name="reason-{{ $item->id }}[]" value="{{ $option->id }}" class="w-5 h-5 text-custom-blue">
+                        <span class="leading-none">{{ $option->text }}</span>
+                    </label>
+                    @endforeach
+                    <!-- その他の理由 -->
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="otherCheckbox-{{ $item->id }}" class="w-5 h-5">
+                        <label for="otherCheckbox-{{ $item->id }}" class="cursor-pointer leading-none">その他</label>
+                        <input type="text" name="other-reason-{{ $item->id }}" id="otherText-{{ $item->id }}" class="border-b border-gray-400 focus:border-black outline-none px-2 w-48 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
+                    </div>
                 </div>
             </div>
         </div>
+        @endforeach
+    </div>
 
-
-    
-            <!-- 次へボタン -->
-            <div class="mt-10">
-                <button class="bg-button-blue text-white text-lg font-bold px-10 py-3 rounded-full shadow-md hover:bg-blue-400 transition transform hover:scale-105 active:scale-95 mb-6" id="next-btn">
-                    次へ →
-                </button>
-            </div>
+    <!-- 次へボタン -->
+    <div class="mt-10">
+        <div class="flex justify-center">
+            <button class="bg-gray-400 text-white text-lg font-bold px-10 py-3 rounded-full shadow-md transition transform mb-6 cursor-not-allowed" id="next-btn" disabled>
+                次へ →
+            </button>
         </div>
-    
-        <script>
-            document.getElementById('otherCheckbox').addEventListener('change', function() {
-                const otherText = document.getElementById('otherText');
-                otherText.disabled = !this.checked;
-                otherText.classList.toggle('text-gray-900', this.checked);
-                otherText.classList.toggle('text-gray-400', !this.checked);
+    </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        let questions = [];
+        const progressBar = document.getElementById("progress-bar");
+        const progressText = document.getElementById("progress-text");
+
+        // 質問データを取得
+        async function fetchQuestions() {
+            const response = await fetch("/api/survey/1/questions");
+            const data = await response.json();
+            questions = data.questions;
+            updateQuestion();
+        }
+
+        function updateQuestion() {
+
+            const question = questions[currentIndex];
+            document.getElementById("question-title").innerText = `Q${currentIndex + 1}. ${question.title}`;
+            document.getElementById("question-text").innerText = question.text;
+
+            // 進捗バーを更新
+            let progress = ((currentIndex + 1) / questions.length) * 100;
+            progressBar.style.width = progress + "%";
+            progressText.innerText = Math.round(progress) + "%";
+        }
+
+        document.getElementById("next-btn").addEventListener("click", function() {
+            currentIndex++;
+            updateQuestion();
+        });
+
+        fetchQuestions();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const otherCheckboxes = document.querySelectorAll('input[id^="otherCheckbox-"]');
+            otherCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const questionId = this.id.split('-')[1]; // IDから質問IDを取得
+                    const otherText = document.getElementById(`otherText-${questionId}`);
+                    otherText.disabled = !this.checked; // チェック状態に応じて有効化/無効化
+                    otherText.classList.toggle('text-gray-900', this.checked);
+                    otherText.classList.toggle('text-gray-400', !this.checked);
+                });
             });
 
-            let currentIndex = 0;
-            let questions = [];
-            const progressBar = document.getElementById("progress-bar");
-            const progressText = document.getElementById("progress-text");
+            const questions = document.querySelectorAll('.question'); // 全ての質問を取得
+            const nextButton = document.getElementById('next-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const totalQuestions = questions.length; // 質問の総数
+            let currentIndex = 0; // 現在の質問のインデックス
 
-            // 質問データを取得
-            async function fetchQuestions() {
-                const response = await fetch("/api/survey/1/questions");
-                const data = await response.json();
-                questions = data.questions;
-                updateQuestion();
+            // 初期状態で最初の質問だけを表示
+            questions.forEach((question, index) => {
+                if (index !== 0) {
+                    question.classList.add('hidden');
+                }
+            });
+
+            // 現在の質問のラジオボタンを監視
+            function updateButtonState() {
+                const currentQuestion = questions[currentIndex];
+                const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked');
+
+                if (selectedOption) {
+                    nextButton.disabled = false;
+                    nextButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                    nextButton.classList.add('bg-button-blue', 'hover:bg-blue-400', 'cursor-pointer');
+                } else {
+                    nextButton.disabled = true;
+                    nextButton.classList.remove('bg-button-blue', 'hover:bg-blue-400', 'cursor-pointer');
+                    nextButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+                }
             }
 
-            function updateQuestion() {
-                if (currentIndex >= questions.length) {
-                    alert("アンケートが終了しました！");
+            // ラジオボタンの変更イベントを監視
+            questions.forEach((question) => {
+                const radioButtons = question.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach((radio) => {
+                    radio.addEventListener('change', updateButtonState);
+                });
+            });
+
+            // 次へボタンのクリックイベント
+            nextButton.addEventListener('click', function() {
+                const currentQuestion = questions[currentIndex];
+                const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked');
+
+                // 回答が選択されていない場合は警告を表示
+                if (!selectedOption) {
+                    alert('回答を選択してください！');
                     return;
                 }
 
-                const question = questions[currentIndex];
-                document.getElementById("question-title").innerText = `Q${currentIndex + 1}. ${question.title}`;
-                document.getElementById("question-text").innerText = question.text;
+                // 現在の質問を非表示にする
+                currentQuestion.classList.add('hidden');
+
+                // 次の質問を表示
+                currentIndex++;
+                if (currentIndex < questions.length) {
+                    questions[currentIndex].classList.remove('hidden');
+                } else {
+                    // 全ての質問が終了した場合
+                    alert('アンケートが終了しました！');
+                    nextButton.disabled = true; // ボタンを無効化
+                }
+
+                // ボタンの状態を更新
+                updateButtonState();
 
                 // 進捗バーを更新
-                let progress = ((currentIndex + 1) / questions.length) * 100;
-                progressBar.style.width = progress + "%";
-                progressText.innerText = Math.round(progress) + "%";
-            }
-
-            document.getElementById("next-btn").addEventListener("click", function() {
-                if (document.querySelector('input[name="response"]:checked') === null) {
-                    alert("回答を選択してください！");
-                    return;
-                }
-
-                currentIndex++;
-                updateQuestion();
+                updateProgressBar(currentIndex, totalQuestions);
             });
 
-            fetchQuestions();
-        </script>
+            // 進捗バーを更新する関数
+            function updateProgressBar(currentIndex, totalQuestions) {
+                const progress = ((currentIndex) / totalQuestions) * 100; // パーセンテージ計算
+                progressBar.style.width = `${progress}%`; // 進捗バーの幅を更新
+                progressText.innerText = `${Math.round(progress)}%`; // テキストを「%」形式で更新
+            }
+        });
+
+    </script>
 </body>
 </html>

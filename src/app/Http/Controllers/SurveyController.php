@@ -150,9 +150,9 @@ class SurveyController extends Controller
     {
         $user = Auth::user();
 
-        $surveys = Survey::where('id', $id)->get();
-        $surveyItems = SurveyQuestion::all();
+        $survey = Survey::where('id', $id)->first();
+        $surveyItems = SurveyQuestion::with('surveyQuestionOptions')->get();
 
-        return view('survey.employee-survey', compact('surveys', 'surveyItems'));
+        return view('survey.employee-survey', compact('survey', 'surveyItems'));
     }
 }
