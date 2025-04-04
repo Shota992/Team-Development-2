@@ -34,7 +34,9 @@ class MeasureController extends Controller
         $endDate = $startDate->copy()->addMonths($displayRange);
 
         // 施策とタスクを取得
-        $measures = Measure::with('tasks')->get();
+        $measures = Measure::with('tasks')
+            ->where('status', '!=', 2)
+            ->get();
 
         // 日付リストを作成
         $dateList = [];

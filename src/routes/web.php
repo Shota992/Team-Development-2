@@ -94,7 +94,8 @@ Route::middleware('auth')->group(function () {
 
 
     // 従業員アンケート
-    Route::view('/survey/employee', 'survey.employee_survey');
+    // Route::view('/survey/employee', 'survey.employee_survey');
+    Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
 });
 
 
