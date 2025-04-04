@@ -14,6 +14,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
 use App\Http\Controllers\SurveyQuestionController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
     Route::get('/items', [SurveyController::class, 'index'])->name('items.index');

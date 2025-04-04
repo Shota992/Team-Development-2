@@ -6,6 +6,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-[#f7f8fa] min-h-screen">
+    @include('components.sidebar')
+    <div class="ml-64">
+
     <!-- 上部バー -->
     <div class="bg-white border-b border-gray-300 py-3">
         <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
@@ -185,6 +188,7 @@
         </div>
         <!-- /右カラム -->
     </div>
-    <!-- /メインコンテンツ -->
+
+    </div><!-- /メインコンテンツ -->
 </body>
 </html>
