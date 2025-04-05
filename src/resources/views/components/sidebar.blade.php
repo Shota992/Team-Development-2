@@ -1,4 +1,4 @@
-<aside class="w-56 h-screen bg-white shadow-lg fixed overflow-y-auto z-40">
+<aside class="w-56 h-screen bg-white shadow-lg fixed overflow-y-auto overflow-x-hidden z-40">
     <div class="py-4 border-b text-center">
         <a href="{{ route('dashboard') }}" class="text-lg font-bold text-gray-700">get mild</a>
     </div>
@@ -26,13 +26,13 @@
 
                 <!-- 通知ポップアップ本体 -->
                 <div x-show="open" @click.away="open = false"
-                     class="absolute left-1/2 -translate-x-1/2 top-8 bg-white border border-gray-300 rounded-md shadow-lg z-50 transition duration-200"
-                     style="display: none; width: 400px !important;">
-                    <div class="px-4 py-2 border-b text-gray-800 font-semibold flex justify-between items-center">
-                        通知
-                        <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
-                    </div>
-                    <ul class="max-h-80 overflow-y-auto text-sm text-gray-700 divide-y">
+                class="fixed left-64 top-20 bg-white border border-gray-300 rounded-md shadow-lg z-50 transition duration-200"
+                style="width: 400px;">
+               <div class="px-4 py-2 border-b text-gray-800 font-semibold flex justify-between items-center">
+                   通知
+                   <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
+               </div>
+               <ul class="max-h-80 overflow-y-auto text-sm text-gray-700 divide-y">
                         @forelse ($notifications as $notification)
                             <li class="p-3 hover:bg-gray-50 {{ is_null($notification->read_at) ? 'bg-blue-50' : '' }}">
                                 <div class="flex justify-between items-center">
