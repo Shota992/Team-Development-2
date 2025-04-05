@@ -27,7 +27,9 @@
             <div id="progress-bar" class="h-full bg-button-blue rounded-full w-0"></div>
         </div>
     </div>
-
+    <p id="saving-message" class="text-center text-lg font-bold text-gray-700 mt-4 hidden">
+        解答を送信中です。しばらくお待ち下さい。
+    </p>
     <!-- 質問と理由 -->
     <div id="survey-container">
         @foreach ($surveyItems as $index => $item)
@@ -83,7 +85,7 @@
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="otherCheckbox-{{ $item->id }}" class="w-5 h-5">
                         <label for="otherCheckbox-{{ $item->id }}" class="cursor-pointer leading-none">その他</label>
-                        <input type="text" name="other-reason-{{ $item->id }}" id="otherText-{{ $item->id }}" class="border-b border-gray-400 focus:border-black outline-none px-2 w-48 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
+                        <input type="text" name="other-reason-{{ $item->id }}" id="otherText-{{ $item->id }}" class="border-b border-gray-400 focus:border-black outline-none px-2 w-64 bg-transparent text-gray-400" placeholder="別の理由を入力" disabled>
                     </div>
                 </div>
             </div>
@@ -99,6 +101,11 @@
             </button>
         </div>
     </div>
+    <form id="survey-form" method="POST" action="{{ route('survey.employee.post', ['id' => $survey->id]) }}">
+        @csrf
+        <input type="hidden" name="survey_id" value="{{ $survey->id }}">
+        <input type="hidden" name="responses" id="responses-input">
+    </form>
     </div>
 
     <script>
@@ -109,9 +116,6 @@
 
         // 質問データを取得
         async function fetchQuestions() {
-            const response = await fetch("/api/survey/1/questions");
-            const data = await response.json();
-            questions = data.questions;
             updateQuestion();
         }
 
@@ -152,6 +156,7 @@
             const progressText = document.getElementById('progress-text');
             const totalQuestions = questions.length; // 質問の総数
             let currentIndex = 0; // 現在の質問のインデックス
+            const responses = []; // 回答データを格納する配列
 
             // 初期状態で最初の質問だけを表示
             questions.forEach((question, index) => {
@@ -187,13 +192,27 @@
             // 次へボタンのクリックイベント
             nextButton.addEventListener('click', function() {
                 const currentQuestion = questions[currentIndex];
-                const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked');
+                const questionId = currentQuestion.getAttribute('data-question-id'); // 質問IDを取得
 
-                // 回答が選択されていない場合は警告を表示
-                if (!selectedOption) {
-                    alert('回答を選択してください！');
-                    return;
-                }
+                // 選択されたラジオボタンの値を取得
+                const selectedOption = currentQuestion.querySelector('input[type="radio"]:checked')?.value || null;
+
+                // 選択された理由（チェックボックス）の値を取得
+                const selectedReasons = Array.from(
+                    currentQuestion.querySelectorAll('input[type="checkbox"]:checked')
+                ).map((checkbox) => checkbox.value);
+
+                // その他理由の記述を取得
+                const otherReasonInput = currentQuestion.querySelector(`input[name="other-reason-${questionId}"]`);
+                const otherReason = otherReasonInput && !otherReasonInput.disabled ? otherReasonInput.value : null;
+
+                // データをresponses配列に追加
+                responses.push({
+                    question_id: questionId
+                    , selectedOption: selectedOption
+                    , selectedReasons: selectedReasons
+                    , otherReason: otherReason
+                , });
 
                 // 現在の質問を非表示にする
                 currentQuestion.classList.add('hidden');
@@ -203,16 +222,29 @@
                 if (currentIndex < questions.length) {
                     questions[currentIndex].classList.remove('hidden');
                 } else {
-                    // 全ての質問が終了した場合
-                    alert('アンケートが終了しました！');
-                    nextButton.disabled = true; // ボタンを無効化
+                    // アンケート送信時の処理
+                    // 進捗バーを100%に更新
+                    progressBar.style.width = "100%";
+                    progressText.innerText = "100%";
+
+                    // 「次へ」ボタンを非表示にする
+                    nextButton.classList.add('hidden');
+
+                    // 「保存中です」メッセージを表示
+                    const savingMessage = document.getElementById('saving-message');
+                    savingMessage.classList.remove('hidden');
+
+                    // フォームにデータを設定して送信
+                    const responsesInput = document.getElementById('responses-input');
+                    responsesInput.value = JSON.stringify(responses); // 回答データをJSON形式で設定
+                    document.getElementById('survey-form').submit(); // フォームを送信
                 }
 
                 // ボタンの状態を更新
                 updateButtonState();
 
                 // 進捗バーを更新
-                updateProgressBar(currentIndex, totalQuestions);
+                updateProgressBar(currentIndex, questions.length);
             });
 
             // 進捗バーを更新する関数
