@@ -20,7 +20,9 @@ use App\Http\Controllers\SignUpController;
 Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
 Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
 
-Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); // ←これを追加！！
+Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); 
+Route::post('/sign-up/register', [SignUpController::class, 'finalRegister'])->name('sign-up.register');
+
 
 
 // 公開ルート（ログイン不要）
