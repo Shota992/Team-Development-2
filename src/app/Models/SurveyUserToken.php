@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SurveyResponseUser extends Model
+class SurveyUserToken extends Model
 {
     use HasFactory;
 
@@ -13,6 +13,8 @@ class SurveyResponseUser extends Model
     protected $fillable = [
         'survey_id',
         'user_id',
+        'token',
+        'answered',
     ];
 
     public function survey()
