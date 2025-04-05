@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SurveyNotificationMail;
+use App\Jobs\SendSurveyEmailJob;
 
 
 
@@ -217,7 +218,8 @@ class DistributionController extends Controller
                 // ✅ ユーザーにメール送信
                 $user = \App\Models\User::find($userId);
                 if ($user) {
-                    Mail::to($user->email)->send(new SurveyNotificationMail($survey, $user, $token));
+                    $startDate = $survey->start_date; // 配信予定日時
+                    SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($startDate);
                 }
             }
         }
