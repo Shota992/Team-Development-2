@@ -168,7 +168,6 @@ class SurveyController extends Controller
         }
 
         $survey = $surveyUserToken->survey;
-        $surveyItems = SurveyQuestion::with('surveyQuestionOptions')->get();
 
         $answeredStatus = 0;
 
@@ -177,10 +176,19 @@ class SurveyController extends Controller
             $answeredStatus = 1; // 既に回答済み
         }
 
+        $userDepartmentId = auth()->user()->department_id;
+
+        $surveyItems = SurveyQuestion::with('surveyQuestionOptions')
+            ->where(function ($query) use ($userDepartmentId) {
+                $query->where('common_status', 1) // common_statusが1のもの
+                    ->orWhere('department_id', $userDepartmentId); // 自分の部署IDが一致するもの
+            })
+            ->get();
+
         return view('survey.employee-survey', compact('survey', 'surveyItems', 'answeredStatus', 'id'));
     }
 
-    public function employeeSurveyPost(Request $request , $token)
+    public function employeeSurveyPost(Request $request, $token)
     {
         $validated = $request->validate([
             'survey_id' => 'required|integer|exists:surveys,id', // survey_idのバリデーション
