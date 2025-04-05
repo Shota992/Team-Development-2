@@ -14,6 +14,14 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
 use App\Http\Controllers\SurveyQuestionController;
+use App\Http\Controllers\SignUpController;
+
+//公開ルート（ログイン扶養）新規登録画面
+Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
+Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
+
+Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); // ←これを追加！！
+
 
 // 公開ルート（ログイン不要）
 Route::get('/', fn () => view('welcome'));
