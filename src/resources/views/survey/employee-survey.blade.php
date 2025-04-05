@@ -20,6 +20,17 @@
         </div>
     </div>
 
+    @if ($answeredStatus === 1)
+        <!-- 回答済みメッセージ -->
+        <div class="flex flex-col items-center mt-10">
+            <div class="bg-white shadow-md rounded-lg w-11/12 md:w-full max-w-3xl p-6">
+                <h1 class="text-2xl font-bold text-center text-custom-blue">回答済みです</h1>
+                <p class="mt-4 text-center text-gray-700">
+                    このアンケートはすでに回答済みです。ご協力ありがとうございました。
+                </p>
+            </div>
+        </div>
+    @else
     <!-- 進捗バー -->
     <div class="w-11/12 md:w-full flex max-w-3xl mx-auto my-4">
         <p id="progress-text" class="text-lg font-bold text-gray-700 mr-4 pt-1">0%</p>
@@ -101,12 +112,14 @@
             </button>
         </div>
     </div>
-    <form id="survey-form" method="POST" action="{{ route('survey.employee.post', ['id' => $survey->id]) }}">
+    <form id="survey-form" method="POST" action="{{ route('survey.employee.post', ['token' => $id]) }}">
         @csrf
         <input type="hidden" name="survey_id" value="{{ $survey->id }}">
         <input type="hidden" name="responses" id="responses-input">
     </form>
     </div>
+
+    @endif
 
     <script>
         let currentIndex = 0;

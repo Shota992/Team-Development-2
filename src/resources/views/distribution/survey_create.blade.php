@@ -111,13 +111,13 @@
             <div class="flex justify-center mt-8">
                 <a href="javascript:void(0);" id="goToGroupSelection"
                     class="w-64 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
-                    配信部署選択画面へ
+                    アンケート詳細画面へ
                 </a>
             </div>
             <div class="flex justify-center mt-4">
                 <a href="javascript:void(0);" id="goToItemEdit"
                     class="w-64 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
-                    設問編集画面へ
+                    設問一覧画面へ
                 </a>
             </div>
         </div>
@@ -206,7 +206,7 @@
             saveSurveyToSession(
                 // 成功時
                 () => {
-                    window.location.href = "{{ route('survey.group-selection') }}";
+                    window.location.href = "{{ route('survey.advanced-setting') }}";
                 },
                 // エラー時
                 () => {
@@ -224,12 +224,11 @@
             const button = this;
             const originalText = button.textContent;
 
-            button.textContent = '保存中...';
             button.classList.add('opacity-70', 'pointer-events-none');
 
             saveSurveyToSession(
                 () => {
-                    window.location.href = "{{ route('survey.item-edit') }}";
+                    window.location.href = "{{ route('survey_questions.index') }}";
                 },
                 () => {
                     alert('セッション保存中にエラーが発生しました');

@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('survey_response_users', function (Blueprint $table) {
+        Schema::create('survey_user_tokens', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('survey_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('survey_id');
+            $table->unsignedBigInteger('user_id');
+            $table->string('token')->unique();
+            $table->boolean('answered')->default(false);
+            $table->timestamps();
         });
     }
 
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('survey_response_users');
+        Schema::dropIfExists('survey_user_tokens');
     }
 };

@@ -16,30 +16,27 @@ class SurveyNotificationMail extends Mailable
 
     public $survey;
     public $user;
+    public $token;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($survey, $user)
+    public function __construct($survey, $user, $token)
     {
         $this->survey = $survey;
         $this->user = $user;
+        $this->token = $token;
     }
 
     public function build()
     {
-        return $this->subject('【アンケート配信】' . $this->survey->name)
-                    ->markdown('emails.survey.notify');
-    }
-
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Survey Notification Mail',
-        );
+        return $this->subject('【アンケートのお知らせ】' . $this->survey->name)
+                    ->view('emails.survey.notify')
+                    ->with([
+                        'survey' => $this->survey,
+                        'user' => $this->user,
+                        'token' => $this->token,
+                    ]);
     }
 
     /**

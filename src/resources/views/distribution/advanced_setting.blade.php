@@ -17,7 +17,6 @@
             </div>
         </div>
 
-
         <div class="mx-auto bg-white p-8 shadow-md">
             <form id="detail-settings-form" method="POST" action="{{ route('survey.save-settings') }}">
                 @csrf
@@ -79,28 +78,11 @@
                         </div>
                     </div>
                 </div>
-
-                {{-- ✅ 匿名設定 --}}
-                <div class="grid grid-cols-12 gap-4 items-start">
-                    {{-- 左カラム：タイトル --}}
-                    <h3 class="col-span-2 text-xl font-semibold">匿名設定</h3>
-
-                    {{-- 右カラム：入力エリア（ラジオ） --}}
-                    <div class="col-span-10 space-y-2">
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="is_anonymous" value="1" checked class="form-radio text-blue-500">
-                            <span>匿名で回答させる</span>
-                        </label>
-                        <label class="flex items-center space-x-2">
-                            <input type="radio" name="is_anonymous" value="0" class="form-radio text-blue-500">
-                            <span>名前を記入させる</span>
-                        </label>
-                    </div>
-                </div>
             </form>
         </div>
         <!-- ボタン -->
         <div class="flex justify-center mt-8">
+            {{-- 配信内容確認へ（aタグ + JSで submit） --}}
             <a href="#" id="confirm-link"
                 class="w-64 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
                 配信内容確認へ
