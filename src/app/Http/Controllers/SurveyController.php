@@ -7,6 +7,7 @@ use App\Models\SurveyQuestion;
 use App\Models\SurveyResponseDetail;
 use App\Models\SurveyResponseOptionDetail;
 use App\Models\SurveyResponse;
+use App\Models\SurveyUserToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use App\Models\Department;
@@ -159,12 +160,24 @@ class SurveyController extends Controller
 
     public function employeeSurveyShow($id)
     {
-        $user = Auth::user();
+        // トークンからユーザーとアンケートを特定
+        $surveyUserToken = SurveyUserToken::where('token', $id)->first();
 
-        $survey = Survey::where('id', $id)->first();
+        if (!$surveyUserToken) {
+            abort(404, '無効なトークンです');
+        }
+
+        $survey = $surveyUserToken->survey;
         $surveyItems = SurveyQuestion::with('surveyQuestionOptions')->get();
 
-        return view('survey.employee-survey', compact('survey', 'surveyItems'));
+        $answeredStatus = 0;
+
+        // アンケートの回答状況を確認
+        if ($surveyUserToken->answered) {
+            $answeredStatus = 1; // 既に回答済み
+        }
+
+        return view('survey.employee-survey', compact('survey', 'surveyItems' , 'answeredStatus'));
     }
 
     public function employeeSurveyPost(Request $request)

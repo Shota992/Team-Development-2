@@ -7,6 +7,7 @@ use App\Models\Survey;
 use App\Models\SurveyQuestion;
 use App\Models\User;
 use App\Models\Department;
+use App\Models\SurveyUserToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
@@ -202,15 +203,26 @@ class DistributionController extends Controller
         if ($department) {
             $grouped[$department->name] = $department->user->pluck('id')->toArray();
         }
-        // ✅ ユーザーにメール送信
         foreach ($grouped as $deptName => $userIds) {
             foreach ($userIds as $userId) {
+                $token = \Illuminate\Support\Str::random(50); // ランダムな50文字のトークンを生成
+
+                // SurveyUserTokenモデルを使用して登録
+                SurveyUserToken::create([
+                    'survey_id' => $survey->id,
+                    'user_id' => $userId,
+                    'token' => $token,
+                    'answered' => false,
+                ]);
+
+                // ✅ ユーザーにメール送信
                 $user = \App\Models\User::find($userId);
                 if ($user) {
-                    Mail::to($user->email)->send(new SurveyNotificationMail($survey, $user));
+                    Mail::to($user->email)->send(new SurveyNotificationMail($survey, $user, $token));
                 }
             }
         }
+
 
         // ✅ ユーザー情報保存
         $selectedUserIds = session('survey_selected_users', []);
