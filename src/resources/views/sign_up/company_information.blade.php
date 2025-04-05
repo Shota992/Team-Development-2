@@ -1,13 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.plain')
 
 @section('content')
-@php
-    $admin = session('sign_up_admin');
-@endphp
+@php $admin = session('sign_up_admin'); @endphp
 
-<div class="min-h-screen flex items-center justify-center bg-blue-100">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-xl">
-        <h1 class="text-3xl text-center font-bold text-blue-400 mb-6">get mild</h1>
+<div class="flex items-center justify-center min-h-screen bg-[#E0F4FF]">
+    <div class="w-full max-w-xl bg-white p-8 rounded-md shadow">
+        <h1 class="text-center text-2xl font-bold mb-6">get mild</h1>
         <h2 class="text-lg text-center font-semibold mb-6">会社情報入力画面</h2>
 
         <form method="POST" action="{{ route('sign-up.register') }}" id="companyForm">
@@ -25,11 +23,16 @@
                 <p class="text-red-500 text-sm mb-1">※ このアプリケーションで使用する部署をすべて入力してください</p>
 
                 <div id="departmentFields">
-                    <input type="text" name="departments[]" value="{{ $admin['department'] ?? '' }}" class="w-full p-2 border rounded mb-2" required>
+                    <div class="flex mb-2 space-x-2">
+                        <input type="text" name="departments[]" value="{{ $admin['department'] ?? '' }}" class="w-full p-2 border rounded bg-gray-100" readonly>
+                    </div>
                 </div>
 
+                @error('departments')
+                    <p class="text-red-500 text-sm">部署を1つ以上入力してください。</p>
+                @enderror
+
                 <button type="button" onclick="addField('departmentFields', 'departments[]')" class="bg-gray-200 text-sm px-4 py-1 rounded">＋部署を追加</button>
-                @error('departments') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
             </div>
 
             {{-- 役職 --}}
@@ -38,17 +41,30 @@
                 <p class="text-red-500 text-sm mb-1">※ このアプリケーションで使用する役職をすべて入力してください</p>
 
                 <div id="positionFields">
-                    <input type="text" name="positions[]" value="{{ $admin['position'] ?? '' }}" class="w-full p-2 border rounded mb-2" required>
+                    <div class="flex mb-2 space-x-2">
+                        <input type="text" name="positions[]" value="{{ $admin['position'] ?? '' }}" class="w-full p-2 border rounded bg-gray-100" readonly>
+                    </div>
                 </div>
 
+                @error('positions')
+                    <p class="text-red-500 text-sm">役職を1つ以上入力してください。</p>
+                @enderror
+
                 <button type="button" onclick="addField('positionFields', 'positions[]')" class="bg-gray-200 text-sm px-4 py-1 rounded">＋役職を追加</button>
-                @error('positions') <p class="text-red-500 text-sm">{{ $message }}</p> @enderror
             </div>
 
-            {{-- ボタン --}}
-            <div class="flex justify-between">
-                <a href="{{ route('sign-up.admin') }}" class="bg-gray-400 text-white px-4 py-2 rounded">戻る</a>
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">新規登録する</button>
+            {{-- ボタンエリア --}}
+            <div class="mt-10 flex flex-col items-center space-y-4">
+                <button type="submit"
+                        id="submit-register"
+                        class="w-60 py-3 bg-[#4880FF] text-white font-bold rounded-md shadow text-center">
+                    新規登録する
+                </button>
+
+                <a href="{{ route('sign-up.admin') }}"
+                   class="w-60 py-3 bg-[#C4C4C4] text-white font-bold rounded-md shadow text-center">
+                    戻る
+                </a>
             </div>
         </form>
     </div>
@@ -57,12 +73,42 @@
 <script>
 function addField(containerId, name) {
     const container = document.getElementById(containerId);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex mb-2 space-x-2';
+
     const input = document.createElement('input');
     input.type = 'text';
     input.name = name;
     input.required = true;
-    input.className = 'w-full p-2 border rounded mb-2';
-    container.appendChild(input);
+    input.className = 'w-full p-2 border rounded';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'px-4 py-1 text-sm bg-red-400 text-white rounded whitespace-nowrap text-center'; 
+    deleteBtn.textContent = '削除';
+    deleteBtn.onclick = function () {
+        container.removeChild(wrapper);
+    };
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(deleteBtn);
+    container.appendChild(wrapper);
 }
+
+// 保存中表示
+document.getElementById('submit-register')?.addEventListener('click', function () {
+    const btn = this;
+    btn.classList.add('pointer-events-none', 'opacity-70');
+    btn.textContent = '保存中...';
+});
+
+// バリデーション失敗時や戻る時にボタンを初期化
+window.addEventListener('pageshow', function () {
+    const btn = document.getElementById('submit-register');
+    if (btn && btn.textContent.includes('保存中')) {
+        btn.classList.remove('pointer-events-none', 'opacity-70');
+        btn.textContent = '新規登録する';
+    }
+});
 </script>
 @endsection

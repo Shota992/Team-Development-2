@@ -1,5 +1,5 @@
 {{-- resources/views/auth/login.blade.php --}}
-@extends('layouts.app')
+@extends('layouts.plain')
 
 @section('content')
 <div class="flex items-center justify-center min-h-screen bg-blue-50">
