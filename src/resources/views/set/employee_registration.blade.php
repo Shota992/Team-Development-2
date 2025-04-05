@@ -40,9 +40,14 @@
         </div>
 
         {{-- メールアドレス --}}
-        <div class="flex items-center mb-4 border border-[#939393] rounded h-14">
-            <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">メールアドレス</label>
-            <input type="email" name="email" class="w-3/4 p-3 border-none focus:outline-none" required>
+        <div class="flex flex-col mb-4">
+            <div class="flex items-center border border-[#939393] rounded h-14">
+                <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">メールアドレス</label>
+                <input type="email" name="email" class="w-3/4 p-3 border-none focus:outline-none" required>
+            </div>
+            @error('email')
+                <p class="text-red-600 text-sm mt-1 ml-2">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- 部署 --}}
@@ -61,9 +66,19 @@
             <div class="w-3/4 p-3">{{ Auth::user()->office->name ?? '会社名未設定' }}</div>
         </div>
 
-        {{-- 管理者権限 --}}
+        {{-- 管理者権限（ツールチップ付き） --}}
         <div class="flex items-center mb-6 border border-[#939393] rounded h-14">
-            <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">管理者権限</label>
+            <label class="w-1/4 bg-[#D9D9D9] p-2 text-right flex items-center justify-end relative group">
+                管理者権限
+                <div class="ml-1 relative group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 cursor-pointer" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-12.75a.75.75 0 00-1.5 0v1a.75.75 0 001.5 0v-1zM9 8.75a.75.75 0 011.5 0v5.5a.75.75 0 01-1.5 0v-5.5z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="absolute z-30 left-1/2 transform -translate-x-1/2 mt-2 w-72 p-2 text-sm text-white bg-gray-700 rounded shadow-lg hidden group-hover:block">
+                        管理者権限とは、このアプリにログインしてアンケートの配信・分析を行うための権限です。回答のみでよい場合は「しない」で構いません。
+                    </div>
+                </div>
+            </label>
             <div class="w-3/4 p-3 flex gap-8">
                 <label><input type="radio" name="administrator" value="0" checked> しない</label>
                 <label><input type="radio" name="administrator" value="1"> する</label>

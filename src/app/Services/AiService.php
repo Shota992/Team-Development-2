@@ -35,7 +35,10 @@ class AiService
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => 'あなたはアンケート結果に基づくフィードバックを提供するアシスタントです。'
+                    'content' => "あなたはアンケート結果に基づくフィードバックを提供するアシスタントです。\n" .
+                                 "以下のルールを厳守してください:\n" .
+                                 "・太文字、斜体、下線、その他のMarkdown装飾は一切使用せず、完全なプレーンテキストで回答してください。\n" .
+                                 "・リストや箇条書きも使用しないでください。"
                 ],
                 [
                     'role' => 'user',
@@ -55,10 +58,21 @@ class AiService
 
         $json = $response->json();
         $feedback = $json['choices'][0]['message']['content'] ?? 'フィードバックを取得できませんでした。';
-        
-        // キャッシュに保存（ここでは1日間有効）
-        Cache::put($cacheKey, $feedback, now()->addDay());
-        
-        return $feedback;
+
+        // ここでMarkdown記法を取り除く後処理を実施
+        $cleanedFeedback = preg_replace([
+            '/\*\*(.*?)\*\*/s',  // **太文字**
+            '/\*(.*?)\*/s',      // *斜体*
+            '/\_(.*?)\_/s',      // _斜体_
+            '/\~\~(.*?)\~\~/s',  // ~~取り消し線~~
+            '/\`(.*?)\`/s',      // `コード`
+            '/^\-\s+/m',         // 行頭の "- " 箇条書き
+            '/^\*\s+/m',         // 行頭の "* " 箇条書き
+        ], '', $feedback);
+
+                // キャッシュに保存（ここでは1日間有効）
+                Cache::put($cacheKey, $cleanedFeedback, now()->addDay());
+
+        return $cleanedFeedback;
     }
 }

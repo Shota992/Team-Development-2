@@ -14,12 +14,30 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ChatDataController;
 use App\Http\Controllers\SurveyQuestionController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\SignUpController;
+
+//公開ルート（ログイン扶養）新規登録画面
+Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
+Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
+
+Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); 
+Route::post('/sign-up/register', [SignUpController::class, 'finalRegister'])->name('sign-up.register');
+
 
 // 公開ルート（ログイン不要）
 Route::get('/', fn () => view('welcome'));
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->group(function() {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
+    Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
+    Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
+});
 
 // 管理者のみアクセス可能なルート
 Route::middleware(['auth', 'admin.only'])->group(function () {

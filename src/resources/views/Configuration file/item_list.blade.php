@@ -23,7 +23,7 @@
     @include('components.sidebar')
     <div class="ml-64">
         <div>
-            <div class="flex justify-between p-5">
+            <div class="flex justify-between p-5 pt-8">
                 <div class="flex">
                     <figure>
                         <img src="{{ asset('images/title_logo.png') }}" alt="" />
