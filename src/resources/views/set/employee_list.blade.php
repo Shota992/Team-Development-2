@@ -88,6 +88,7 @@
                         <th class="px-4 py-2 border-b border-gray-300">生年月日</th>
                         <th class="px-4 py-2 border-b border-gray-300">部署</th>
                         <th class="px-4 py-2 border-b border-gray-300">役職</th>
+                        <th class="px-4 py-2 border-b border-gray-300">管理者権限</th> <!-- ★追加 -->
                         <th class="px-4 py-2 border-b border-gray-300">操作</th>
                     </tr>
                 </thead>
@@ -106,6 +107,9 @@
                         <td class="px-4 py-2">{{ \Carbon\Carbon::parse($employee->birthday)->format('Y/m/d') }}</td>
                         <td class="px-4 py-2">{{ $employee->department->name ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $employee->position->name ?? '-' }}</td>
+                        <td class="px-4 py-2">
+                            {{ $employee->administrator ? 'あり' : 'なし' }} <!-- ★追加 -->
+                        </td>
                         <td class="px-4 py-2">
                             <form method="POST" action="{{ route('employee.delete', $employee->id) }}" onsubmit="return confirm('本当に削除しますか？');">
                                 @csrf

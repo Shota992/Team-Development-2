@@ -13,6 +13,7 @@ class SurveyResponseDetail extends Model
 
     protected $fillable = [
         'response_id',
+        'question_id',
         'question_text',
         'survey_question_option_id',
         'answer',

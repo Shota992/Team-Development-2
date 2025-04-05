@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded shadow">
+<div class="max-w-4xl mx-auto mt-10 bg-[#F7F8FA] p-8 rounded shadow">
     <h2 class="text-xl font-bold mb-6">従業員登録</h2>
 
     <form action="{{ route('employee.store') }}" method="POST">
@@ -46,13 +46,28 @@
         </div>
 
         {{-- 部署 --}}
-        <div class="flex items-center mb-6 border border-[#939393] rounded h-14">
+        <div class="flex items-center mb-4 border border-[#939393] rounded h-14">
             <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">部署</label>
             <select name="department_id" class="w-3/4 p-3 border-none focus:outline-none">
                 @foreach ($departments as $department)
                     <option value="{{ $department->id }}">{{ $department->name }}</option>
                 @endforeach
             </select>
+        </div>
+
+        {{-- 会社（表示のみ） --}}
+        <div class="flex items-center mb-4 border border-[#939393] rounded h-14 bg-gray-100">
+            <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">会社</label>
+            <div class="w-3/4 p-3">{{ Auth::user()->office->name ?? '会社名未設定' }}</div>
+        </div>
+
+        {{-- 管理者権限 --}}
+        <div class="flex items-center mb-6 border border-[#939393] rounded h-14">
+            <label class="w-1/4 bg-[#D9D9D9] p-2 text-right">管理者権限</label>
+            <div class="w-3/4 p-3 flex gap-8">
+                <label><input type="radio" name="administrator" value="0" checked> しない</label>
+                <label><input type="radio" name="administrator" value="1"> する</label>
+            </div>
         </div>
 
         {{-- 登録ボタン --}}
