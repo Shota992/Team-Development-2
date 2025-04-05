@@ -12,7 +12,7 @@
                     <figure>
                         <img src="{{ asset('images/title_logo.png') }}" alt="" />
                     </figure>
-                    <p class="ml-2 text-2xl font-bold">アンケート設定 ーアンケート作成ー</p>
+                    <p class="ml-2 text-2xl font-bold">アンケート設定 ーアンケート配信確認ー</p>
                 </div>
             </div>
         </div>
