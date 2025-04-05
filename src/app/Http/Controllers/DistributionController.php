@@ -185,7 +185,6 @@ class DistributionController extends Controller
     {
         $input = session('survey_input');
 
-
         // 📝 Survey作成（department_idにNULLは入れない）
         $survey = Survey::create([
             'name'         => $input['name'] ?? 'タイトル未設定',
