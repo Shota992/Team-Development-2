@@ -170,6 +170,7 @@ class SurveyController extends Controller
         $survey = $surveyUserToken->survey;
 
         $answeredStatus = 0;
+        $dateStatus = $survey->date_status;
 
         // アンケートの回答状況を確認
         if ($surveyUserToken->answered) {
@@ -185,7 +186,7 @@ class SurveyController extends Controller
             })
             ->get();
 
-        return view('survey.employee-survey', compact('survey', 'surveyItems', 'answeredStatus', 'id'));
+        return view('survey.employee-survey', compact('survey', 'surveyItems', 'dateStatus' ,'answeredStatus', 'id'));
     }
 
     public function employeeSurveyPost(Request $request, $token)
