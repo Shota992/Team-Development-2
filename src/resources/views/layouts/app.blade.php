@@ -9,7 +9,8 @@
     <!-- Tailwind 等のビルド済みCSS/JS -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="antialiased">
+<body class="antialiased bg-light-gray">
+    @include('components.sidebar')
     <div id="app">
         @yield('content')
     </div>

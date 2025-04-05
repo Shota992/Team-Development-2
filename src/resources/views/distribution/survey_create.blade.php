@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto bg-light-gray shadow-lg p-6">
+<div class="max-w-6xl ml-64 bg-light-gray p-6">
     <h2 class="text-xl font-bold mb-4 border-b pb-2">📋 配信設定 ー アンケート作成 ー</h2>
 
     @if (session('success'))
@@ -95,12 +95,12 @@
     </div>
 
     <!-- ✅ 最下部リンク -->
-    <div class="flex justify-center mt-10">
+    {{-- <div class="flex justify-center mt-10">
         <a href="javascript:void(0);" id="goToItemEdit"
             class="px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
             設問編集画面へ
         </a>
-    </div>
+    </div> --}}
 
     <div class="flex justify-center mt-10">
         <a href="javascript:void(0);" id="goToGroupSelection"
@@ -192,7 +192,7 @@
             saveSurveyToSession(
                 // 成功時
                 () => {
-                    window.location.href = "{{ route('survey.group-selection') }}";
+                    window.location.href = "{{ route('survey.advanced-setting') }}";
                 },
                 // エラー時
                 () => {

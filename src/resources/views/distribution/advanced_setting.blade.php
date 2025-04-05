@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto bg-white p-8 shadow-md">
+<div class="max-w-6xl ml-64 bg-white p-6">
     <h2 class="text-2xl font-bold mb-10">⚙️ アンケート詳細設定</h2>
 
     <form id="detail-settings-form" method="POST" action="{{ route('survey.save-settings') }}">
@@ -54,24 +54,6 @@
                 <input type="date" name="deadline_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
                 <label class="text-gray-700">期限時間：</label>
                 <input type="time" name="deadline_time" class="border rounded px-3 py-2 w-32 cursor-pointer" disabled>
-            </div>
-        </div>
-
-        {{-- ✅ 匿名設定 --}}
-        <div class="mb-10">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-8 mb-4">
-                <h3 class="text-xl font-semibold whitespace-nowrap mb-2 md:mb-0">🛡️ 匿名設定</h3>
-
-                <div class="flex flex-col space-y-2">
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="is_anonymous" value="1" checked class="form-radio text-blue-500">
-                        <span>匿名で回答させる</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="is_anonymous" value="0" class="form-radio text-blue-500">
-                        <span>名前を記入させる</span>
-                    </label>
-                </div>
             </div>
         </div>
 

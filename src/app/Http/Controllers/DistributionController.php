@@ -22,7 +22,14 @@ class DistributionController extends Controller
 {
     public function create()
     {
-        $questions = SurveyQuestion::with('surveyQuestionOptions')->orderBy('id', 'asc')->get();
+        $loggedInUserDepartmentId = auth()->user()->department_id;
+        $questions = SurveyQuestion::with('surveyQuestionOptions')
+            ->where(function ($query) use ($loggedInUserDepartmentId) {
+                $query->where('common_status', 1)
+                    ->orWhere('department_id', $loggedInUserDepartmentId);
+            })
+            ->orderBy('id', 'asc')
+            ->get();
         return view('distribution.survey_create', compact('questions'));
     }
 
@@ -98,6 +105,8 @@ class DistributionController extends Controller
     {
         $users = User::with('position')->get();
         $departments = Department::all();
+        $loggedInUserOfficeId = auth()->user()->office_id;
+        $departments = Department::where('office_id', $loggedInUserOfficeId)->get();
         return view('distribution.group_selection', compact('users', 'departments'));
     }
 
@@ -144,7 +153,7 @@ class DistributionController extends Controller
 
     public function saveSettings(Request $request)
     {
-        
+
         $sendType = $request->input('send_type');
         $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
 
@@ -175,17 +184,6 @@ class DistributionController extends Controller
     {
         $input = session('survey_input');
 
-        // ✅ 1つ目の部署名からIDを取得（仮対応）
-        $deptNames = session('selected_departments', []);
-        $firstDepartmentName = $deptNames[0] ?? null;
-        $firstDepartmentId = null;
-
-        if ($firstDepartmentName) {
-            $deptModel = \App\Models\Department::where('name', $firstDepartmentName)->first();
-            if ($deptModel) {
-                $firstDepartmentId = $deptModel->id;
-            }
-        }
 
         // 📝 Survey作成（department_idにNULLは入れない）
         $survey = Survey::create([
@@ -194,12 +192,17 @@ class DistributionController extends Controller
             'start_date'   => $input['start_date'] ?? now(),
             'end_date'     => $input['end_date'] ?? null,
             'office_id'    => auth()->user()->office_id,
-            'department_id' => $firstDepartmentId, // ←重要！！
+            'department_id' => auth()->user()->department_id, // authから取得したdepartment_idを挿入
             'is_active'    => true,
         ]);
 
+        $departmentId = auth()->user()->department_id;
+        $department = Department::with('user')->find($departmentId);
+
+        if ($department) {
+            $grouped[$department->name] = $department->user->pluck('id')->toArray();
+        }
         // ✅ ユーザーにメール送信
-        $grouped = session('survey_selected_users_grouped', []);
         foreach ($grouped as $deptName => $userIds) {
             foreach ($userIds as $userId) {
                 $user = \App\Models\User::find($userId);
@@ -267,5 +270,4 @@ class DistributionController extends Controller
             'departmentUserCounts' => $departmentUserCounts,
         ]);
     }
-
 }
