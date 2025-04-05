@@ -197,9 +197,13 @@
                                 <div>回答率 {{ $percentage }}%</div>
                                 <div>未回答者 {{ $total - $answered }}人</div>
                             </div>
-                            <button class="mt-4 w-full py-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition">
-                                未回答者一覧へ
-                            </button>
+                            @if ($latestSurvey)
+                            <a href="{{ route('survey.unanswered-users', $latestSurvey->id) }}">
+                                <button class="mt-4 w-full py-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition">
+                                    未回答者一覧へ
+                                </button>
+                            </a>
+                        @endif
                         </div>
 
                         <!-- AIフィードバックカード -->

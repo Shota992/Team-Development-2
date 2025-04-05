@@ -67,22 +67,20 @@ class DashboardController extends Controller
         // 回答者数を集計する
         // survey_response_usersテーブルから回答者を集計しつつ、usersテーブルとJOINして
         // 選択された部署(または会社)に属するユーザーのみを対象とする
-        $answeredQuery = DB::table('survey_response_users')
-            ->join('users', 'survey_response_users.user_id', '=', 'users.id')
-            ->where('survey_response_users.survey_id', $latestSurvey ? $latestSurvey->id : 0);
-
-        if ($selectedDepartmentId === 'all') {
-            // 会社全体の場合、office_id でフィルタ
-            $answeredQuery->where('users.office_id', $user->office_id);
-        } else {
-            // 特定部署の場合、department_id でフィルタ
-            $answeredQuery->where('users.department_id', $selectedDepartmentId);
-        }
-
-        // 回答者数をdistinctでカウント
-        $answered = $answeredQuery
-            ->distinct('survey_response_users.user_id')
-            ->count('survey_response_users.user_id');
+        $answeredQuery = DB::table('survey_user_tokens')
+        ->join('users', 'survey_user_tokens.user_id', '=', 'users.id')
+        ->where('survey_user_tokens.survey_id', $latestSurvey ? $latestSurvey->id : 0)
+        ->where('survey_user_tokens.answered', true);
+    
+    if ($selectedDepartmentId === 'all') {
+        $answeredQuery->where('users.office_id', $user->office_id);
+    } else {
+        $answeredQuery->where('users.department_id', $selectedDepartmentId);
+    }
+    
+    $answered = $answeredQuery
+        ->distinct('survey_user_tokens.user_id')
+        ->count('survey_user_tokens.user_id');
 
         // 回答率などの計算
         $percentage = ($total > 0) ? round(($answered / $total) * 100) : 0;

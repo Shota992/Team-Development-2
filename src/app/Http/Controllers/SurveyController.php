@@ -14,6 +14,9 @@ use App\Models\SurveyUserToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
+use App\Mail\SurveyReminderMail;
+use Illuminate\Support\Facades\Mail;
+
 
 class SurveyController extends Controller
 {
@@ -245,6 +248,7 @@ class SurveyController extends Controller
             return redirect()->route('survey.employee-survey-fail', [
                 'id' => $surveyId,
                 'error_code' => $e->getCode(),
+            ]);
 
             // トークンのansweredを1に更新
             $surveyUserToken = SurveyUserToken::where('token', $token)->first();
@@ -289,4 +293,34 @@ class SurveyController extends Controller
             'error_code' => $errorCode,
         ]);
     }
+
+    public function unansweredUsers($surveyId)
+{
+    $survey = Survey::findOrFail($surveyId);
+
+    // 回答していないユーザーを取得（トークンがあり、answered = 0）
+    $unansweredTokens = \App\Models\SurveyUserToken::where('survey_id', $surveyId)
+        ->where('answered', 0)
+        ->with('user') // ユーザー情報も取得
+        ->get();
+
+    return view('survey.unanswered-users', [
+        'survey' => $survey,
+        'unansweredTokens' => $unansweredTokens,
+    ]);
+}
+
+public function remindUnanswered(Survey $survey)
+{
+    $unansweredTokens = $survey->surveyUserTokens()->where('answered', false)->with('user')->get();
+
+    foreach ($unansweredTokens as $token) {
+        if ($token->user && $token->user->email) {
+            $url = url('/survey/fill/' . $token->token); // 回答用URLを生成
+            Mail::to($token->user->email)->send(new SurveyReminderMail($token->user, $survey, $url));
+        }
+    }
+
+    return back()->with('status', '未回答者にリマインドメールを送信しました');
+}
 }

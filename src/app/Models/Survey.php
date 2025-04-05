@@ -35,10 +35,9 @@ class Survey extends Model
     // リレーション: このアンケートに対する回答
     public function surveyResponses()
     {
-        return $this->hasMany('App\Models\SurveyQuestion');
+        return $this->hasMany('App\Models\SurveyResponse');
     }
 
-    // このアンケートに対する回答
     public function responses(): HasMany
     {
         return $this->hasMany(SurveyResponse::class, 'survey_id');
@@ -53,10 +52,13 @@ class Survey extends Model
     {
         return $this->belongsTo(\App\Models\Department::class, 'department_id');
     }
-    public function token()
+
+    // SurveyUserTokenとのリレーションを追加
+    public function surveyUserTokens()
     {
-        return $this->hasMany('App\Models\SurveyResponseUser');
+        return $this->hasMany(\App\Models\SurveyUserToken::class, 'survey_id');
     }
+
     public function getDateStatusAttribute()
     {
         $today = Carbon::today();
