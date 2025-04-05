@@ -27,7 +27,9 @@
             <div id="progress-bar" class="h-full bg-button-blue rounded-full w-0"></div>
         </div>
     </div>
-
+    <p id="saving-message" class="text-center text-lg font-bold text-gray-700 mt-4 hidden">
+        解答を送信中です。しばらくお待ち下さい。
+    </p>
     <!-- 質問と理由 -->
     <div id="survey-container">
         @foreach ($surveyItems as $index => $item)
@@ -220,6 +222,17 @@
                 if (currentIndex < questions.length) {
                     questions[currentIndex].classList.remove('hidden');
                 } else {
+                    // アンケート送信時の処理
+                    // 進捗バーを100%に更新
+                    progressBar.style.width = "100%";
+                    progressText.innerText = "100%";
+
+                    // 「次へ」ボタンを非表示にする
+                    nextButton.classList.add('hidden');
+
+                    // 「保存中です」メッセージを表示
+                    const savingMessage = document.getElementById('saving-message');
+                    savingMessage.classList.remove('hidden');
 
                     // フォームにデータを設定して送信
                     const responsesInput = document.getElementById('responses-input');
