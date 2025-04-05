@@ -103,7 +103,6 @@ class MeasureController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $validated = $request->validate([
             'title'                   => 'required|string|max:255',
             'description'             => 'required|string',
@@ -132,38 +131,45 @@ class MeasureController extends Controller
                 },
             ],
         ]);
-
+    
         /** @var Carbon $today */
         $today = Carbon::today();
-
+    
+        // 評価頻度に応じて、次回評価日を計算
         if ($request->evaluation_frequency === 'custom') {
             $value = $request->custom_frequency_value;
             if ($request->custom_frequency_unit === 'weeks') {
-                $nextEvaluationDate = $today->addWeeks($value)->next(Carbon::MONDAY);
+                // 例：カスタムで週単位の場合、次の月曜日を基準に
+                $nextEvaluationDate = $today->copy()->addWeeks($value)->next(Carbon::MONDAY);
             } else {
-                $nextEvaluationDate = $today->addMonths($value)->startOfMonth();
+                // カスタムで月単位の場合、今日から value ヶ月後の月初に設定
+                $nextEvaluationDate = $today->copy()->addMonths($value)->startOfMonth();
             }
         } else {
-            $nextEvaluationDate = $today->addMonths((int)$request->evaluation_frequency)->startOfMonth();
+            // 数値の場合（例：1, 3, 6, 12）、今日からその月数後の月初に設定
+            $nextEvaluationDate = $today->copy()->addMonths((int)$request->evaluation_frequency)->startOfMonth();
         }
-
-        $measure = DB::transaction(function () use ($request, $next, &$measure) {
+    
+        // Measure の登録処理（DBトランザクション内）
+        $measure = DB::transaction(function () use ($request, $nextEvaluationDate) {
             $m = Measure::create([
                 'office_id'                => auth()->user()->office_id,
                 'department_id'            => $request->department_id,
                 'title'                    => $request->title,
                 'description'              => $request->description,
-                'evaluation_interval_value' => $request->evaluation_frequency === 'custom'
+                'evaluation_interval_value'=> $request->evaluation_frequency === 'custom'
                     ? $request->custom_frequency_value
                     : (int)$request->evaluation_frequency,
                 'evaluation_interval_unit' => $request->evaluation_frequency === 'custom'
                     ? $request->custom_frequency_unit
                     : 'months',
-                'evaluation_status'        => 'pending',
-                'next_evaluation_date'     => $next,
+                // ここで evaluation_status を 0 に設定（施策作成時の初期値）
+                'evaluation_status'        => 0,
+                'next_evaluation_date'     => $nextEvaluationDate,
             ]);
+    
             foreach ($request->task_name as $i => $name) {
-                $measure->tasks()->create([
+                $m->tasks()->create([
                     'name'          => $name,
                     'department_id' => $request->task_department_id[$i],
                     'user_id'       => $request->assignee[$i],
@@ -172,18 +178,20 @@ class MeasureController extends Controller
                     'status'        => 0,
                 ]);
             }
+            return $m;
         });
-
-        // JSONリクエストなら JSON 返却、それ以外はリダイレクト
+    
+        // JSONリクエストの場合は JSON で返却
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'measure' => $measure->load('tasks'),
             ], 201);
         }
-
+    
         return redirect()->route('measures.index')->with('success', '施策が作成されました。');
     }
+    
 
     public function noEvaluation(Request $request)
     {
