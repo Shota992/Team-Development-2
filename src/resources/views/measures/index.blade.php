@@ -58,7 +58,7 @@
                     <span class="text-gray-500 text-2xl ml-1 mb-1">&gt;</span>
                 </a>
             </div>
-            <div class="flex overflow-hidden rounded-full border border-gray-400 w-max text-center text-sm mb-3 mr-3">
+            <div class="flex overflow-hidden rounded-full border border-gray-400 w-max text-center text-sm mb-3 mr-6">
                 <div class="bg-light-red text-gray-800 px-4 py-1">
                     遅延中
                 </div>
@@ -70,8 +70,8 @@
                 </div>
             </div>
         </div>
-        <div class="overflow-x-auto w-full">
-            <table class="border-collapse border-chart-border-gray table-auto w-full mt-3">
+        <div class="overflow-x-auto w-49/50">
+            <table class="border-collapse border-chart-border-gray table-auto mt-3">
                 <thead>
                     <tr class="bg-chart-gray text-gray-700">
                         <th class="sticky z-30 left-0 bg-chart-gray px-4 py-2 w-32 border border-chart-border-gray" colspan="2">
