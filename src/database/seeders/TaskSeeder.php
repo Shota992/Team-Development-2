@@ -108,7 +108,7 @@ class TaskSeeder extends Seeder
             'name' => '新卒採用プロセスの改善案実施',
             'start_date' => '2025-04-01',
             'end_date' => '2025-04-15',
-            'status' => 1,
+            'status' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -143,7 +143,7 @@ class TaskSeeder extends Seeder
             'name' => '中途採用プロセスの改善案実施',
             'start_date' => '2025-04-11',
             'end_date' => '2025-04-25',
-            'status' => 1,
+            'status' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -178,7 +178,7 @@ class TaskSeeder extends Seeder
             'name' => '研修プログラムの改善案実施',
             'start_date' => '2025-04-21',
             'end_date' => '2025-05-05',
-            'status' => 1,
+            'status' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
