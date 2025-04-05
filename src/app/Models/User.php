@@ -69,7 +69,7 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Task');
     }
 
-    public function surveyResponseUsers()
+    public function token()
     {
         return $this->hasMany('App\Models\SurveyResponseUser');
     }

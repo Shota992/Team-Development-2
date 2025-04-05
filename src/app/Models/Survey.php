@@ -49,7 +49,7 @@ class Survey extends Model
     {
         return $this->belongsTo(\App\Models\Department::class, 'department_id');
     }
-    public function responseUsers()
+    public function token()
     {
         return $this->hasMany('App\Models\SurveyResponseUser');
     }
