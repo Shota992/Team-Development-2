@@ -22,7 +22,10 @@ class Survey extends Model
         'office_id',
         'department_id',
     ];
-    protected $dates = ['start_date', 'end_date'];
+    protected $casts = [
+        'start_date' => 'datetime:Y-m-d H:i', // 時分までフォーマット
+        'end_date' => 'datetime:Y-m-d H:i',   // 時分までフォーマット
+    ];
 
     public function questions()
     {
