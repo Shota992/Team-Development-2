@@ -1,6 +1,6 @@
-<aside class="w-56 h-screen bg-white shadow-lg fixed overflow-visible z-40">
+<aside class="w-56 h-screen bg-white shadow-lg fixed overflow-y-auto z-40">
     <div class="py-4 border-b text-center">
-        <a class="text-lg font-bold text-gray-700">get mild</a>
+        <a href="{{ route('dashboard') }}" class="text-lg font-bold text-gray-700">get mild</a>
     </div>
 
     <div class="p-4 border-b bg-gray-100">
@@ -17,16 +17,12 @@
             <!-- 通知ポップアップ -->
             <div x-data="{ open: false }" class="relative w-auto min-w-[48px]">
                 <!-- 通知ベル（クリックでトグル） -->
-<!-- 通知ベル（クリックでトグル） -->
-<img src="{{ asset('images/bellicon.png') }}" alt="Bell" class="w-6 h-6 cursor-pointer" @click="open = !open" />
+                <img src="{{ asset('images/bellicon.png') }}" alt="Bell" class="w-6 h-6 cursor-pointer" @click="open = !open" />
 
-<!-- 未読通知がある場合に赤いドットを表示 -->
-@if ($notifications->where('read_at', null)->count() > 0)
-    <span
-        class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 block bg-red-600 rounded-full"
-        style="width: 8px; height: 8px;"
-    ></span>
-@endif
+                <!-- 未読通知がある場合に赤いドットを表示 -->
+                @if ($notifications->where('read_at', null)->count() > 0)
+                    <span class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 block bg-red-600 rounded-full" style="width: 8px; height: 8px;"></span>
+                @endif
 
                 <!-- 通知ポップアップ本体 -->
                 <div x-show="open" @click.away="open = false"
@@ -84,19 +80,19 @@
         <ul>
             <li class="hover:bg-[#e6f8fe] p-4 rounded">
                 <a href="{{ route('dashboard') }}" class="flex items-center space-x-2 text-gray-700">
-                    <img src="{{ asset('images/dashboardicon.png') }}" class="w-6 h-6" alt="">
+                    <img src="{{ asset('images/dashboardicon.png') }}" class="w-6 h-6" alt="Dashboard">
                     <span>ダッシュボード</span>
                 </a>
             </li>
             <li class="hover:bg-[#e6f8fe] p-4 rounded">
                 <a href="{{ route('items.index') }}" class="flex items-center space-x-2 text-gray-700">
-                    <img src="{{ asset('images/item-detail icon.png') }}" class="w-6 h-6" alt="">
+                    <img src="{{ asset('images/item-detail icon.png') }}" class="w-6 h-6" alt="Item Details">
                     <span>項目別詳細</span>
                 </a>
             </li>
             <li class="hover:bg-[#e6f8fe] p-4 rounded">
                 <a href="{{ route('departments.index') }}" class="flex items-center space-x-2 text-gray-700">
-                    <img src="{{ asset('images/dept-compareicon.png') }}" class="w-6 h-6" alt="">
+                    <img src="{{ asset('images/dept-compareicon.png') }}" class="w-6 h-6" alt="Department Compare">
                     <span>部署別比較</span>
                 </a>
             </li>
@@ -104,7 +100,7 @@
                 <details class="group cursor-pointer">
                     <summary class="flex justify-between items-center text-gray-700">
                         <div class="flex items-center space-x-2">
-                            <img src="{{ asset('images/policy-createicon.png') }}" class="w-6 h-6" alt="">
+                            <img src="{{ asset('images/policy-createicon.png') }}" class="w-6 h-6" alt="Policy Create">
                             <span>施策立案</span>
                         </div>
                         <span class="transition-transform group-open:rotate-90">▶</span>
@@ -120,10 +116,10 @@
                 @php
                     $totalTaskBadgeCount = ($executingTasksCount ?? 0) + ($pendingEvaluationMeasuresCount ?? 0);
                 @endphp
-                <details class="group cursor-pointer" open>
+                <details class="group cursor-pointer">
                     <summary class="flex justify-between items-center text-gray-700">
                         <div class="flex items-center space-x-2">
-                            <img src="{{ asset('images/policy-listicon.png') }}" class="w-6 h-6" alt="">
+                            <img src="{{ asset('images/policy-listicon.png') }}" class="w-6 h-6" alt="Policy List">
                             <span>施策一覧</span>
                             @if($totalTaskBadgeCount > 0)
                                 <span class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
@@ -160,7 +156,7 @@
                 <details class="group cursor-pointer">
                     <summary class="flex justify-between items-center text-gray-700">
                         <div class="flex items-center space-x-2">
-                            <img src="{{ asset('images/survey-configiconicon.png') }}" class="w-6 h-6" alt="">
+                            <img src="{{ asset('images/survey-configiconicon.png') }}" class="w-6 h-6" alt="Survey Config">
                             <span>アンケート設定</span>
                         </div>
                         <span class="transition-transform group-open:rotate-90">▶</span>
@@ -175,7 +171,7 @@
                 <details class="group cursor-pointer">
                     <summary class="flex justify-between items-center text-gray-700">
                         <div class="flex items-center space-x-2">
-                            <img src="{{ asset('images/settingsicon.png') }}" class="w-6 h-6" alt="">
+                            <img src="{{ asset('images/settingsicon.png') }}" class="w-6 h-6" alt="Settings">
                             <span>設定</span>
                         </div>
                         <span class="transition-transform group-open:rotate-90">▶</span>
@@ -188,3 +184,17 @@
         </ul>
     </nav>
 </aside>
+
+<script>
+document.addEventListener("toggle", function(event) {
+  if (event.target.open) {
+    // 同じ aside 内の全ての details 要素を取得し、
+    // 開いているものがあれば閉じる
+    document.querySelectorAll("aside details").forEach(function(detail) {
+      if (detail !== event.target) {
+        detail.removeAttribute("open");
+      }
+    });
+  }
+}, true);
+</script>
