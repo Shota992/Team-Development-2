@@ -79,6 +79,9 @@ class SignUpController extends Controller
             'departments.*' => 'required|string|max:255',
             'positions' => 'required|array|min:1',
             'positions.*' => 'required|string|max:255',
+        ], [
+            'departments.required' => '部署を1つ以上入力してください。',
+            'positions.required' => '役職を1つ以上入力してください。',
         ]);
 
         DB::transaction(function () use ($admin, $request) {
