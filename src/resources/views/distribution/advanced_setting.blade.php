@@ -1,98 +1,120 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto bg-white p-8 shadow-md">
-    <h2 class="text-2xl font-bold mb-10">⚙️ アンケート詳細設定</h2>
+@include('components.sidebar')
 
-    <form id="detail-settings-form" method="POST" action="{{ route('survey.save-settings') }}">
-        @csrf
-
-        {{-- ✅ 配信日時を設定 --}}
-        <div class="mb-10">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-8 mb-4">
-                <h3 class="text-xl font-semibold whitespace-nowrap mb-2 md:mb-0">📅 配信日時を設定</h3>
-
-                <div class="flex flex-col space-y-2">
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="send_type" value="now" checked class="form-radio text-blue-500">
-                        <span>すぐに配信する</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="send_type" value="schedule" class="form-radio text-blue-500">
-                        <span>予約配信する</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap items-center space-x-6 mt-4">
-                <label class="text-gray-700">配信日：</label>
-                <input type="date" name="scheduled_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
-                <label class="text-gray-700">配信時間：</label>
-                <input type="time" name="scheduled_time" class="border rounded px-3 py-2 w-32 cursor-pointer" disabled>
-            </div>
-        </div>
-
-        {{-- ✅ 提出期限 --}}
-        <div class="mb-10">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-8 mb-4">
-                <h3 class="text-xl font-semibold whitespace-nowrap mb-2 md:mb-0">📤 提出期限</h3>
-
-                <div class="flex flex-col space-y-2">
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="deadline_type" value="none" checked class="form-radio text-blue-500">
-                        <span>設定しない</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="deadline_type" value="set" class="form-radio text-blue-500">
-                        <span>設定する</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap items-center space-x-6 mt-4">
-                <label class="text-gray-700">期限日：</label>
-                <input type="date" name="deadline_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
-                <label class="text-gray-700">期限時間：</label>
-                <input type="time" name="deadline_time" class="border rounded px-3 py-2 w-32 cursor-pointer" disabled>
-            </div>
-        </div>
-
-        {{-- ✅ 匿名設定 --}}
-        <div class="mb-10">
-            <div class="flex flex-col md:flex-row md:items-center md:space-x-8 mb-4">
-                <h3 class="text-xl font-semibold whitespace-nowrap mb-2 md:mb-0">🛡️ 匿名設定</h3>
-
-                <div class="flex flex-col space-y-2">
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="is_anonymous" value="1" checked class="form-radio text-blue-500">
-                        <span>匿名で回答させる</span>
-                    </label>
-                    <label class="flex items-center space-x-2">
-                        <input type="radio" name="is_anonymous" value="0" class="form-radio text-blue-500">
-                        <span>名前を記入させる</span>
-                    </label>
+<div class="bg-[#F7F8FA]">
+    <div class="min-h-screen pb-8 ml-64 mr-8">
+            {{-- ▼ ヘッダー --}}
+        <div>
+            <div class="flex justify-between p-5 pt-8">
+                <div class="flex">
+                    <figure>
+                        <img src="{{ asset('images/title_logo.png') }}" alt="" />
+                    </figure>
+                    <p class="ml-2 text-2xl font-bold">アンケート設定 ー配信設定ー</p>
                 </div>
             </div>
         </div>
 
-        {{-- ✅ ボタンエリア --}}
-        <div class="mt-10 text-center space-y-4">
-            {{-- 配信内容確認へ（aタグ + JSで submit） --}}
+
+        <div class="mx-auto bg-white p-8 shadow-md">
+            <form id="detail-settings-form" method="POST" action="{{ route('survey.save-settings') }}">
+                @csrf
+
+                {{-- ✅ 配信日時 --}}
+                <div class="mb-10 grid grid-cols-12 gap-4 items-start">
+                    {{-- 左カラム：タイトル --}}
+                    <h3 class="col-span-2 text-xl font-semibold">配信日時</h3>
+
+                    {{-- 右カラム：入力エリア --}}
+                    <div class="col-span-10 space-y-4">
+                        {{-- ラジオボタン --}}
+                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="send_type" value="now" checked class="form-radio text-blue-500">
+                                <span>すぐに配信する</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="send_type" value="schedule" class="form-radio text-blue-500">
+                                <span>予約配信する</span>
+                            </label>
+                        </div>
+
+                        {{-- 日時入力 --}}
+                        <div class="flex flex-wrap items-center gap-4">
+                            <label class="text-gray-700">配信日：</label>
+                            <input type="date" name="scheduled_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
+                            <label class="text-gray-700">配信時間：</label>
+                            <input type="time" name="scheduled_time" class="border rounded px-3 py-2 w-32 cursor-pointer" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ✅ 提出期限 --}}
+                <div class="mb-10 grid grid-cols-12 gap-4 items-start">
+                    {{-- 左カラム：タイトル --}}
+                    <h3 class="col-span-2 text-xl font-semibold">提出期限</h3>
+
+                    {{-- 右カラム：入力エリア --}}
+                    <div class="col-span-10 space-y-4">
+                        {{-- ラジオボタン --}}
+                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="deadline_type" value="none" checked class="form-radio text-blue-500">
+                                <span>設定しない</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="deadline_type" value="set" class="form-radio text-blue-500">
+                                <span>設定する</span>
+                            </label>
+                        </div>
+
+                        {{-- 日時入力 --}}
+                        <div class="flex flex-wrap items-center gap-4">
+                            <label class="text-gray-700">期限日：</label>
+                            <input type="date" name="deadline_date" class="border rounded px-3 py-2 w-44 cursor-pointer" disabled>
+                            <label class="text-gray-700">期限時間：</label>
+                            <input type="time" name="deadline_time" class="border rounded px-3 py-2 w-32 cursor-pointer" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ✅ 匿名設定 --}}
+                <div class="grid grid-cols-12 gap-4 items-start">
+                    {{-- 左カラム：タイトル --}}
+                    <h3 class="col-span-2 text-xl font-semibold">匿名設定</h3>
+
+                    {{-- 右カラム：入力エリア（ラジオ） --}}
+                    <div class="col-span-10 space-y-2">
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="is_anonymous" value="1" checked class="form-radio text-blue-500">
+                            <span>匿名で回答させる</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="is_anonymous" value="0" class="form-radio text-blue-500">
+                            <span>名前を記入させる</span>
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- ボタン -->
+        <div class="flex justify-center mt-8">
             <a href="#" id="confirm-link"
-                class="inline-block w-60 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 text-center">
+                class="w-64 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
                 配信内容確認へ
             </a>
-
-            {{-- 戻る --}}
-            <div>
-                <a href="{{ route('survey.group-selection') }}"
-                    class="inline-block w-60 py-3 bg-gray-300 text-gray-800 font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
-                    戻る
-                </a>
-            </div>
         </div>
-    </form>
+        <div class="flex justify-center mt-4">
+            <a href="{{ route('survey.group-selection') }}"
+                class="w-64 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
+                戻る
+            </a>
+        </div>
+    </div>
 </div>
+
 
 <script>
     // ✅ ラジオ切替でフォーム活性/非活性
