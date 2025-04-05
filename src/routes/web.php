@@ -72,7 +72,7 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
 
     // 従業員アンケート（個別表示）
     Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
-    Route::post('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
+    Route::post('/survey/employee/{token}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
     Route::get('/survey/employee/{id}/success', [SurveyController::class, 'employeeSurveySuccess'])->name('survey.employee-survey-success');
     Route::get('/survey/employee/{id}/fail', [SurveyController::class, 'employeeSurveyFail'])->name('survey.employee-survey-fail');
 

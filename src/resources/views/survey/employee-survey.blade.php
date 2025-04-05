@@ -112,7 +112,7 @@
             </button>
         </div>
     </div>
-    <form id="survey-form" method="POST" action="{{ route('survey.employee.post', ['id' => $survey->id]) }}">
+    <form id="survey-form" method="POST" action="{{ route('survey.employee.post', ['token' => $id]) }}">
         @csrf
         <input type="hidden" name="survey_id" value="{{ $survey->id }}">
         <input type="hidden" name="responses" id="responses-input">

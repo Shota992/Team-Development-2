@@ -177,17 +177,16 @@ class SurveyController extends Controller
             $answeredStatus = 1; // 既に回答済み
         }
 
-        return view('survey.employee-survey', compact('survey', 'surveyItems' , 'answeredStatus'));
+        return view('survey.employee-survey', compact('survey', 'surveyItems', 'answeredStatus', 'id'));
     }
 
-    public function employeeSurveyPost(Request $request)
+    public function employeeSurveyPost(Request $request , $token)
     {
         $validated = $request->validate([
             'survey_id' => 'required|integer|exists:surveys,id', // survey_idのバリデーション
             'responses' => 'required|json',
         ]);
 
-        $user = Auth::user();
         $surveyId = $validated['survey_id']; // バリデーション済みのsurvey_idを取得
 
         // アンケートデータを取得
@@ -224,13 +223,18 @@ class SurveyController extends Controller
                 }
             }
 
+            // トークンのansweredを1に更新
+            $surveyUserToken = SurveyUserToken::where('token', $token)->first();
+            if ($surveyUserToken) {
+                $surveyUserToken->answered = 1;
+                $surveyUserToken->save();
+            }
             // 成功時のリダイレクト
-            return redirect()->route('survey.employee-survey-success', ['id' => $surveyId]);
+            return redirect()->route('survey.employee-survey-success', ['id' => $token]);
         } catch (\Exception $e) {
             // 失敗時のリダイレクト
-            dd($e->getMessage());
             return redirect()->route('survey.employee-survey-fail', [
-                'id' => $surveyId,
+                'id' => $token,
                 'error_code' => $e->getCode(), // エラーコードを渡す
             ]);
         }
@@ -238,7 +242,8 @@ class SurveyController extends Controller
 
     public function employeeSurveySuccess($id)
     {
-        $survey = Survey::findOrFail($id); // アンケートデータを取得
+        $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
+        $survey = $surveyUserToken->survey;
 
         return view('survey.employee-survey-success', [
             'title' => $survey->name,
@@ -248,7 +253,8 @@ class SurveyController extends Controller
 
     public function employeeSurveyFail($id, Request $request)
     {
-        $survey = Survey::findOrFail($id); // アンケートデータを取得
+        $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
+        $survey = $surveyUserToken->survey;
         $errorCode = $request->input('error_code', '不明なエラー'); // エラーコードを取得
 
         return view('survey.employee-survey-fail', [
