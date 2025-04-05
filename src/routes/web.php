@@ -96,6 +96,9 @@ Route::middleware('auth')->group(function () {
     // 従業員アンケート
     // Route::view('/survey/employee', 'survey.employee_survey');
     Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
+    Route::post('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
+    Route::get('/survey/employee/{id}/success', [SurveyController::class, 'employeeSurveySuccess'])->name('survey.employee-survey-success');
+    Route::get('/survey/employee/{id}/fail', [SurveyController::class, 'employeeSurveyFail'])->name('survey.employee-survey-fail');
 });
 
 
