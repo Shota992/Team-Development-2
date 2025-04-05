@@ -10,6 +10,8 @@ use App\Models\Position;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
+
 
 class SignUpController extends Controller
 {
@@ -44,40 +46,89 @@ class SignUpController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        DB::transaction(function () use ($request) {
-            $office = Office::create([
-                'name' => $request->company,
-            ]);
+        // セッションに保存
+        Session::put('sign_up_admin', [
+            'name' => $request->name,
+            'gender' => $request->gender,
+            'birthday' => $request->birthday,
+            'email' => $request->email,
+            'password' => $request->password, // Hash は後で
+            'company' => $request->company,
+            'department' => $request->department,
+            'position' => $request->position,
+        ]);
 
-            $department = Department::create([
-                'name' => $request->department,
-                'office_id' => $office->id,
-            ]);
-
-            $position = Position::create([
-                'name' => $request->position,
-                'office_id' => $office->id,
-            ]);
-
-            User::create([
-                'name'         => $request->name,
-                'email'        => $request->email,
-                'password'     => Hash::make($request->password),
-                'birthday'     => $request->birthday,
-                'gender'       => $request->gender,
-                'office_id'    => $office->id,
-                'department_id'=> $department->id,
-                'position_id'  => $position->id,
-                'administrator'=> 1,
-            ]);
-        });
-
-        // 次画面へ遷移（例: 会社情報ページ）
-        return redirect()->route('sign-up.company'); // 後ほど追加
+        return redirect()->route('sign-up.company');
     }
 
     public function showCompanyForm()
     {
         return view('sign_up.company_information'); // bladeファイル名
     }
+
+    public function finalRegister(Request $request)
+    {
+        $admin = session('sign_up_admin');
+
+        if (!$admin) {
+            return redirect()->route('sign-up.admin')->with('error', '管理者情報が見つかりません。');
+        }
+
+        $request->validate([
+            'departments' => 'required|array|min:1',
+            'departments.*' => 'required|string|max:255',
+            'positions' => 'required|array|min:1',
+            'positions.*' => 'required|string|max:255',
+        ]);
+
+        DB::transaction(function () use ($admin, $request) {
+            $office = Office::create(['name' => $admin['company']]);
+        
+            $mainDepartment = Department::create([
+                'name' => $admin['department'],
+                'office_id' => $office->id
+            ]);
+        
+            $mainPosition = Position::create([
+                'name' => $admin['position'],
+                'office_id' => $office->id
+            ]);
+        
+            foreach ($request->departments as $dept) {
+                if ($dept !== $admin['department']) {
+                    Department::create([
+                        'name' => $dept,
+                        'office_id' => $office->id
+                    ]);
+                }
+            }
+        
+            foreach ($request->positions as $pos) {
+                if ($pos !== $admin['position']) {
+                    Position::create([
+                        'name' => $pos,
+                        'office_id' => $office->id
+                    ]);
+                }
+            }
+        
+            User::create([
+                'name' => $admin['name'],
+                'email' => $admin['email'],
+                'password' => Hash::make($admin['password']),
+                'birthday' => $admin['birthday'],
+                'gender' => $admin['gender'],
+                'office_id' => $office->id,
+                'department_id' => $mainDepartment->id,
+                'position_id' => $mainPosition->id,
+                'administrator' => 1
+            ]);
+        });
+        
+        // セッション削除
+        session()->forget('sign_up_admin');
+
+        return redirect()->route('login')->with('success', '新規登録が完了しました。ログインしてください。');
+    }
+
 }

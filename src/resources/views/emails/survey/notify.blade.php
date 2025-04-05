@@ -3,7 +3,7 @@
 
 新しいアンケート「{{ $survey->name }}」が配信されました。
 
-@component('mail::button', ['url' => url('/survey/employee')])
+@component('mail::button', ['url' => url('/survey/employee/' . $token)])
 アンケートに回答する
 @endcomponent
 

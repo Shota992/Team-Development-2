@@ -26,14 +26,14 @@
     </style>
     
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-[#F7F8FA] font-sans text-gray-800">
 
 @include('components.sidebar')
 
 <main class="ml-64 mr-8">
     {{-- ▼ ヘッダー --}}
     <div>
-        <div class="flex justify-between p-5">
+        <div class="flex justify-between p-5 pt-8">
             <div class="flex">
                 <figure>
                     <img src="{{ asset('images/title_logo.png') }}" alt="" />

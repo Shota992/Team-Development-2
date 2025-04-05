@@ -4,9 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Survey;
 use App\Models\SurveyResponse;
-use App\Models\SurveyResponseUser;
+use App\Models\SurveyUserToken;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class SurveyResponseSeeder extends Seeder
 {
@@ -20,20 +21,36 @@ class SurveyResponseSeeder extends Seeder
             SurveyResponse::create([
                 'survey_id' => $surveyId,
             ]);
-            SurveyResponseUser::create([
+            SurveyUserToken::create([
                 'survey_id' => $surveyId,
                 'user_id' => $userId,
+                'token' => Str::random(32),
+                'answered' => true,
             ]);
             }
         }
 
-        for ($i = 1; $i <= 12; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             SurveyResponse::create([
                 'survey_id' => 6,
             ]);
-            SurveyResponseUser::create([
+            SurveyUserToken::create([
                 'survey_id' => 6,
                 'user_id' => $i,
+                'token' => Str::random(32),
+                'answered' => true,
+            ]);
+        }
+
+        for ($i = 11; $i <= 13; $i++) {
+            SurveyResponse::create([
+                'survey_id' => 6,
+            ]);
+            SurveyUserToken::create([
+                'survey_id' => 6,
+                'user_id' => $i,
+                'token' => Str::random(32),
+                'answered' => false,
             ]);
         }
 
@@ -43,9 +60,11 @@ class SurveyResponseSeeder extends Seeder
                 SurveyResponse::create([
                 'survey_id' => $surveyId,
                 ]);
-                SurveyResponseUser::create([
+                SurveyUserToken::create([
                     'survey_id' => $surveyId,
                     'user_id' => $userId,
+                    'token' => Str::random(32),
+                    'answered' => true,
                 ]);
             }
             }
@@ -55,9 +74,11 @@ class SurveyResponseSeeder extends Seeder
             SurveyResponse::create([
                 'survey_id' => 10,
             ]);
-            SurveyResponseUser::create([
+            SurveyUserToken::create([
                 'survey_id' => 10,
                 'user_id' => $i,
+                'token' => Str::random(32),
+                'answered' => true,
             ]);
         }
 
@@ -65,9 +86,11 @@ class SurveyResponseSeeder extends Seeder
             SurveyResponse::create([
                 'survey_id' => 11,
             ]);
-            SurveyResponseUser::create([
+            SurveyUserToken::create([
                 'survey_id' => 11,
                 'user_id' => $i,
+                'token' => Str::random(32),
+                'answered' => true,
             ]);
         }
     }

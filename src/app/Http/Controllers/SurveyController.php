@@ -10,6 +10,7 @@ use App\Models\SurveyResponse;
 use App\Models\Department;
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\SurveyUserToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
@@ -153,11 +154,36 @@ class SurveyController extends Controller
     {
         $survey = Survey::findOrFail($id);
         $surveyItems = SurveyQuestion::with('surveyQuestionOptions')->get();
+        // トークンからユーザーとアンケートを特定
+        $surveyUserToken = SurveyUserToken::where('token', $id)->first();
 
-        return view('survey.employee-survey', compact('survey', 'surveyItems'));
+        if (!$surveyUserToken) {
+            abort(404, '無効なトークンです');
+        }
+
+        $survey = $surveyUserToken->survey;
+
+        $answeredStatus = 0;
+        $dateStatus = $survey->date_status;
+
+        // アンケートの回答状況を確認
+        if ($surveyUserToken->answered) {
+            $answeredStatus = 1; // 既に回答済み
+        }
+
+        $userDepartmentId = auth()->user()->department_id;
+
+        $surveyItems = SurveyQuestion::with('surveyQuestionOptions')
+            ->where(function ($query) use ($userDepartmentId) {
+                $query->where('common_status', 1) // common_statusが1のもの
+                    ->orWhere('department_id', $userDepartmentId); // 自分の部署IDが一致するもの
+            })
+            ->get();
+
+        return view('survey.employee-survey', compact('survey', 'surveyItems', 'dateStatus' ,'answeredStatus', 'id'));
     }
 
-    public function employeeSurveyPost(Request $request)
+    public function employeeSurveyPost(Request $request, $token)
     {
         $validated = $request->validate([
             'survey_id' => 'required|integer|exists:surveys,id',
@@ -166,7 +192,7 @@ class SurveyController extends Controller
 
         $user = Auth::user();
         $surveyId = $validated['survey_id'];
-        $survey = Survey::findOrFail($surveyId);
+        $survey = Survey::find($surveyId);
 
         try {
             $response = SurveyResponse::create([
@@ -219,6 +245,20 @@ class SurveyController extends Controller
             return redirect()->route('survey.employee-survey-fail', [
                 'id' => $surveyId,
                 'error_code' => $e->getCode(),
+
+            // トークンのansweredを1に更新
+            $surveyUserToken = SurveyUserToken::where('token', $token)->first();
+            if ($surveyUserToken) {
+                $surveyUserToken->answered = 1;
+                $surveyUserToken->save();
+            }
+            // 成功時のリダイレクト
+            return redirect()->route('survey.employee-survey-success', ['id' => $token]);
+        } catch (\Exception $e) {
+            // 失敗時のリダイレクト
+            return redirect()->route('survey.employee-survey-fail', [
+                'id' => $token,
+                'error_code' => $e->getCode(), // エラーコードを渡す
             ]);
         }
     }
@@ -226,6 +266,9 @@ class SurveyController extends Controller
     public function employeeSurveySuccess($id)
     {
         $survey = Survey::findOrFail($id);
+        $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
+        $survey = $surveyUserToken->survey;
+
         return view('survey.employee-survey-success', [
             'title' => $survey->name,
             'description' => $survey->description,
@@ -234,8 +277,11 @@ class SurveyController extends Controller
 
     public function employeeSurveyFail($id, Request $request)
     {
+
         $survey = Survey::findOrFail($id);
-        $errorCode = $request->input('error_code', '不明なエラー');
+        $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
+        $survey = $surveyUserToken->survey;
+        $errorCode = $request->input('error_code', '不明なエラー'); // エラーコードを取得
 
         return view('survey.employee-survey-fail', [
             'title' => $survey->name,

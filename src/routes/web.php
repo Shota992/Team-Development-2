@@ -23,7 +23,9 @@ use App\Http\Controllers\Auth\NewPasswordController;
 Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
 Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
 
-Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); // ←これを追加！！
+Route::get('/sign-up/company', [SignUpController::class, 'showCompanyForm'])->name('sign-up.company'); 
+Route::post('/sign-up/register', [SignUpController::class, 'finalRegister'])->name('sign-up.register');
+
 
 // 公開ルート（ログイン不要）
 Route::get('/', fn () => view('welcome'));
@@ -110,12 +112,6 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::view('/sidebar', 'components.sidebar');
     Route::view('/distribution/completion', 'distribution.completion')->name('survey.completion');
 
-    // 従業員アンケート（個別表示）
-    Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
-    Route::post('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
-    Route::get('/survey/employee/{id}/success', [SurveyController::class, 'employeeSurveySuccess'])->name('survey.employee-survey-success');
-    Route::get('/survey/employee/{id}/fail', [SurveyController::class, 'employeeSurveyFail'])->name('survey.employee-survey-fail');
-
     // 設問設定
     Route::get('/configuration-file/item_list', [SurveyQuestionController::class, 'index'])->name('survey_questions.index');
     Route::get('/configuration-file/item_create', [SurveyQuestionController::class, 'create'])->name('survey_questions.create');
@@ -131,3 +127,9 @@ Route::middleware(['mentor'])->group(function () {
     Route::post('/chat/ask', [ChatController::class, 'ask'])->name('chat.ask');
     Route::post('/chat-data/ask', [ChatDataController::class, 'ask'])->name('chatdata.ask');
 });
+
+// 従業員アンケート（個別表示）
+Route::get('/survey/employee/{id}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.employee');
+Route::post('/survey/employee/{token}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
+Route::get('/survey/employee/{id}/success', [SurveyController::class, 'employeeSurveySuccess'])->name('survey.employee-survey-success');
+Route::get('/survey/employee/{id}/fail', [SurveyController::class, 'employeeSurveyFail'])->name('survey.employee-survey-fail');

@@ -22,8 +22,8 @@ class SurveySeeder extends Seeder
             Survey::create([
                 'name'         => '人事部アンケート' . ($i + 1),
                 'description'   => '人事部アンケート' . ($i + 1) . 'についての説明です。',
-                'start_date'    => $startDate->toDateString(),
-                'end_date'      => $endDate->toDateString(),
+                'start_date'    => $startDate->format('Y-m-d H:i'),
+                'end_date'      => $endDate->format('Y-m-d H:i'),
                 'office_id'     => 1,
                 'department_id' => 1,
             ]);
@@ -44,8 +44,8 @@ class SurveySeeder extends Seeder
             Survey::create([
                 'name'         => $dept['name'] . 'アンケート1',
                 'description'   => $dept['name'] . 'アンケート1についての説明です。',
-                'start_date'    => $startDate->toDateString(),
-                'end_date'      => $endDate->toDateString(),
+                'start_date'    => $startDate->format('Y-m-d H:i'),
+                'end_date'      => $endDate->format('Y-m-d H:i'),
                 'office_id'     => 1,
                 'department_id' => $dept['department_id'],
             ]);
@@ -73,8 +73,8 @@ class SurveySeeder extends Seeder
             Survey::create([
                 'name'         => $dept['name'] . 'アンケート1',
                 'description'   => $dept['name'] . 'アンケート1についての説明です。',
-                'start_date'    => $startDate->toDateString(),
-                'end_date'      => $endDate->toDateString(),
+                'start_date'    => $startDate->format('Y-m-d H:i'),
+                'end_date'      => $endDate->format('Y-m-d H:i'),
                 'office_id'     => $dept['office_id'],
                 'department_id' => $dept['department_id'],
             ]);
