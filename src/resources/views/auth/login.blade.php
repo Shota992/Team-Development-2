@@ -52,14 +52,12 @@
                 />
             </div>
 
-            {{-- 「パスワードを記憶する」チェックボックス --}}
             <div class="block mt-4">
                 <label for="remember_me" class="inline-flex items-center">
                     <input
                         id="remember_me"
                         type="checkbox"
-                        class="rounded border-gray-300 text-blue-600 shadow-sm
-                               focus:ring-blue-500"
+                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
                         name="remember"
                         {{ old('remember') ? 'checked' : '' }}
                     >
@@ -68,6 +66,7 @@
                     </span>
                 </label>
             </div>
+            
 
             <div class="flex items-center justify-between mt-6">
                 @if (Route::has('password.request'))

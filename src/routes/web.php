@@ -16,6 +16,8 @@ use App\Http\Controllers\ChatDataController;
 use App\Http\Controllers\SurveyQuestionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SignUpController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 //公開ルート（ログイン扶養）新規登録画面
 Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
@@ -30,6 +32,28 @@ Route::get('/', fn () => view('welcome'));
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// パスワードリセットルート
+Route::middleware('guest')->group(function () {
+    // パスワードリセットリンク依頼画面
+    Route::get('/forgot-password', function () {
+        return view('auth.forgot-password');
+    })->name('password.request');
+
+    // パスワードリセットリンク送信用
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
+
+    // リセットリンクをクリックしたときに表示する新パスワード入力画面
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
+        ->name('password.reset');
+
+    // 新パスワードを更新するためのPOSTルート
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])
+        ->name('password.update');
+
+});
+
 
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
