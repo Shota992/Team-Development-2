@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>マインドマップ</title>
+  <title>マインドマップ - Kompass</title>
   <link rel="stylesheet" href="https://unpkg.com/vis-network/styles/vis-network.css" />
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>

@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', 'アンケート作成 - Kompass')
 @include('components.sidebar')
 
 <div class="bg-[#F7F8FA] ">

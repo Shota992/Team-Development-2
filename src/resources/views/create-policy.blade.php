@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', '施策作成画面 - Kompass')
 @section('content')
 @include('components.sidebar')
 <div class="container mx-auto px-4 py-6">
