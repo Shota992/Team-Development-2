@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', 'アンケート配信設定 - 配信設定')
 @section('content')
 @include('components.sidebar')
 

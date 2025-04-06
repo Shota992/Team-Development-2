@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', '未回答者一覧 - Kompass')
 @section('content')
 <div class="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg ml-64">
     <h2 class="text-2xl font-extrabold text-gray-800 mb-6 border-b pb-2">

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>最新のサーベイ結果</title>
+    <title>最新のサーベイ結果 - Kompass</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Google Fonts (例: Nunito) -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">

@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', '従業員一覧 - Kompass')
 @section('content')
 @include('components.sidebar')
 <div class="p-8 bg-[#F7F8FA] ml-56">

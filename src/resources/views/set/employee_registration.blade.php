@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', '従業員登録 - Kompass')
+
 @section('content')
 
 @include('components.sidebar')

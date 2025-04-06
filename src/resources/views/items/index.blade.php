@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', '項目別評価一覧 - Kompass')
 @section('content')
 @include('components.sidebar')
 

@@ -1,5 +1,6 @@
 @extends('layouts.plain')
 
+@section('title', '管理者情報入力画面 - Kompass')
 @section('content')
 @php $admin = session('sign_up_admin'); @endphp
 

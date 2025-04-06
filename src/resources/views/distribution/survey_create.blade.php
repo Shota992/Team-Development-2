@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', 'アンケート作成 - Kompass')
 @include('components.sidebar')
 
 <style>

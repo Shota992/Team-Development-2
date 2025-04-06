@@ -6,7 +6,7 @@
 {{-- タイトル --}}
 <div class="p-8 bg-[#F7F8FA] ml-64">
     <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold">アンケート一覧</h2>
+        <h2 class="text-2xl font-bold">アンケート一覧 - Kompass</h2>
         <form method="GET" class="flex items-center space-x-2">
             <span class="text-sm">部署を選択</span>
             <select name="department_id" class="border px-4 py-2 rounded" onchange="this.form.submit()">
