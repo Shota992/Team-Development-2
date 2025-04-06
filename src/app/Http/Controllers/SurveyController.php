@@ -7,12 +7,10 @@ use App\Models\SurveyQuestion;
 use App\Models\SurveyResponseDetail;
 use App\Models\SurveyResponseOptionDetail;
 use App\Models\SurveyResponse;
-use App\Models\Department;
-use App\Models\User;
-use App\Models\Notification;
 use App\Models\SurveyUserToken;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use App\Mail\SurveyReminderMail;
 use Illuminate\Support\Facades\Mail;
@@ -25,9 +23,13 @@ class SurveyController extends Controller
         $user = Auth::user();
         $officeId = $user->office_id;
 
+        // 全部署取得（所属オフィスのみ）
         $departments = Department::where('office_id', $officeId)->get();
+
+        // 表示対象の部署ID（クエリパラメータ or デフォルト: 自部署）
         $selectedDepartmentId = $request->input('department_id', $user->department_id);
 
+        // ↓ 現在の $departmentId を $selectedDepartmentId に置き換えるだけでOK
         $surveys = Survey::where('department_id', $selectedDepartmentId)
             ->orderBy('end_date', 'desc')
             ->take(6)
@@ -45,7 +47,9 @@ class SurveyController extends Controller
             ]);
         }
 
-        $surveyDates = $surveys->slice(1)->pluck('end_date')->map(fn($d) => Carbon::parse($d)->format('Y-m-d'))->toArray();
+        $surveyDates = $surveys->slice(1)->pluck('end_date')->map(function ($d) {
+            return Carbon::parse($d)->format('Y-m-d');
+        })->toArray();
         $causeDates = $surveys->pluck('end_date')->map(fn($d) => Carbon::parse($d)->format('n/j'))->reverse()->values()->toArray();
 
         $questions = SurveyQuestion::where(function ($q) {
@@ -62,8 +66,8 @@ class SurveyController extends Controller
 
             $prevAvg = $surveys->count() > 1
                 ? SurveyResponseDetail::where('question_id', $question->id)
-                    ->whereHas('response', fn($q) => $q->where('survey_id', $surveys[1]->id))
-                    ->avg('rating') ?? 0
+                ->whereHas('response', fn($q) => $q->where('survey_id', $surveys[1]->id))
+                ->avg('rating') ?? 0
                 : 0;
 
             $values = [];
@@ -77,9 +81,9 @@ class SurveyController extends Controller
             $cards[] = [
                 'label' => $question->title,
                 'score' => $latestAvg,
-                'diff' => $latestAvg - $prevAvg,
+                'diff'  => $latestAvg - $prevAvg,
                 'values' => $values,
-                'img' => 'question.png',
+                'img'   => 'question.png',
             ];
         }
 
@@ -124,14 +128,18 @@ class SurveyController extends Controller
                     $row['values'][] = $total ? round($count / $total * 100, 1) : 0;
                 }
 
+                // ★ 最新が右にくるように reverse（値の順番を反転）
                 $row['values'] = array_reverse($row['values']);
+
                 $table[] = $row;
             }
+
 
             usort($table, fn($a, $b) => $b['values'][0] <=> $a['values'][0]);
             $causeTables[] = $table;
         }
 
+        // フリーコメント（最新6回のアンケートの中で free_message があるもの）
         $surveyIds = $surveys->pluck('id');
 
         $comments = SurveyResponse::with('survey')
@@ -155,8 +163,6 @@ class SurveyController extends Controller
 
     public function employeeSurveyShow($id)
     {
-        $survey = Survey::findOrFail($id);
-        $surveyItems = SurveyQuestion::with('surveyQuestionOptions')->get();
         // トークンからユーザーとアンケートを特定
         $surveyUserToken = SurveyUserToken::where('token', $id)->first();
 
@@ -189,56 +195,42 @@ class SurveyController extends Controller
     public function employeeSurveyPost(Request $request, $token)
     {
         $validated = $request->validate([
-            'survey_id' => 'required|integer|exists:surveys,id',
+            'survey_id' => 'required|integer|exists:surveys,id', // survey_idのバリデーション
             'responses' => 'required|json',
         ]);
 
-        $user = Auth::user();
-        $surveyId = $validated['survey_id'];
+        $surveyId = $validated['survey_id']; // バリデーション済みのsurvey_idを取得
+
+        // アンケートデータを取得
         $survey = Survey::find($surveyId);
 
         try {
+            // アンケートの回答を保存
             $response = SurveyResponse::create([
                 'survey_id' => $surveyId,
             ]);
 
-            $responses = json_decode($validated['responses'], true);
+            // 設問ごとの回答を保存
+            $responses = json_decode($validated['responses'], true); // JSONデータを配列に変換
 
             foreach ($responses as $responseData) {
+                // 設問ごとの回答を保存
                 $responseDetail = SurveyResponseDetail::create([
                     'response_id' => $response->id,
                     'question_id' => $responseData['question_id'],
-                    'rating' => $responseData['selectedOption'],
-                    'free_text' => $responseData['otherReason'],
+                    'rating' => $responseData['selectedOption'], // statusに対応
+                    'free_text' => $responseData['otherReason'], // free_textに対応
                 ]);
 
-                $filteredReasons = array_filter($responseData['selectedReasons'], fn($id) => $id !== 'on');
+                // 選択肢の回答を保存
+                $filteredReasons = array_filter($responseData['selectedReasons'], function ($reasonId) {
+                    return $reasonId !== 'on'; // "on"を除外
+                });
 
                 foreach ($filteredReasons as $reasonId) {
                     SurveyResponseOptionDetail::create([
-                        'response_detail_id' => $responseDetail->id,
-                        'option_id' => $reasonId,
-                    ]);
-                }
-            }
-
-            // ✅ 回答率チェックと通知処理
-            $totalUsers = User::where('department_id', $survey->department_id)->count();
-            $answeredUsers = SurveyResponse::where('survey_id', $surveyId)->count();
-            $answerRate = ($totalUsers > 0) ? ($answeredUsers / $totalUsers) * 100 : 0;
-
-            $alreadyNotified = Notification::where('title', '回答率が60%を超えました')
-                ->where('body', 'アンケート「' . $survey->name . '」の回答率が60%を超えました。')
-                ->exists();
-
-            if ($answerRate >= 60 && !$alreadyNotified) {
-                $admins = User::where('office_id', $user->office_id)->where('administrator', 1)->get();
-
-                foreach ($admins as $admin) {
-                    Notification::create([
-                        'user_id' => $admin->id,
-                        'title'   => '回答率が60%を超えました',
-                        'body'    => 'アンケート「' . $survey->name . '」の回答率が60%を超えました。',
+                        'response_detail_id' => $responseDetail->id, // response_detail_idを関連付け
+                        'option_id' => $reasonId, // 選択肢のID
                     ]);
                 }
             }
@@ -249,7 +241,6 @@ class SurveyController extends Controller
                 'id' => $surveyId,
                 'error_code' => $e->getCode(),
             ]);
-
             // トークンのansweredを1に更新
             $surveyUserToken = SurveyUserToken::where('token', $token)->first();
             if ($surveyUserToken) {
@@ -269,7 +260,6 @@ class SurveyController extends Controller
 
     public function employeeSurveySuccess($id)
     {
-        $survey = Survey::findOrFail($id);
         $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
         $survey = $surveyUserToken->survey;
 
@@ -281,8 +271,6 @@ class SurveyController extends Controller
 
     public function employeeSurveyFail($id, Request $request)
     {
-
-        $survey = Survey::findOrFail($id);
         $surveyUserToken = SurveyUserToken::where('token', $id)->firstOrFail();
         $survey = $surveyUserToken->survey;
         $errorCode = $request->input('error_code', '不明なエラー'); // エラーコードを取得

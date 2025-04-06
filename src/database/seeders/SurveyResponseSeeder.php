@@ -24,7 +24,7 @@ class SurveyResponseSeeder extends Seeder
             SurveyUserToken::create([
                 'survey_id' => $surveyId,
                 'user_id' => $userId,
-                'token' => Str::random(32),
+                'token' => Str::random(50),
                 'answered' => true,
             ]);
             }
@@ -37,7 +37,7 @@ class SurveyResponseSeeder extends Seeder
             SurveyUserToken::create([
                 'survey_id' => 6,
                 'user_id' => $i,
-                'token' => Str::random(32),
+                'token' => Str::random(50),
                 'answered' => true,
             ]);
         }
@@ -49,7 +49,7 @@ class SurveyResponseSeeder extends Seeder
             SurveyUserToken::create([
                 'survey_id' => 6,
                 'user_id' => $i,
-                'token' => Str::random(32),
+                'token' => Str::random(50),
                 'answered' => false,
             ]);
         }
@@ -63,7 +63,7 @@ class SurveyResponseSeeder extends Seeder
                 SurveyUserToken::create([
                     'survey_id' => $surveyId,
                     'user_id' => $userId,
-                    'token' => Str::random(32),
+                    'token' => Str::random(50),
                     'answered' => true,
                 ]);
             }
@@ -77,7 +77,7 @@ class SurveyResponseSeeder extends Seeder
             SurveyUserToken::create([
                 'survey_id' => 10,
                 'user_id' => $i,
-                'token' => Str::random(32),
+                'token' => Str::random(50),
                 'answered' => true,
             ]);
         }
@@ -89,7 +89,7 @@ class SurveyResponseSeeder extends Seeder
             SurveyUserToken::create([
                 'survey_id' => 11,
                 'user_id' => $i,
-                'token' => Str::random(32),
+                'token' => Str::random(50),
                 'answered' => true,
             ]);
         }
