@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class="bg-light-gray">
     @include('components.sidebar')
     <div class="ml-64">
         <div class="flex justify-between p-5">
@@ -122,7 +122,7 @@
                 </section>
                 <!-- 送信ボタン -->
                 <div class="mt-8 flex justify-center">
-                    <button type="submit" class="bg-button-blue hover:bg-custom-blue text-white px-12 py-2 rounded-full shadow font-bold">追加する</button>
+                    <button type="submit" class="bg-button-blue hover:bg-custom-blue text-white px-12 py-2 rounded-full shadow font-bold">保存する</button>
                 </div>
             </form>
             <!-- フォーム終了 -->
