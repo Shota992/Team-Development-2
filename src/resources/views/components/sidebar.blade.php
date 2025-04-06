@@ -10,7 +10,7 @@
             {{ auth()->user()->office->name ?? '会社名未設定' }}
         </div>
         <div class="text-center text-sm text-gray-600 pb-4">
-            {{ auth()->user()->department->name ?? '部署名未設定' }}
+            {{ auth()->user()->department->name ?? '部署名未設定' }}（{{ auth()->user()->name }} さん）
         </div>
 
         <!-- 通知とログアウト -->
