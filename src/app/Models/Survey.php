@@ -61,7 +61,7 @@ class Survey extends Model
 
     public function getDateStatusAttribute()
     {
-        $today = Carbon::today();
+        $today = Carbon::now();
 
         if ($this->start_date && $today->lt(Carbon::parse($this->start_date))) {
             return 1; // 開始日がまだ来ていない
