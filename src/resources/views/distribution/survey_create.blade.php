@@ -62,31 +62,35 @@
             @endif
 
             <!-- ✅ フォーム①：アンケート情報（上部） -->
-            <!-- ✅ フォーム①：アンケート情報（上部） -->
-            <form id="surveyForm" action="{{ route('survey.store') }}" method="POST">
-                @csrf
 
-                <div class="bg-white p-8 mb-4 border shadow-lg">
-                    <!-- アンケートタイトル -->
-                    <label class="block text-lg font-semibold border-b pb-2 mt-4">アンケートタイトル：</label>
-                    <input type="text" name="name" id="surveyName" required placeholder="アンケートタイトルを入力してください" value="{{ session('survey_input.name') }}" class="border border-custom-gray px-4 py-2 w-full focus:ring focus:ring-blue-200">
+<!-- ✅ フォーム①：アンケート情報（上部） -->
+        <form id="surveyForm" action="{{ route('survey.store') }}" method="POST">
+            @csrf
 
-                    <!-- 詳細説明 -->
-                    <label class="block text-lg font-semibold border-b pb-2 mt-4">詳細説明：
-                        <span class="relative inline-block ml-2">
-                            <!-- ツールチップアイコン -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 cursor-pointer tooltip-icon" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-12.75a.75.75 0 00-1.5 0v1a.75.75 0 001.5 0v-1zM9 8.75a.75.75 0 011.5 0v5.5a.75.75 0 01-1.5 0v-5.5z" clip-rule="evenodd" />
-                            </svg>
-                            <!-- ツールチップ -->
-                            <div class="tooltip-content">
-                                アンケート配信時の詳細説明です。この説明にアンケート内容や匿名性について記載します。
-                            </div>
-                        </span>
-                    </label>
-                    <textarea name="description" id="surveyDescription" placeholder="詳細説明を入力してください" class="border px-4 py-2 w-full h-24 focus:ring focus:ring-blue-200">{{ session('survey_input.description') }}</textarea>
-                </div>
-            </form>
+            <div class="bg-white p-8 mb-4 border shadow-lg">
+                <!-- アンケートタイトル -->
+                <label class="block text-lg font-semibold border-b pb-2 mt-4">アンケートタイトル：</label>
+                <input type="text" name="name" id="surveyName" required placeholder="アンケートタイトルを入力してください"
+                    value="{{ session('survey_input.name') }}"
+                    class="border border-custom-gray px-4 py-2 w-full focus:ring focus:ring-blue-200">
+
+                <!-- 詳細説明 -->
+                <label class="block text-lg font-semibold border-b pb-2 mt-4">詳細説明：
+                    <span class="relative inline-block ml-2">
+                        <!-- ツールチップアイコン -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 cursor-pointer tooltip-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-12.75a.75.75 0 00-1.5 0v1a.75.75 0 001.5 0v-1zM9 8.75a.75.75 0 011.5 0v5.5a.75.75 0 01-1.5 0v-5.5z" clip-rule="evenodd" />
+                        </svg>
+                        <!-- ツールチップ -->
+                        <div class="tooltip-content">
+                            アンケート配信時の詳細説明です。この説明にアンケート内容や匿名性について記載します。
+                        </div>
+                    </span>
+                </label>
+                <textarea name="description" id="surveyDescription" placeholder="詳細説明を入力してください"
+                    class="border px-4 py-2 w-full h-24 focus:ring focus:ring-blue-200">{{ session('survey_input.description') }}</textarea>
+            </div>
+        </form>
             <!-- ✅ 設問リスト（フォームの外） -->
             <div class="bg-white p-8 mt-6 border shadow-lg">
                 <h3 class="text-lg font-semibold border-b pb-2">設問一覧：</h3>
@@ -141,14 +145,16 @@
 
             <!-- ✅ アンケート詳細画面へボタン -->
             <div class="flex justify-center mt-8">
-                <a href="{{ route('survey.advanced-setting') }}" id="goToGroupSelection" class="w-80 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
+                <a href="{{ route('survey.advanced-setting') }}" id="goToGroupSelection"
+                    class="w-80 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
                     アンケート詳細画面へ
                 </a>
             </div>
 
             <!-- ✅ 設問一覧画面へボタン -->
             <div class="flex justify-center mt-4">
-                <a href="{{ route('survey_questions.index') }}" id="goToItemEdit" class="w-80 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
+                <a href="{{ route('survey_questions.index') }}" id="goToItemEdit"
+                    class="w-80 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
                     設問一覧画面へ
                 </a>
             </div>
