@@ -133,12 +133,20 @@
 
                         {{-- 結果一覧テーブル --}}
                         @php
-                            // 最新アンケート（先頭）を除外し、過去4件のみ表示する
-                            $filteredDates = collect($surveyDates)->slice(1, 4)->values();
-                            $filteredCards = collect($cards)->map(function($card) {
-                                $card['values'] = collect($card['values'])->slice(1, 4)->values()->toArray();
-                                return $card;
-                            })->toArray();
+                            // 条件：回答率が60%未満なら最新アンケート（収集中）を除外、60%以上なら最新も含む
+                            if($percentage < 60) {
+                                $filteredDates = collect($surveyDates)->slice(1, 4)->values();
+                                $filteredCards = collect($cards)->map(function($card) {
+                                    $card['values'] = collect($card['values'])->slice(1, 4)->values()->toArray();
+                                    return $card;
+                                })->toArray();
+                            } else {
+                                $filteredDates = collect($surveyDates)->slice(0, 4)->values();
+                                $filteredCards = collect($cards)->map(function($card) {
+                                    $card['values'] = collect($card['values'])->slice(0, 4)->values()->toArray();
+                                    return $card;
+                                })->toArray();
+                            }
                         @endphp
 
                         <div class="bg-white rounded-lg shadow p-6">
@@ -199,7 +207,7 @@
                         </div>
                     </div>
 
-                    <!-- 右カラム：左カラムと同じ幅に設定 -->
+                    <!-- 右カラム：均等な幅 -->
                     @if($latestSurvey && now() >= \Carbon\Carbon::parse($latestSurvey->start_date))
                     <div class="space-y-6">
                         <!-- 回答状況カード -->
@@ -245,7 +253,7 @@
                             <h2 class="text-lg font-bold text-gray-800 mb-4">AIからのフィードバック</h2>
                             @if($percentage < 60)
                                 <p class="text-sm text-gray-700 break-words whitespace-pre-wrap mb-6">
-                                    十分な結果が集まり次第回答いたします。
+                                    AIのフィードバックも、十分な結果が集まり次第回答いたします。
                                 </p>
                             @else
                                 <p class="text-sm text-gray-700 break-words whitespace-pre-wrap mb-6">

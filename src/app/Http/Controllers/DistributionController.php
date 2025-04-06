@@ -2,33 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Survey;
-use App\Models\SurveyQuestion;
-use App\Models\User;
 use App\Models\Department;
-use App\Models\SurveyUserToken;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\SurveyNotificationMail;
-use App\Jobs\SendSurveyEmailJob;
-
-
-
+use App\Models\SurveyUserToken;
 
 class DistributionController extends Controller
 {
     public function create()
     {
         $loggedInUserDepartmentId = auth()->user()->department_id;
-        $questions = SurveyQuestion::with('surveyQuestionOptions')
+        $questions = \App\Models\SurveyQuestion::with('surveyQuestionOptions')
             ->where(function ($query) use ($loggedInUserDepartmentId) {
                 $query->where('common_status', 1)
-                    ->orWhere('department_id', $loggedInUserDepartmentId);
+                      ->orWhere('department_id', $loggedInUserDepartmentId);
             })
             ->orderBy('id', 'asc')
             ->get();
@@ -38,34 +28,34 @@ class DistributionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'office_id' => 'required|integer',
-            'department_id' => 'required|integer',
-            'questions' => 'required|array|min:1',
+            'name'         => 'required|string|max:255',
+            'description'  => 'nullable|string|max:1000',
+            'start_date'   => 'required|date',
+            'end_date'     => 'nullable|date|after_or_equal:start_date',
+            'office_id'    => 'required|integer',
+            'department_id'=> 'required|integer',
+            'questions'    => 'required|array|min:1',
             'questions.*.title' => 'required|string|max:255',
-            'questions.*.text' => 'required|string|max:255',
+            'questions.*.text'  => 'required|string|max:255',
             'questions.*.description' => 'nullable|string|max:1000',
             'questions.*.common_status' => 'required|boolean',
         ]);
 
         $survey = Survey::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'office_id' => $request->office_id,
-            'department_id' => $request->department_id,
+            'name'         => $request->name,
+            'description'  => $request->description,
+            'start_date'   => $request->start_date,
+            'end_date'     => $request->end_date,
+            'office_id'    => $request->office_id,
+            'department_id'=> $request->department_id,
         ]);
 
         foreach ($request->questions as $questionData) {
-            SurveyQuestion::create([
-                'title' => $questionData['title'] ?? '未設定',
-                'text' => $questionData['text'] ?? '未設定',
-                'description' => $questionData['description'] ?? null,
-                'common_status' => $questionData['common_status'] ?? 0,
+            \App\Models\SurveyQuestion::create([
+                'title'          => $questionData['title'] ?? '未設定',
+                'text'           => $questionData['text'] ?? '未設定',
+                'description'    => $questionData['description'] ?? null,
+                'common_status'  => $questionData['common_status'] ?? 0,
                 'display_status' => true,
             ]);
         }
@@ -73,9 +63,9 @@ class DistributionController extends Controller
         return redirect()->route('survey.create')->with('success', 'アンケートが作成されました！');
     }
 
-    public function toggleDisplayStatus(Request $request, $id): JsonResponse
+    public function toggleDisplayStatus(Request $request, $id)
     {
-        $question = SurveyQuestion::findOrFail($id);
+        $question = \App\Models\SurveyQuestion::findOrFail($id);
 
         if ($question->common_status) {
             return response()->json([
@@ -88,15 +78,15 @@ class DistributionController extends Controller
         $question->save();
 
         return response()->json([
-            'success' => true,
+            'success'        => true,
             'display_status' => $question->display_status
         ]);
     }
 
-    public function saveToSession(Request $request): JsonResponse
+    public function saveToSession(Request $request)
     {
         session([
-            'survey_input.name' => $request->input('name'),
+            'survey_input.name'        => $request->input('name'),
             'survey_input.description' => $request->input('description'),
         ]);
 
@@ -106,8 +96,8 @@ class DistributionController extends Controller
     public function groupSelection()
     {
         $users = User::with('position')->get();
-        $departments = Department::all();
         $loggedInUserOfficeId = auth()->user()->office_id;
+        // ログインユーザーの office_id に該当する部署のみ取得
         $departments = Department::where('office_id', $loggedInUserOfficeId)->get();
         return view('distribution.group_selection', compact('users', 'departments'));
     }
@@ -116,14 +106,12 @@ class DistributionController extends Controller
     {
         $groupsJson = $request->input('groups_json');
 
-        // ここでログ出力！ 👇
-        Log::debug('🚀 groups_json 受け取り', ['groups_json' => $groupsJson]);
+        \Illuminate\Support\Facades\Log::debug('🚀 groups_json 受け取り', ['groups_json' => $groupsJson]);
 
         $groups = json_decode($groupsJson, true);
 
-        // 念のため null チェック
         if (!is_array($groups)) {
-            Log::error('❌ groups_json のパースに失敗しました', ['raw' => $groupsJson]);
+            \Illuminate\Support\Facades\Log::error('❌ groups_json のパースに失敗しました', ['raw' => $groupsJson]);
             return back()->with('error', 'データが正しく送信されていません');
         }
 
@@ -143,21 +131,17 @@ class DistributionController extends Controller
         }
 
         session([
-            'selected_departments' => $selectedDepartments,
-            'survey_selected_users_grouped' => $selectedUsers
+            'selected_departments'           => $selectedDepartments,
+            'survey_selected_users_grouped'  => $selectedUsers
         ]);
 
         return redirect()->route('survey.advanced-setting');
     }
 
-
-
-
     public function saveSettings(Request $request)
     {
-
         $sendType = $request->input('send_type');
-        $isAnonymous = $request->input('is_anonymous', 0); // '1' or '0'
+        $isAnonymous = $request->input('is_anonymous', 0);
 
         $startDate = null;
         $endDate = null;
@@ -173,10 +157,10 @@ class DistributionController extends Controller
         }
 
         session([
-            'survey_input.send_type' => $sendType,
-            'survey_input.start_date' => $startDate,
-            'survey_input.end_date' => $endDate,
-            'survey_input.is_anonymous' => $isAnonymous,
+            'survey_input.send_type'   => $sendType,
+            'survey_input.start_date'  => $startDate,
+            'survey_input.end_date'    => $endDate,
+            'survey_input.is_anonymous'=> $isAnonymous,
         ]);
 
         return redirect()->route('survey.confirmation');
@@ -186,14 +170,13 @@ class DistributionController extends Controller
     {
         $input = session('survey_input');
 
-        // 📝 Survey作成（department_idにNULLは入れない）
         $survey = Survey::create([
             'name'         => $input['name'] ?? 'タイトル未設定',
             'description'  => $input['description'] ?? null,
             'start_date'   => $input['start_date'] ?? now(),
             'end_date'     => $input['end_date'] ?? null,
             'office_id'    => auth()->user()->office_id,
-            'department_id' => auth()->user()->department_id, // authから取得したdepartment_idを挿入
+            'department_id'=> auth()->user()->department_id,
             'is_active'    => true,
         ]);
 
@@ -205,90 +188,126 @@ class DistributionController extends Controller
         }
         foreach ($grouped as $deptName => $userIds) {
             foreach ($userIds as $userId) {
-                $token = \Illuminate\Support\Str::random(50); // ランダムな50文字のトークンを生成
+                $token = \Illuminate\Support\Str::random(50);
 
-                // SurveyUserTokenモデルを使用して登録
                 SurveyUserToken::create([
                     'survey_id' => $survey->id,
-                    'user_id' => $userId,
-                    'token' => $token,
-                    'answered' => false,
+                    'user_id'   => $userId,
+                    'token'     => $token,
+                    'answered'  => false,
                 ]);
 
-                // ✅ ユーザーにメール送信
-                $user = \App\Models\User::find($userId);
+                $user = User::find($userId);
                 if ($user) {
-                    $startDate = $survey->start_date; // 配信予定日時
-                    SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($startDate);
+                    $startDate = $survey->start_date;
+                    \App\Jobs\SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($startDate);
                 }
             }
         }
 
-
-        // ✅ ユーザー情報保存
         $selectedUserIds = session('survey_selected_users', []);
         foreach ($selectedUserIds as $userId) {
             DB::table('survey_user')->insert([
-                'survey_id' => $survey->id,
-                'user_id' => $userId,
-                'is_delivered' => true,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'survey_id'   => $survey->id,
+                'user_id'     => $userId,
+                'is_delivered'=> true,
+                'created_at'  => now(),
+                'updated_at'  => now(),
             ]);
         }
 
-        // ✅ セッション片付け
         session()->forget('survey_input');
         session()->forget('survey_selected_users');
         session()->forget('selected_departments');
         session()->forget('survey_selected_users_grouped');
 
-        // ✅ 配信完了画面へリダイレクト
         return redirect()->route('survey.completion');
     }
 
     public function confirmation()
     {
-        Log::debug('🧾 確認画面に渡されたセッション', session('survey_input'));
+        \Illuminate\Support\Facades\Log::debug('🧾 確認画面に渡されたセッション', session('survey_input'));
         return view('distribution.confirmation');
     }
 
     public function list(Request $request)
     {
-        $query = Survey::with('department');
+        // ① ログインユーザーのoffice_idに一致するアンケートのみ取得
+        $query = Survey::with('department')
+            ->where('office_id', auth()->user()->office_id);
 
+        // ② 部署IDが指定されていればその部署に絞る
         if ($request->filled('department_id')) {
-            $query->where('department_id', $request->input('department_id'));
+            $selectedDeptId = $request->input('department_id');
+            $query->where('department_id', $selectedDeptId);
         }
 
         $surveys = $query->orderByDesc('start_date')->get();
-        $departments = \App\Models\Department::all();
+        // ③ ログインユーザーのoffice_idに該当する部署一覧を取得
+        $departments = Department::where('office_id', auth()->user()->office_id)->get();
 
-        // 回答数と部署ユーザー数を集計して連想配列で渡す
-        $responseCounts = SurveyUserToken::select('survey_id', DB::raw('COUNT(*) as answered_count'))
-        ->where('answered', true)
-        ->groupBy('survey_id')
-        ->pluck('answered_count', 'survey_id')
-        ->toArray();
+        // ④ 回答済み件数・配信件数の集計
+        if ($request->filled('department_id')) {
+            // 部署選択時：その部署のみで集計
+            $selectedDeptId = $request->input('department_id');
+            $responseCounts = DB::table('survey_user_tokens')
+                ->join('users', 'survey_user_tokens.user_id', '=', 'users.id')
+                ->where('survey_user_tokens.answered', true)
+                ->where('users.department_id', $selectedDeptId)
+                ->groupBy('survey_user_tokens.survey_id')
+                ->select('survey_user_tokens.survey_id', DB::raw('COUNT(DISTINCT survey_user_tokens.user_id) as answered_count'))
+                ->pluck('answered_count', 'survey_user_tokens.survey_id')
+                ->toArray();
 
-        $departmentUserCounts = \App\Models\User::select('department_id', DB::raw('COUNT(*) as user_count'))
-            ->groupBy('department_id')
-            ->pluck('user_count', 'department_id')
-            ->toArray();
+            $departmentUserCounts = [
+                $selectedDeptId => User::where('department_id', $selectedDeptId)
+                    ->where('office_id', auth()->user()->office_id)
+                    ->count()
+            ];
+        } else {
+            // 全社表示時：各アンケートごとに、【部署ごと】の集計結果を取得
+            $answeredByDept = DB::table('survey_user_tokens')
+                ->join('users', 'survey_user_tokens.user_id', '=', 'users.id')
+                ->where('users.office_id', auth()->user()->office_id)
+                ->where('survey_user_tokens.answered', true)
+                ->groupBy('survey_user_tokens.survey_id', 'users.department_id')
+                ->select('survey_user_tokens.survey_id', 'users.department_id', DB::raw('COUNT(DISTINCT survey_user_tokens.user_id) as answered_count'))
+                ->get();
+
+            $deliveredByDept = DB::table('survey_user_tokens')
+                ->join('users', 'survey_user_tokens.user_id', '=', 'users.id')
+                ->where('users.office_id', auth()->user()->office_id)
+                ->groupBy('survey_user_tokens.survey_id', 'users.department_id')
+                ->select('survey_user_tokens.survey_id', 'users.department_id', DB::raw('COUNT(DISTINCT survey_user_tokens.user_id) as delivered_count'))
+                ->get();
+
+            // 集計結果をアンケートIDごと、部署ごとに連想配列へ整形
+            $responseCounts = [];   // [survey_id][department_id] = answered_count
+            $departmentUserCounts = []; // [department_id] = total (※配信済みユーザー数)
+            foreach ($answeredByDept as $row) {
+                $surveyId = $row->survey_id;
+                $deptId = $row->department_id;
+                $responseCounts[$surveyId][$deptId] = $row->answered_count;
+            }
+            foreach ($deliveredByDept as $row) {
+                $deptId = $row->department_id;
+                // 各部署について、同一部署のユーザーは重複しないはずなので、1行目で十分（もしくはUserテーブルから取得しても可）
+                $departmentUserCounts[$deptId] = $row->delivered_count;
+            }
+        }
 
         return view('distribution.survey_list', [
-            'surveys' => $surveys,
-            'departments' => $departments,
+            'surveys'              => $surveys,
+            'departments'          => $departments,
             'selectedDepartmentId' => $request->input('department_id'),
-            'responseCounts' => $responseCounts,
+            'responseCounts'       => $responseCounts,
             'departmentUserCounts' => $departmentUserCounts,
         ]);
     }
 
     public function showSurveyDetails($id)
-{
-    $survey = Survey::with('questions')->findOrFail($id);
-    return view('distribution.survey_details', compact('survey'));
-}
-
+    {
+        $survey = Survey::with('questions')->findOrFail($id);
+        return view('distribution.survey_details', compact('survey'));
+    }
 }

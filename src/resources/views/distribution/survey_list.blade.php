@@ -33,10 +33,7 @@
                 <tbody>
                     @forelse ($surveys as $survey)
                         @php
-                            $answered = $responseCounts[$survey->id] ?? 0;
-                            $totalUsers = $departmentUserCounts[$survey->department_id] ?? 0;
-                            $rate = $totalUsers > 0 ? round(($answered / $totalUsers) * 100) : 0;
-
+                            // ステータスの判定
                             $status = '未配信';
                             $statusClass = 'bg-gray-200 text-gray-600';
                             if ($survey->is_active) {
@@ -53,16 +50,45 @@
                             <td class="px-4 py-2 border border-[#C4C4C4]">{{ $survey->name }}</td>
                             <td class="px-4 py-2 border border-[#C4C4C4]">{{ $survey->department->name ?? '-' }}</td>
                             <td class="px-4 py-2 border border-[#C4C4C4]">
-                                <span class="inline-block w-24 px-3 py-1 rounded font-semibold {{ $statusClass }}">{{ $status }}</span>
+                                <span class="inline-block w-24 px-3 py-1 rounded font-semibold {{ $statusClass }}">
+                                    {{ $status }}
+                                </span>
                             </td>
                             <td class="px-4 py-2 border border-[#C4C4C4]">
-                                @if($totalUsers > 0)
+                                @if($selectedDepartmentId)
+                                    {{-- 部署選択時は、その部署の集計 --}}
+                                    @php
+                                        $answered = $responseCounts[$survey->id] ?? 0;
+                                        $totalUsers = $departmentUserCounts[$survey->department_id] ?? 0;
+                                        $rate = $totalUsers > 0 ? min(round(($answered / $totalUsers) * 100), 100) : 0;
+                                    @endphp
                                     {{ $answered }}/{{ $totalUsers }}（{{ $rate }}%）
                                 @else
-                                    ―
+                                    {{-- 全社表示時は、各部署ごとにループ --}}
+                                    @if(isset($responseCounts[$survey->id]))
+                                        @foreach ($responseCounts[$survey->id] as $deptId => $answered)
+                                            @php
+                                                $total = $departmentUserCounts[$deptId] ?? 0;
+                                                $rate = $total > 0 ? min(round(($answered / $total) * 100), 100) : 0;
+                                                // 部署名を取得
+                                                $deptName = '';
+                                                foreach($departments as $department) {
+                                                    if($department->id == $deptId) {
+                                                        $deptName = $department->name;
+                                                        break;
+                                                    }
+                                                }
+                                            @endphp
+                                            <p>{{ $deptName }}：{{ $answered }}/{{ $total }}（{{ $rate }}%）</p>
+                                        @endforeach
+                                    @else
+                                        <p>―</p>
+                                    @endif
                                 @endif
                             </td>
-                            <td class="px-4 py-2 border border-[#C4C4C4]">{{ \Carbon\Carbon::parse($survey->start_date)->format('Y/m/d') }}</td>
+                            <td class="px-4 py-2 border border-[#C4C4C4]">
+                                {{ \Carbon\Carbon::parse($survey->start_date)->format('Y/m/d') }}
+                            </td>
                             <td class="px-4 py-2 border border-[#C4C4C4]">
                                 {{ $survey->end_date ? \Carbon\Carbon::parse($survey->end_date)->format('Y/m/d') : '―' }}
                             </td>
