@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-8 bg-[#F7F8FA]">
+<div class="p-8 bg-[#F7F8FA] ml-64">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold">アンケート一覧</h2>
         <form method="GET" class="flex items-center space-x-2">

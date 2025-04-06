@@ -13,58 +13,65 @@
 <body class="bg-[#f7f8fa] min-h-screen">
     {{-- サイドバー --}}
     @include('components.sidebar')
-    
-    <div class="ml-64">
-        <!-- 上部バー -->
-        <div class="bg-white border-b border-gray-300 py-3 shadow-sm">
-            <div class="max-w-6xl mx-auto px-4 flex items-center justify-between">
-                <h1 class="text-2xl font-bold text-gray-800">最新のサーベイ結果</h1>
-                @if($latestSurvey)
-                    <div class="text-sm text-gray-600">
-                        回答期間：{{ \Carbon\Carbon::parse($latestSurvey->start_date)->format('Y/m/d') }} ～ 
-                        {{ \Carbon\Carbon::parse($latestSurvey->end_date)->format('Y/m/d') }}
+
+    <div class="bg-[#F7F8FA]">
+        <div class="min-h-screen pb-8 ml-64 mr-8">
+            {{-- ▼ ヘッダー --}}
+            <div>
+                <!-- ヘッダー部分 -->
+<!-- ヘッダー：タイトル・回答期間・部署セレクトを横並び -->
+                <div class="flex justify-between items-center p-5 pt-8">
+                    <div class="flex items-center space-x-6">
+                        <figure>
+                            <img src="{{ asset('images/title_logo.png') }}" alt="" class="w-8 h-8" />
+                        </figure>
+                        <p class="text-2xl font-bold whitespace-nowrap">最新のサーベイ結果</p>
+                        @if($latestSurvey)
+                            <div class="text-base text-gray-600 whitespace-nowrap">
+                                回答期間：{{ \Carbon\Carbon::parse($latestSurvey->start_date)->format('Y/m/d') }} ～ 
+                                {{ \Carbon\Carbon::parse($latestSurvey->end_date)->format('Y/m/d') }}
+                            </div>
+                        @else
+                            <div class="text-base text-gray-600 whitespace-nowrap">回答期間：データなし</div>
+                        @endif
                     </div>
-                @else
-                    <div class="text-sm text-gray-600">回答期間：データなし</div>
-                @endif
-            </div>
-        </div>
 
-        <!-- 部署選択プルダウン -->
-        <div class="max-w-6xl mx-auto px-4 py-3">
-            <form action="{{ route('dashboard') }}" method="GET" class="bg-white p-4 rounded-lg shadow-md">
-                <label for="department_id" class="block text-sm font-bold text-gray-800">部署を選択:</label>
-                <select name="department_id" id="department_id" class="mt-1 block w-full rounded-md border-gray-300 p-2">
-                    @foreach($departments as $dept)
-                        <option value="{{ $dept->id }}" {{ $selectedDepartmentId == $dept->id ? 'selected' : '' }}>
-                            {{ $dept->name }}
-                        </option>
-                    @endforeach
-                    <option value="all" {{ $selectedDepartmentId === 'all' ? 'selected' : '' }}>会社全体</option>
-                </select>
-                <button type="submit" class="mt-3 w-full py-2 bg-blue-400 text-white rounded hover:bg-blue-500 transition">
-                    表示
-                </button>
-            </form>
-        </div>
-
-        <!-- メインコンテンツ -->
-        @if(!$latestSurvey || now() < \Carbon\Carbon::parse($latestSurvey->start_date))
-            <!-- アンケートが存在しない または 開始前の場合 -->
-            <div class="max-w-6xl mx-auto px-4 py-6">
-                <div class="bg-gray-100 border border-gray-200 p-6 rounded-lg shadow-md text-center">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-2">アンケートが存在しません</h2>
-                    <p class="text-gray-600">アンケート開始までお待ちください。</p>
+                    <form method="GET" action="{{ route('dashboard') }}">
+                        <div class="flex items-center space-x-2">
+                            <label for="departmentSelect" class="text-[15px] font-semibold text-gray-800">部署を選択：</label>
+                            <select name="department_id" id="departmentSelect"
+                                class="px-3 py-1 pr-8 rounded border border-gray-300 bg-white text-black shadow-sm focus:ring focus:ring-blue-200"
+                                onchange="this.form.submit()">
+                                @foreach($departments as $dept)
+                                    <option value="{{ $dept->id }}" {{ $selectedDepartmentId == $dept->id ? 'selected' : '' }}>
+                                        {{ $dept->name }}
+                                    </option>
+                                @endforeach
+                                <option value="all" {{ $selectedDepartmentId === 'all' ? 'selected' : '' }}>会社全体</option>
+                            </select>
+                        </div>
+                    </form>
                 </div>
-            </div>
-        @else
-            <!-- アンケートが開始済みの場合 -->
-            <div class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-3 gap-6">
-                <!-- 左カラム: 前回比カード群 & 結果一覧テーブル -->
-                <div class="col-span-2 space-y-6">
-                    @php
-                        $percentage = $answerStatus['percentage'] ?? 0;
-                    @endphp
+
+
+
+            <!-- メインコンテンツ -->
+            @if(!$latestSurvey || now() < \Carbon\Carbon::parse($latestSurvey->start_date))
+                <!-- アンケートが存在しない または 開始前の場合 -->
+                <div class="max-w-6xl mx-auto px-4 py-6">
+                    <div class="bg-gray-100 border border-gray-200 p-6 rounded-lg shadow-md text-center">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-2">アンケートが存在しません</h2>
+                        <p class="text-gray-600">アンケート開始までお待ちください。</p>
+                    </div>
+                </div>
+            @else
+                <!-- アンケートが開始済みの場合 -->
+                <div class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-3 gap-6">
+                    <!-- 左カラム: 前回比カード群 & 結果一覧テーブル -->
+                    <div class="col-span-2 space-y-6">
+                        @php
+                            $percentage = $answerStatus['percentage'] ?? 0;
+                        @endphp
 
                     {{-- 前回比カード部分 --}}
                     @if($percentage < 60)
@@ -74,7 +81,7 @@
                                 <!-- ハートアイコン -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                                        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                                 </svg>
                             </div>
                             <h2 class="text-xl font-semibold text-pink-700">前回比は表示されません</h2>
@@ -88,26 +95,35 @@
                             <h2 class="text-lg font-bold text-gray-800 mb-4">結果 — 前回比 —</h2>
                             <div class="grid grid-cols-4 gap-4">
                                 @foreach($cards as $card)
-                                    <div class="bg-white border border-gray-200 shadow rounded-lg p-4 flex flex-col text-center">
+                                    @php
+                                        $diff = $card['diff'];
+                                        $score = number_format($card['score'], 1);
+                                        $diffSign = ($diff > 0) ? '+' : (($diff < 0) ? '' : '±');
+                                        // 色を直接 style 属性で指定（Tailwind で効かない場合にも対応）
+                                        if ($diff > 0) {
+                                            $diffStyle = 'color: #00A6FF;';
+                                        } elseif ($diff < 0) {
+                                            $diffStyle = 'color: #FFB3B3;';
+                                        } else {
+                                            $diffStyle = 'color: #939393;';
+                                        }
+                                    @endphp
+                                    <div class="bg-white border border-gray-200 shadow rounded-lg p-4 flex flex-col items-center text-center">
                                         <div class="text-sm font-bold text-gray-700 mb-2">{{ $card['label'] }}</div>
-                                        <div class="flex items-center justify-center gap-2">
+                                        <div class="flex items-center justify-center gap-2 mb-2">
                                             <img src="{{ asset('images/' . $card['img']) }}" alt="{{ $card['label'] }}" class="w-8 h-8 object-contain">
-                                            <span class="text-2xl font-bold text-gray-800">
-                                                {{ number_format($card['score'], 1) }}
+                                            <span class="text-2xl font-bold text-[#6699CC]">
+                                                {{ $score }}
                                             </span>
                                         </div>
-                                        @php
-                                            $diff = $card['diff'];
-                                            $diffColor = ($diff >= 0) ? 'text-blue-600' : 'text-red-600';
-                                            $diffSign = ($diff > 0) ? '+' : (($diff < 0) ? '' : '±');
-                                        @endphp
-                                        <div class="mt-2 text-sm font-bold {{ $diffColor }}">
+                                        <div class="text-sm font-bold" style="{{ $diffStyle }}">
                                             前回比: {{ $diffSign }}{{ number_format($diff, 1) }}
                                         </div>
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+
                     @endif
 
                     {{-- 結果一覧テーブル --}}
@@ -187,12 +203,13 @@
                                 $total      = $answerStatus['total'] ?? 0;
                                 $percentage = $answerStatus['percentage'] ?? 0;
                             @endphp
-                            <div class="text-4xl font-bold text-blue-600 leading-tight mb-2">
+                            <div class="text-4xl font-bold text-[#66C6F0] leading-tight mb-2">
                                 {{ $answered }}<span class="text-gray-700 text-2xl"> / {{ $total }} 人</span>
                             </div>
                             <div class="h-2 bg-gray-300 rounded-full overflow-hidden mb-2">
-                                <div class="bg-blue-500 h-full" style="width: {{ $percentage }}%;"></div>
+                                <div class="h-full" style="width: {{ $percentage }}%; background-color: #99DBFF;"></div>
                             </div>
+
                             <div class="flex justify-between text-sm text-gray-700">
                                 <div>回答率 {{ $percentage }}%</div>
                                 <div>未回答者 {{ $total - $answered }}人</div>
@@ -208,9 +225,10 @@
 
                         <!-- AIフィードバックカード -->
                         <div class="bg-white rounded-lg shadow p-6 flex flex-col text-center">
-                            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                                <img src="{{ asset('images/ai.png') }}" alt="AIアイコン" class="w-5 h-5 object-contain">
+                            <div class="flex justify-center mb-4">
+                                <img src="{{ asset('images/ai.png') }}" alt="AIアイコン" class="w-16 h-16 object-contain">
                             </div>
+
                             <h2 class="text-lg font-bold text-gray-800 mb-4">AIからのフィードバック</h2>
                             @php
                                 $aiText = $aiFeedback ?? "AIフィードバックがありません。";
@@ -218,15 +236,20 @@
                             <p class="text-sm text-gray-700 break-words whitespace-pre-wrap mb-6">
                                 {{ $aiText }}
                             </p>
-                            <a href="{{ route('measures.index') }}" class="block bg-blue-400 hover:bg-blue-500 text-white text-center rounded px-4 py-2 transition">
-                                施策一覧
-                            </a>
+                            <div class="flex justify-center mt-4">
+                                <a href="{{ route('measures.index') }}"
+                                    class="w-64 text-center px-14 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300">
+                                    施策一覧へ
+                                </a>
+                            </div>
                         </div>
                     </div>
                 @endif
-                <!-- /右カラム -->
             </div>
         @endif
-    </div><!-- /メインコンテンツ -->
+    </div>
+</div>
+</div>
+
 </body>
 </html>
