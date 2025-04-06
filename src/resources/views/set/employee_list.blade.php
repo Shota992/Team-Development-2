@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-8 bg-[#F7F8FA]">
+<div class="p-8 bg-[#F7F8FA] ml-56">
     <!-- タイトルと検索バー -->
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold">従業員一覧</h2>
@@ -30,11 +30,11 @@
             <div class="flex items-center space-x-4">
                 <!-- ページネーション風ボタン -->
                 <div class="flex items-center border rounded">
-                    <a href="{{ $employees->previousPageUrl() }}" class="px-2 py-1 text-gray-600 {{ $employees->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">‹</a>
+                    <a href="{{ $employees->appends(request()->query())->previousPageUrl() }}" class="px-2 py-1 text-gray-600 {{ $employees->onFirstPage() ? 'pointer-events-none opacity-50' : '' }}">‹</a>
                     <span class="bg-blue-300 text-white px-4 py-1">
                         {{ $employees->currentPage() }}
                     </span>
-                    <a href="{{ $employees->nextPageUrl() }}" class="px-2 py-1 text-gray-600 {{ $employees->hasMorePages() ? '' : 'pointer-events-none opacity-50' }}">›</a>
+                    <a href="{{ $employees->appends(request()->query())->nextPageUrl() }}" class="px-2 py-1 text-gray-600 {{ $employees->hasMorePages() ? '' : 'pointer-events-none opacity-50' }}">›</a>
                 </div>
 
                 <!-- 件数表示 -->
@@ -88,7 +88,7 @@
                         <th class="px-4 py-2 border-b border-gray-300">生年月日</th>
                         <th class="px-4 py-2 border-b border-gray-300">部署</th>
                         <th class="px-4 py-2 border-b border-gray-300">役職</th>
-                        <th class="px-4 py-2 border-b border-gray-300">管理者権限</th> <!-- ★追加 -->
+                        <th class="px-4 py-2 border-b border-gray-300">管理者権限</th>
                         <th class="px-4 py-2 border-b border-gray-300">操作</th>
                     </tr>
                 </thead>
@@ -107,9 +107,7 @@
                         <td class="px-4 py-2">{{ \Carbon\Carbon::parse($employee->birthday)->format('Y/m/d') }}</td>
                         <td class="px-4 py-2">{{ $employee->department->name ?? '-' }}</td>
                         <td class="px-4 py-2">{{ $employee->position->name ?? '-' }}</td>
-                        <td class="px-4 py-2">
-                            {{ $employee->administrator ? 'あり' : 'なし' }} <!-- ★追加 -->
-                        </td>
+                        <td class="px-4 py-2">{{ $employee->administrator ? 'あり' : 'なし' }}</td>
                         <td class="px-4 py-2">
                             <form method="POST" action="{{ route('employee.delete', $employee->id) }}" onsubmit="return confirm('本当に削除しますか？');">
                                 @csrf
