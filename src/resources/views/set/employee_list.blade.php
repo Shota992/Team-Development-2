@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('components.sidebar')
 <div class="p-8 bg-[#F7F8FA] ml-56">
     <!-- タイトル -->
     <div class="flex items-center justify-between mb-4">
