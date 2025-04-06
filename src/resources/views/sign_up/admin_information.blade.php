@@ -110,6 +110,7 @@
             <div class="mb-4">
                 <label class="block text-gray-700 font-semibold mb-1">所属している部署名 <span class="text-red-500">*</span></label>
                 <input type="text" name="department" value="{{ $admin['department'] ?? old('department') }}" class="w-full p-2 border rounded">
+                <p class="text-sm text-gray-500 mt-1">（注）所属している部署がない方は、「社内」と入力してください。</p>
                 @error('department')
                     <p class="text-red-500 text-sm">所属している部署名を入力してください。</p>
                 @enderror
