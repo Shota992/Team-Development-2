@@ -131,4 +131,10 @@ class SignUpController extends Controller
         return redirect()->route('login')->with('success', '新規登録が完了しました。ログインしてください。');
     }
 
+    public function start()
+    {
+        return view('sign_up.start');
+    }
+
+
 }
