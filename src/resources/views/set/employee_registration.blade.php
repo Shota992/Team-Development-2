@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 @include('components.sidebar')
 <div class="bg-[#F7F8FA]">
     <div class="min-h-screen pb-8 ml-64 mr-8">
