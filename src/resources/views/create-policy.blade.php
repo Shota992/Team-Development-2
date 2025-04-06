@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('components.sidebar')
 <div class="container mx-auto px-4 py-6">
     <h2 class="text-2xl font-semibold mb-4 ml-64">施策作成画面</h2>
 

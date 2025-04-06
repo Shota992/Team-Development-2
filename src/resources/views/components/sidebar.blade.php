@@ -27,7 +27,7 @@
                 </button>
 
                 <!-- 通知ポップアップ（サイドバー外にはみ出して表示される） -->
-                <div x-show="open" @click.away="open = false" x-cloak class="absolute left-0 top-full mt-2 w-80 bg-white border border-gray-300 rounded-md shadow-lg z-50 transition-all duration-200 ease-out" style="max-height: 70vh; overflow-y: auto;">
+                <div x-show="open" @click.away="open = false" x-cloak class="left-0 mt-2 w-80 bg-white border border-gray-300 rounded-md shadow-lg z-50 transition-all duration-200 ease-out fixed ml-20" style="max-height: 70vh; overflow-y: auto;">
                     <div class="px-4 py-2 border-b text-gray-800 font-semibold flex justify-between items-center">
                         通知
                         <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
