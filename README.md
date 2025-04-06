@@ -29,7 +29,7 @@ DB_USERNAME=posse
 DB_PASSWORD=password
 ```
 
-9.`php artisan migrate`
+9.`php artisan migrate:fresh --seed`
 
 10.`php artisan queue:work`
 
