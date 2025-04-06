@@ -57,8 +57,8 @@
         {{-- ▼ 折れ線グラフ --}}
         <div class="mb-8 bg-white border rounded shadow p-8">
             <div class="flex items-center mb-2">
-                {{-- <img id="chartIcon" src="{{ asset('images/' . $cards[0]['img']) }}" alt="グラフアイコン" class="w-8 h-8 mr-2">
-                <h3 id="chartLabel" class="text-lg font-semibold">{{ $cards[0]['label'] }}</h3> --}}
+                <img id="chartIcon" src="{{ asset('images/' . $cards[0]['img']) }}" alt="グラフアイコン" class="w-8 h-8 mr-2">
+                <h3 id="chartLabel" class="text-lg font-semibold">{{ $cards[0]['label'] }}</h3>
                 <h3 class="text-lg font-semibold">評価推移</h3>
             </div>
             <canvas id="chartCanvas" height="120"></canvas>
@@ -155,11 +155,11 @@ select.addEventListener('change', function () {
     textEl.textContent = question.description;
     chartLabel.textContent = card.label;
 
-    const imgMap = {
-        '顧客基盤の安定性': 'company.png',
-        '理念戦略への納得感': 'corporate-philosophy.png',
-        '社会的貢献': 'society.png',
-    };
+    // const imgMap = {
+    //     '顧客基盤の安定性': 'company.png',
+    //     '理念戦略への納得感': 'corporate-philosophy.png',
+    //     '社会的貢献': 'society.png',
+    // };
     iconEl.src = `/images/${imgMap[question.title] || 'question.png'}`;
     chartIcon.src = `/images/${card.img}`;
 
