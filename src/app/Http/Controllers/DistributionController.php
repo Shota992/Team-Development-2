@@ -255,23 +255,29 @@ class DistributionController extends Controller
 
     public function list(Request $request)
     {
-        $query = Survey::with('department');
+        $loggedInOfficeId = auth()->user()->office_id;
+
+        $query = Survey::with('department')
+            ->where('office_id', $loggedInOfficeId); // ← ログイン者の会社に限定
 
         if ($request->filled('department_id')) {
             $query->where('department_id', $request->input('department_id'));
         }
 
         $surveys = $query->orderByDesc('start_date')->get();
-        $departments = \App\Models\Department::all();
 
-        // 回答数と部署ユーザー数を集計して連想配列で渡す
+        // 表示対象の部署だけ取得
+        $departments = Department::where('office_id', $loggedInOfficeId)->get();
+
+        // 回答数
         $responseCounts = SurveyUserToken::select('survey_id', DB::raw('COUNT(*) as answered_count'))
-        ->where('answered', true)
-        ->groupBy('survey_id')
-        ->pluck('answered_count', 'survey_id')
-        ->toArray();
+            ->where('answered', true)
+            ->groupBy('survey_id')
+            ->pluck('answered_count', 'survey_id')
+            ->toArray();
 
-        $departmentUserCounts = \App\Models\User::select('department_id', DB::raw('COUNT(*) as user_count'))
+        // 部署ごとのユーザー数
+        $departmentUserCounts = User::select('department_id', DB::raw('COUNT(*) as user_count'))
             ->groupBy('department_id')
             ->pluck('user_count', 'department_id')
             ->toArray();
@@ -285,10 +291,21 @@ class DistributionController extends Controller
         ]);
     }
 
+
     public function showSurveyDetails($id)
-{
-    $survey = Survey::with('questions')->findOrFail($id);
-    return view('distribution.survey_details', compact('survey'));
-}
+    {
+        $survey = Survey::with('questions')->findOrFail($id);
+        return view('distribution.survey_details', compact('survey'));
+    }
+
+    public function endSurvey($id)
+    {
+        $survey = Survey::findOrFail($id);
+        $survey->end_date = now();
+        $survey->save();
+
+        return back()->with('success', 'アンケートを「回答終了」にしました。');
+    }
+
 
 }
