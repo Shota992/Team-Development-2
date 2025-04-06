@@ -265,10 +265,11 @@ class DistributionController extends Controller
         $departments = \App\Models\Department::all();
 
         // 回答数と部署ユーザー数を集計して連想配列で渡す
-        $responseCounts = \App\Models\SurveyResponse::select('survey_id', DB::raw('COUNT(DISTINCT user_id) as answered_count'))
-            ->groupBy('survey_id')
-            ->pluck('answered_count', 'survey_id')
-            ->toArray();
+        $responseCounts = SurveyUserToken::select('survey_id', DB::raw('COUNT(*) as answered_count'))
+        ->where('answered', true)
+        ->groupBy('survey_id')
+        ->pluck('answered_count', 'survey_id')
+        ->toArray();
 
         $departmentUserCounts = \App\Models\User::select('department_id', DB::raw('COUNT(*) as user_count'))
             ->groupBy('department_id')
@@ -283,4 +284,11 @@ class DistributionController extends Controller
             'departmentUserCounts' => $departmentUserCounts,
         ]);
     }
+
+    public function showSurveyDetails($id)
+{
+    $survey = Survey::with('questions')->findOrFail($id);
+    return view('distribution.survey_details', compact('survey'));
+}
+
 }

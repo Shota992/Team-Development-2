@@ -52,12 +52,26 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
         ->name('password.update');
 
+// ← この位置に移動（公開ルートの下、auth ミドルウェアの外）
+Route::get('/survey/fill/{token}', [SurveyController::class, 'employeeSurveyShow'])->name('survey.fill');
+Route::post('/survey/employee/{token}', [SurveyController::class, 'employeeSurveyPost'])->name('survey.employee.post');
+Route::get('/survey/employee/{id}/success', [SurveyController::class, 'employeeSurveySuccess'])->name('survey.employee-survey-success');
+Route::get('/survey/employee/{id}/fail', [SurveyController::class, 'employeeSurveyFail'])->name('survey.employee-survey-fail');
+
+
 });
 
 
 Route::middleware('auth')->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/surveys/{survey}/unanswered', [SurveyController::class, 'unansweredUsers'])
+    ->name('survey.unanswered-users')
+    ->middleware(['auth']);
+    Route::post('/survey/{survey}/remind-unanswered', [SurveyController::class, 'remindUnanswered'])
+    ->name('survey.remind-unanswered');
+
+
     Route::get('/departments', [DepartmentsController::class, 'index'])->name('departments.index');
     Route::get('/measures', [MeasureController::class, 'index'])->name('measure.index');
     Route::get('/items', [SurveyController::class, 'index'])->name('items.index');
