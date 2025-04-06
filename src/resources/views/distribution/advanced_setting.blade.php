@@ -89,7 +89,7 @@
             </a>
         </div>
         <div class="flex justify-center mt-4">
-            <a href="{{ route('survey.group-selection') }}"
+            <a href="{{ route('survey.create') }}"
                 class="w-64 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
                 戻る
             </a>

@@ -99,28 +99,29 @@
 
             {{-- 管理者の会社名 --}}
             <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-1">管理者の会社名 <span class="text-red-500">*</span></label>
+                <label class="block text-gray-700 font-semibold mb-1">所属している会社名 <span class="text-red-500">*</span></label>
                 <input type="text" name="company" value="{{ $admin['company'] ?? old('company') }}" class="w-full p-2 border rounded">
                 @error('company')
-                    <p class="text-red-500 text-sm">管理者の会社名を入力してください。</p>
+                    <p class="text-red-500 text-sm">所属している会社名を入力してください。</p>
                 @enderror
             </div>
 
             {{-- 管理者の部署名 --}}
             <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-1">管理者の部署名 <span class="text-red-500">*</span></label>
+                <label class="block text-gray-700 font-semibold mb-1">所属している部署名 <span class="text-red-500">*</span></label>
                 <input type="text" name="department" value="{{ $admin['department'] ?? old('department') }}" class="w-full p-2 border rounded">
+                <p class="text-sm text-gray-500 mt-1">（注）所属している部署がない方は、「社内」と入力してください。</p>
                 @error('department')
-                    <p class="text-red-500 text-sm">管理者の部署名を入力してください。</p>
+                    <p class="text-red-500 text-sm">所属している部署名を入力してください。</p>
                 @enderror
             </div>
 
             {{-- 管理者の役職名 --}}
             <div class="mb-6">
-                <label class="block text-gray-700 font-semibold mb-1">管理者の役職名 <span class="text-red-500">*</span></label>
+                <label class="block text-gray-700 font-semibold mb-1">就いている役職名 <span class="text-red-500">*</span></label>
                 <input type="text" name="position" value="{{ $admin['position'] ?? old('position') }}" class="w-full p-2 border rounded">
                 @error('position')
-                    <p class="text-red-500 text-sm">管理者の役職名を入力してください。</p>
+                    <p class="text-red-500 text-sm">就いている役職名を入力してください。</p>
                 @enderror
             </div>
 
