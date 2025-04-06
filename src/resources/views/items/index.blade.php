@@ -154,11 +154,25 @@ select.addEventListener('change', function () {
     textEl.textContent = question.description;
     chartLabel.textContent = card.label;
 
-    // const imgMap = {
-    //     '顧客基盤の安定性': 'company.png',
-    //     '理念戦略への納得感': 'corporate-philosophy.png',
-    //     '社会的貢献': 'society.png',
-    // };
+    const imgMap = {
+            '顧客基盤の安定性': 'company.png',
+            '理念戦略への納得感': 'corporate-philosophy.png',
+            '社会的貢献' :  'society.png',
+            '責任と顧客・社会への貢献':  'responsibility.png',
+            '連帯感と相互尊重' :  'feeling-solidarity.png',
+            '魅力的な上司・同僚' : 'boss.png',
+            '勤務地や会社設備の魅力' : 'location.png',
+            '評価・給与と柔軟な働き方' :  'work-style.png',
+            '顧客ニーズや事業戦略の伝達' :  'needs.png',
+            '上司や会社からの理解':  'understanding.png',
+            '公平な評価' :  'evaluation.png',
+            '上司からの適切な教育・支援' :  'education.png',
+            '顧客の期待を上回る提案' :  'expectation.png',
+            '具体的な目標の共有' :  'target.png',
+            '未来に向けた活動' :  'future.png',
+            'ナレッジの標準化' :  'knowledge.png',
+            default :  'default.png',
+    };
     iconEl.src = `/images/${imgMap[question.title] || 'question.png'}`;
     chartIcon.src = `/images/${card.img}`;
 
