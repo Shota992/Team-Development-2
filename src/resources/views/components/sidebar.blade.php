@@ -14,47 +14,38 @@
 
         {{-- 通知＋ログアウト --}}
         <div class="flex items-center justify-center gap-8 relative">
-            <!-- 通知ポップアップ -->
             <div x-data="{ open: false }" class="relative w-auto min-w-[48px]">
-                <!-- 通知ベル（クリックでトグル） -->
+                <!-- 通知ベル -->
                 <img src="{{ asset('images/bellicon.png') }}" alt="Bell" class="w-6 h-6 cursor-pointer" @click="open = !open" />
-
-                <!-- 未読通知がある場合に赤いドットを表示 -->
+            
+                <!-- 赤いドット -->
                 @if ($notifications->where('read_at', null)->count() > 0)
                     <span class="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 block bg-red-600 rounded-full" style="width: 8px; height: 8px;"></span>
                 @endif
-
-                <!-- 通知ポップアップ本体 -->
+            
+                <!-- ✅ ポップアップを右寄せに固定 -->
                 <div x-show="open" @click.away="open = false"
-                class="fixed left-64 top-20 bg-white border border-gray-300 rounded-md shadow-lg z-50 transition duration-200"
-                style="width: 400px;">
-               <div class="px-4 py-2 border-b text-gray-800 font-semibold flex justify-between items-center">
-                   通知
-                   <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
-               </div>
-               <ul class="max-h-80 overflow-y-auto text-sm text-gray-700 divide-y">
+                     class="fixed top-20 right-8 w-[400px] bg-white border border-gray-300 rounded-md shadow-lg z-50 transition"
+                     style="max-height: 70vh; overflow-y: auto;">
+                    <div class="px-4 py-2 border-b text-gray-800 font-semibold flex justify-between items-center">
+                        通知
+                        <button @click="open = false" class="text-gray-400 hover:text-gray-600 text-sm">✕</button>
+                    </div>
+                    <ul class="text-sm text-gray-700 divide-y">
                         @forelse ($notifications as $notification)
                             <li class="p-3 hover:bg-gray-50 {{ is_null($notification->read_at) ? 'bg-blue-50' : '' }}">
                                 <div class="flex justify-between items-center">
                                     <div class="font-bold text-sm mb-1">{{ $notification->title }}</div>
                                     @if (is_null($notification->read_at))
-                                        <!-- 未読の場合にNEWインジケーターを表示 -->
-                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium leading-none text-white bg-green-500 rounded-full">
-                                            NEW
-                                        </span>
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 text-xs font-medium text-white bg-green-500 rounded-full">NEW</span>
                                     @endif
                                 </div>
                                 <div class="text-xs text-gray-500">{{ $notification->body }}</div>
-                                <div class="text-right text-xs text-gray-400 mt-1">
-                                    {{ $notification->created_at->diffForHumans() }}
-                                </div>
+                                <div class="text-right text-xs text-gray-400 mt-1">{{ $notification->created_at->diffForHumans() }}</div>
                                 @if (is_null($notification->read_at))
-                                    <!-- 未読の場合、既読にするボタンを表示 -->
                                     <form action="{{ route('notifications.read', $notification) }}" method="POST" class="mt-2">
                                         @csrf
-                                        <button type="submit" class="text-xs text-blue-600 hover:underline">
-                                            既読にする
-                                        </button>
+                                        <button type="submit" class="text-xs text-blue-600 hover:underline">既読にする</button>
                                     </form>
                                 @endif
                             </li>
@@ -64,6 +55,7 @@
                     </ul>
                 </div>
             </div>
+            
 
             {{-- ログアウト --}}
             <form method="POST" action="{{ route('logout') }}">
@@ -131,7 +123,7 @@
                     </summary>
                     <ul class="pl-6 mt-4 space-y-1">
                         <li class="flex justify-between items-center">
-                            <a href="{{ route('measures.index') }}" class="text-gray-600 hover:text-blue-600">実行タスク一覧</a>
+                            <a href="{{ route('measures.index') }}" class="text-gray-600 hover:text-blue-600">実行中施策一覧</a>
                             @if($executingTasksCount > 0)
                                 <span class="bg-blue-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
                                     {{ $executingTasksCount }}
@@ -139,7 +131,7 @@
                             @endif
                         </li>
                         <li class="flex justify-between items-center">
-                            <a href="{{ route('measure.no-evaluation') }}" class="text-gray-600 hover:text-blue-600">評価/改善未対応タスク一覧</a>
+                            <a href="{{ route('measure.no-evaluation') }}" class="text-gray-600 hover:text-blue-600">評価/改善未対応施策一覧</a>
                             @if($pendingEvaluationMeasuresCount > 0)
                                 <span class="bg-blue-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
                                     {{ $pendingEvaluationMeasuresCount }}
@@ -147,7 +139,7 @@
                             @endif
                         </li>
                         <li class="flex justify-between items-center">
-                            <a href="{{ route('measures.evaluation-list') }}" class="text-gray-600 hover:text-blue-600">評価/改善済みタスク一覧</a>
+                            <a href="{{ route('measures.evaluation-list') }}" class="text-gray-600 hover:text-blue-600">評価/改善済み施策一覧</a>
                         </li>
                     </ul>
                 </details>
@@ -178,6 +170,12 @@
                     </summary>
                     <ul class="pl-6 mt-4 space-y-1">
                         <li><a href="{{ route('survey_questions.index') }}" class="text-gray-600 hover:text-blue-600">項目設定</a></li>
+                    </ul>
+                    <ul class="pl-6 mt-4 space-y-1">
+                        <li><a href="{{ route('setting.employee-list') }}" class="text-gray-600 hover:text-blue-600">従業員一覧</a></li>
+                    </ul>
+                    <ul class="pl-6 mt-4 space-y-1">
+                        <li><a href="{{ route('employee.create') }}" class="text-gray-600 hover:text-blue-600">従業員登録</a></li>
                     </ul>
                 </details>
             </li>

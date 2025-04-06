@@ -2,9 +2,11 @@
 @extends('layouts.plain')
 
 @section('content')
-<div class="flex items-center justify-center min-h-screen bg-blue-50">
-    <div class="w-full max-w-md bg-white p-8 rounded-md shadow">
-        <h1 class="text-center text-2xl font-bold mb-6">get mild</h1>
+<div class="flex items-center justify-center min-h-screen bg-[#E0F4FF]">
+    <div class="w-full max-w-2xl bg-white p-8 rounded-md shadow">
+        <div>
+            <img src="{{ asset('images/Kompasslogo.jpeg') }}" alt="log in">
+        </div>
 
         <!-- エラーメッセージ表示 -->
         @if ($errors->any())
@@ -30,8 +32,8 @@
                     name="email"
                     value="{{ old('email') }}"
                     class="block mt-1 w-full border-gray-300 rounded-md
-                           focus:border-blue-300 focus:ring focus:ring-blue-200
-                           focus:ring-opacity-50"
+                            focus:border-blue-300 focus:ring focus:ring-blue-200
+                            focus:ring-opacity-50"
                     required
                 />
             </div>
@@ -46,8 +48,8 @@
                     type="password"
                     name="password"
                     class="block mt-1 w-full border-gray-300 rounded-md
-                           focus:border-blue-300 focus:ring focus:ring-blue-200
-                           focus:ring-opacity-50"
+                            focus:border-blue-300 focus:ring focus:ring-blue-200
+                            focus:ring-opacity-50"
                     required
                 />
             </div>
@@ -66,9 +68,8 @@
                     </span>
                 </label>
             </div>
-            
 
-            <div class="flex items-center justify-between mt-6">
+            <div class="mt-6 flex flex-col items-center space-y-6">
                 @if (Route::has('password.request'))
                     <a
                         class="underline text-sm text-gray-600 hover:text-gray-900"
@@ -80,12 +81,12 @@
 
                 <button
                     type="submit"
-                    class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700
-                           focus:outline-none focus:ring-2 focus:ring-offset-2
-                           focus:ring-blue-500"
+                    class="px-10 py-2 bg-[#86D4FE] text-white font-bold rounded-full shadow-md hover:bg-[#69C2FD] transition duration-300"
                 >
                     ログイン
                 </button>
+            </div>
+
             </div>
         </form>
     </div>
