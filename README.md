@@ -46,11 +46,11 @@ DB_PASSWORD=password
 ## ログイン方法
 デフォルトでは以下の通りに入力することでシステムに入ることができます。
 
-**ログイン画面：**localhost/login
+ログイン画面：localhost/login
 
-**メールアドレス：**suzuki.takuma@example.com
+メールアドレス：suzuki.takuma@example.com
 
-**パスワード：**Password123
+パスワード：Password123
 
 （初期Seederもこちらのアカウント中心で作成しています)
 
