@@ -68,7 +68,7 @@
             </button>
 
             <a href="{{ route('survey.create') }}"
-                class="inline-block w-60 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
+                class="inline-block w-60 py-3 bg-gray-300 text-white font-bold rounded-full shadow hover:bg-gray-400 transition duration-300 text-center">
                 戻る
             </a>
         </div>
