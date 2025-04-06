@@ -9,15 +9,12 @@
   <!-- Vue.js & Axios -->
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
+@include('components.sidebar')
 <body class="bg-gray-100 h-screen overflow-hidden">
-  <!-- 全体をフレックスコンテナに -->
-  <div class="flex h-full">
-    <!-- サイドバー: 固定幅 -->
-    <aside class="w-64 p-4 bg-white text-gray-700 border-0">
-      <!-- サイドバーコンポーネントをここに含む -->
-      @include('components.sidebar')
-    </aside>
+  @include('components.sidebar')
+  <div class="flex h-full ml-64">
     <!-- メインコンテンツ -->
     <div id="app" class="flex-1 flex flex-col">
       <!-- ヘッダー -->
