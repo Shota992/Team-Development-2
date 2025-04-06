@@ -162,21 +162,26 @@ class DistributionController extends Controller
         $startDate = null;
         $endDate = null;
 
+        $now = now();
+
         if ($sendType === 'schedule') {
             $startDate = Carbon::parse($request->input('scheduled_date') . ' ' . $request->input('scheduled_time'));
         } elseif ($sendType === 'now') {
-            $startDate = now();
+            $startDate = $now;
         }
 
         if ($request->filled('deadline_date') && $request->filled('deadline_time')) {
             $endDate = Carbon::parse($request->input('deadline_date') . ' ' . $request->input('deadline_time'));
         }
 
+        $status = $startDate->isToday() && $startDate->greaterThan($now) ? 'schedule' : 'now';
+
         session([
             'survey_input.send_type' => $sendType,
             'survey_input.start_date' => $startDate,
             'survey_input.end_date' => $endDate,
             'survey_input.is_anonymous' => $isAnonymous,
+            'survey_input.status' => $status,
         ]);
 
         return redirect()->route('survey.confirmation');
@@ -185,6 +190,7 @@ class DistributionController extends Controller
     public function sendSurvey(Request $request)
     {
         $input = session('survey_input');
+        $status = $input['status'] ?? 'now';
 
         // 📝 Survey作成（department_idにNULLは入れない）
         $survey = Survey::create([
@@ -218,8 +224,13 @@ class DistributionController extends Controller
                 // ✅ ユーザーにメール送信
                 $user = \App\Models\User::find($userId);
                 if ($user) {
-                    $startDate = $survey->start_date; // 配信予定日時
-                    SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($startDate);
+                    if ($status === 'now') {
+                        // 即時送信
+                        Mail::to($user->email)->send(new \App\Mail\SurveyNotificationMail($survey, $user, $token));
+                    } else {
+                        // スケジュール送信
+                        SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($input['start_date']);
+                    }
                 }
             }
         }
@@ -306,6 +317,4 @@ class DistributionController extends Controller
 
         return back()->with('success', 'アンケートを「回答終了」にしました。');
     }
-
-
 }
