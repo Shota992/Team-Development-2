@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+@include('components.sidebar')
+
+{{-- タイトル --}}
 <div class="p-8 bg-[#F7F8FA] ml-64">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold">アンケート一覧</h2>
