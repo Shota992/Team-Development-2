@@ -187,9 +187,10 @@ class SurveyController extends Controller
                 $query->where('common_status', 1) // common_statusが1のもの
                     ->orWhere('department_id', $userDepartmentId); // 自分の部署IDが一致するもの
             })
+            ->where('display_status', 1) // display_statusが1のもの
             ->get();
 
-        return view('survey.employee-survey', compact('survey', 'surveyItems', 'dateStatus' ,'answeredStatus', 'id'));
+        return view('survey.employee-survey', compact('survey', 'surveyItems', 'dateStatus', 'answeredStatus', 'id'));
     }
 
     public function employeeSurveyPost(Request $request, $token)
@@ -235,12 +236,6 @@ class SurveyController extends Controller
                 }
             }
 
-            return redirect()->route('survey.employee-survey-success', ['id' => $surveyId]);
-        } catch (\Exception $e) {
-            return redirect()->route('survey.employee-survey-fail', [
-                'id' => $surveyId,
-                'error_code' => $e->getCode(),
-            ]);
             // トークンのansweredを1に更新
             $surveyUserToken = SurveyUserToken::where('token', $token)->first();
             if ($surveyUserToken) {
@@ -283,32 +278,32 @@ class SurveyController extends Controller
     }
 
     public function unansweredUsers($surveyId)
-{
-    $survey = Survey::findOrFail($surveyId);
+    {
+        $survey = Survey::findOrFail($surveyId);
 
-    // 回答していないユーザーを取得（トークンがあり、answered = 0）
-    $unansweredTokens = \App\Models\SurveyUserToken::where('survey_id', $surveyId)
-        ->where('answered', 0)
-        ->with('user') // ユーザー情報も取得
-        ->get();
+        // 回答していないユーザーを取得（トークンがあり、answered = 0）
+        $unansweredTokens = \App\Models\SurveyUserToken::where('survey_id', $surveyId)
+            ->where('answered', 0)
+            ->with('user') // ユーザー情報も取得
+            ->get();
 
-    return view('survey.unanswered-users', [
-        'survey' => $survey,
-        'unansweredTokens' => $unansweredTokens,
-    ]);
-}
-
-public function remindUnanswered(Survey $survey)
-{
-    $unansweredTokens = $survey->surveyUserTokens()->where('answered', false)->with('user')->get();
-
-    foreach ($unansweredTokens as $token) {
-        if ($token->user && $token->user->email) {
-            $url = url('/survey/fill/' . $token->token); // 回答用URLを生成
-            Mail::to($token->user->email)->send(new SurveyReminderMail($token->user, $survey, $url));
-        }
+        return view('survey.unanswered-users', [
+            'survey' => $survey,
+            'unansweredTokens' => $unansweredTokens,
+        ]);
     }
 
-    return back()->with('status', '未回答者にリマインドメールを送信しました');
-}
+    public function remindUnanswered(Survey $survey)
+    {
+        $unansweredTokens = $survey->surveyUserTokens()->where('answered', false)->with('user')->get();
+
+        foreach ($unansweredTokens as $token) {
+            if ($token->user && $token->user->email) {
+                $url = url('/survey/fill/' . $token->token); // 回答用URLを生成
+                Mail::to($token->user->email)->send(new SurveyReminderMail($token->user, $survey, $url));
+            }
+        }
+
+        return back()->with('status', '未回答者にリマインドメールを送信しました');
+    }
 }

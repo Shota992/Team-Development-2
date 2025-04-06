@@ -146,21 +146,26 @@ class DistributionController extends Controller
         $startDate = null;
         $endDate = null;
 
+        $now = now();
+
         if ($sendType === 'schedule') {
             $startDate = Carbon::parse($request->input('scheduled_date') . ' ' . $request->input('scheduled_time'));
         } elseif ($sendType === 'now') {
-            $startDate = now();
+            $startDate = $now;
         }
 
         if ($request->filled('deadline_date') && $request->filled('deadline_time')) {
             $endDate = Carbon::parse($request->input('deadline_date') . ' ' . $request->input('deadline_time'));
         }
 
+        $status = $startDate->isToday() && $startDate->greaterThan($now) ? 'schedule' : 'now';
+
         session([
-            'survey_input.send_type'   => $sendType,
-            'survey_input.start_date'  => $startDate,
-            'survey_input.end_date'    => $endDate,
-            'survey_input.is_anonymous'=> $isAnonymous,
+            'survey_input.send_type' => $sendType,
+            'survey_input.start_date' => $startDate,
+            'survey_input.end_date' => $endDate,
+            'survey_input.is_anonymous' => $isAnonymous,
+            'survey_input.status' => $status,
         ]);
 
         return redirect()->route('survey.confirmation');
@@ -169,6 +174,7 @@ class DistributionController extends Controller
     public function sendSurvey(Request $request)
     {
         $input = session('survey_input');
+        $status = $input['status'] ?? 'now';
 
         $survey = Survey::create([
             'name'         => $input['name'] ?? 'タイトル未設定',
@@ -201,6 +207,13 @@ class DistributionController extends Controller
                 if ($user) {
                     $startDate = $survey->start_date;
                     \App\Jobs\SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($startDate);
+                    if ($status === 'now') {
+                        // 即時送信
+                        Mail::to($user->email)->send(new \App\Mail\SurveyNotificationMail($survey, $user, $token));
+                    } else {
+                        // スケジュール送信
+                        SendSurveyEmailJob::dispatch($survey, $user, $token)->delay($input['start_date']);
+                    }
                 }
             }
         }
@@ -232,6 +245,7 @@ class DistributionController extends Controller
 
     public function list(Request $request)
     {
+
         // ① ログインユーザーのoffice_idに一致するアンケートのみ取得
         $query = Survey::with('department')
             ->where('office_id', auth()->user()->office_id);
@@ -243,6 +257,7 @@ class DistributionController extends Controller
         }
 
         $surveys = $query->orderByDesc('start_date')->get();
+
         // ③ ログインユーザーのoffice_idに該当する部署一覧を取得
         $departments = Department::where('office_id', auth()->user()->office_id)->get();
 
@@ -296,6 +311,23 @@ class DistributionController extends Controller
             }
         }
 
+
+        // 表示対象の部署だけ取得
+        $departments = Department::where('office_id', $loggedInOfficeId)->get();
+
+        // 回答数
+        $responseCounts = SurveyUserToken::select('survey_id', DB::raw('COUNT(*) as answered_count'))
+            ->where('answered', true)
+            ->groupBy('survey_id')
+            ->pluck('answered_count', 'survey_id')
+            ->toArray();
+
+        // 部署ごとのユーザー数
+        $departmentUserCounts = User::select('department_id', DB::raw('COUNT(*) as user_count'))
+            ->groupBy('department_id')
+            ->pluck('user_count', 'department_id')
+            ->toArray();
+
         return view('distribution.survey_list', [
             'surveys'              => $surveys,
             'departments'          => $departments,
@@ -305,9 +337,20 @@ class DistributionController extends Controller
         ]);
     }
 
+
     public function showSurveyDetails($id)
     {
         $survey = Survey::with('questions')->findOrFail($id);
         return view('distribution.survey_details', compact('survey'));
     }
+
+    public function endSurvey($id)
+    {
+        $survey = Survey::findOrFail($id);
+        $survey->end_date = now();
+        $survey->save();
+
+        return back()->with('success', 'アンケートを「回答終了」にしました。');
+    }
+
 }

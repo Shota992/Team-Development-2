@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
+@section('title', '項目別評価一覧 - Kompass')
 @section('content')
 @include('components.sidebar')
 
@@ -185,6 +186,11 @@ function drawChart(index) {
     const card = cards[index];
     const data = [parseFloat(card.score), ...card.values.map(v => parseFloat(v))];
     const labels = ['最新', ...surveyDates];
+
+    // 配列を反転して左側に最も古い、右側に最新のデータとなるようにする
+    data.reverse();
+    labels.reverse();
+
     const avg = data.filter(x => !isNaN(x)).reduce((a, b) => a + b, 0) / data.length;
 
     if (chartInstance) chartInstance.destroy();
@@ -232,13 +238,17 @@ function drawChart(index) {
 function drawStackedChart(index) {
     const ctx = document.getElementById('stackedChartCanvas').getContext('2d');
     const dist = ratingDistributions[index];
-    const labels = surveyDates;
+
+    const labels = [...surveyDates].reverse();
+
+    const getReversedData = (key) => dist.map(d => d[key]).reverse();
+
     const datasets = [
-        { label: '不満', data: dist.map(d => d['1']), backgroundColor: '#FFA1A1' },
-        { label: 'やや不満', data: dist.map(d => d['2']), backgroundColor: '#FFE0E0' },
-        { label: '普通', data: dist.map(d => d['3']), backgroundColor: '#ededed' },
-        { label: 'やや満足', data: dist.map(d => d['4']), backgroundColor: '#E0F4FF' },
-        { label: '満足', data: dist.map(d => d['5']), backgroundColor: '#99DBFF' }
+        { label: '不満', data: getReversedData('1'), backgroundColor: '#FFA1A1' },
+        { label: 'やや不満', data: getReversedData('2'), backgroundColor: '#FFE0E0' },
+        { label: '普通', data: getReversedData('3'), backgroundColor: '#ededed' },
+        { label: 'やや満足', data: getReversedData('4'), backgroundColor: '#E0F4FF' },
+        { label: '満足', data: getReversedData('5'), backgroundColor: '#99DBFF' }
     ];
 
     if (stackedChartInstance) stackedChartInstance.destroy();
@@ -263,7 +273,13 @@ function drawStackedChart(index) {
 
 function drawCauseTable(index) {
     const tableBody = document.getElementById('causeTableBody');
-    const tableData = causeTables[index];
+    let tableData = causeTables[index];
+    // 一番右のセルの値（最新の値）で降順にソート
+    tableData.sort((a, b) => {
+        const aLast = parseFloat(a.values[a.values.length - 1]);
+        const bLast = parseFloat(b.values[b.values.length - 1]);
+        return bLast - aLast;
+    });
     tableBody.innerHTML = '';
     tableData.forEach((row, i) => {
         const tr = document.createElement('tr');

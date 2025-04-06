@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ChatGPT-like UI with Backend</title>
+  <title>AIメンター - Kompass</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,6 @@
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-@include('components.sidebar')
 <body class="bg-gray-100 h-screen overflow-hidden">
   @include('components.sidebar')
   <div class="flex h-full ml-64">

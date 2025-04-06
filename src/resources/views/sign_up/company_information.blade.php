@@ -1,12 +1,17 @@
 @extends('layouts.plain')
 
+@section('title', '管理者情報入力画面 - Kompass')
 @section('content')
 @php $admin = session('sign_up_admin'); @endphp
 
 <div class="flex items-center justify-center min-h-screen bg-[#E0F4FF]">
-    <div class="w-full max-w-xl bg-white p-8 rounded-md shadow">
-        <h1 class="text-center text-2xl font-bold mb-6">get mild</h1>
-        <h2 class="text-lg text-center font-semibold mb-6">会社情報入力画面</h2>
+    <div class="w-full max-w-xl bg-white p-6 rounded-md shadow mt-8 mb-8">
+        <div class="text-center mb-6">
+            <!-- 画像サイズ調整 -->
+            <img src="{{ asset('images/Kompasslogo.jpeg') }}" alt="sign up" class="mx-auto mb-6 w-30">
+        </div>
+
+        <h2 class="text-center text-2xl font-bold mb-6">会社情報入力画面</h2>
 
         <form method="POST" action="{{ route('sign-up.register') }}" id="companyForm">
             @csrf
@@ -28,6 +33,7 @@
                     </div>
                 </div>
 
+                {{-- ※ Laravel側では配列は必須でなくてもよい --}}
                 @error('departments')
                     <p class="text-red-500 text-sm">部署を1つ以上入力してください。</p>
                 @enderror
@@ -57,12 +63,12 @@
             <div class="mt-10 flex flex-col items-center space-y-4">
                 <button type="submit"
                         id="submit-register"
-                        class="w-60 py-3 bg-[#4880FF] text-white font-bold rounded-md shadow text-center">
+                        class="inline-block w-64 py-3 bg-[#86D4FE] text-white font-bold rounded-full shadow-lg hover:bg-[#69C2FD] transition duration-300 text-center">
                     新規登録する
                 </button>
 
                 <a href="{{ route('sign-up.admin') }}"
-                   class="w-60 py-3 bg-[#C4C4C4] text-white font-bold rounded-md shadow text-center">
+                   class="w-64 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
                     戻る
                 </a>
             </div>
@@ -84,15 +90,24 @@ function addField(containerId, name) {
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
-    deleteBtn.className = 'px-4 py-1 text-sm bg-red-400 text-white rounded whitespace-nowrap text-center'; 
-    deleteBtn.textContent = '削除';
+    deleteBtn.className = 'text-gray-600 text-lg px-2 py-1 rounded-full flex items-center justify-center'; // シンプルなバッテン
+    deleteBtn.textContent = '×';
     deleteBtn.onclick = function () {
-        container.removeChild(wrapper);
+        removeField(deleteBtn);
     };
 
     wrapper.appendChild(input);
     wrapper.appendChild(deleteBtn);
     container.appendChild(wrapper);
+}
+
+function removeField(button) {
+    // 削除するボタンが属するフィールドを削除
+    const wrapper = button.closest('div');
+    // 初期値が入力されていない場合のみ削除
+    if (!wrapper.querySelector('input').value) {
+        wrapper.remove();
+    }
 }
 
 // 保存中表示
@@ -102,7 +117,7 @@ document.getElementById('submit-register')?.addEventListener('click', function (
     btn.textContent = '保存中...';
 });
 
-// バリデーション失敗時や戻る時にボタンを初期化
+// ページ戻り時にボタンを元に戻す
 window.addEventListener('pageshow', function () {
     const btn = document.getElementById('submit-register');
     if (btn && btn.textContent.includes('保存中')) {

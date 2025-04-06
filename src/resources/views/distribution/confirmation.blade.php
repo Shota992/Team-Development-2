@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
+@section('title', 'アンケート配信確認 - Kompass')
 @section('content')
 @include('components.sidebar')
 
 <div class="bg-[#F7F8FA]">
     <div class="min-h-screen pb-8 ml-64 mr-8">
-            {{-- ▼ ヘッダー --}}
+        {{-- ▼ ヘッダー --}}
         <div>
             <div class="flex justify-between p-5 pt-8">
                 <div class="flex">
@@ -16,13 +17,14 @@
                 </div>
             </div>
         </div>
-        <div class="max-w-6xl bg-white p-6">
 
+        <div class="max-w-6xl bg-white p-6">
             {{-- ✅ アンケート基本情報 --}}
             <div class="space-y-4">
                 <h3 class="text-lg font-semibold border-b pb-2 mb-2">●アンケート基本情報</h3>
                 <p class="my-2"><strong>タイトル：</strong>{{ session('survey_input.name') }}</p>
                 <p class="my-2"><strong>説明：</strong>{{ session('survey_input.description') }}</p>
+                <p class="my-2"><strong>配信部署：</strong>{{ Auth::user()->department->name ?? '未設定' }}</p>
             </div>
 
             {{-- ✅ 配信設定 --}}
@@ -36,8 +38,9 @@
                 </p>
             </div>
         </div>
+
         {{-- ✅ ボタンエリア --}}
-        <div class="flex justify-center mt-8">
+        <div class="flex flex-col items-center mt-8 space-y-4">
             {{-- 配信ボタン（確認付き） --}}
             <form action="{{ route('survey.send') }}" method="POST" onsubmit="return confirmSend();">
                 @csrf
@@ -46,10 +49,15 @@
                     配信する
                 </button>
             </form>
+
+            {{-- 戻るボタン（詳細設定画面へ） --}}
+            <a href="{{ route('survey.advanced-setting') }}"
+                class="w-60 text-center px-14 py-3 bg-[#C4C4C4] text-white font-bold rounded-full shadow-lg hover:bg-[#B8B8B8] transition duration-300">
+                戻る
+            </a>
         </div>
     </div>
 </div>
-
 
 <script>
     function confirmSend() {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>評価/改善未対応施策一覧</title>
+    <title>評価/改善未対応施策一覧 - Kompass</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Fonts -->

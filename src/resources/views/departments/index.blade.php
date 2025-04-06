@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>部署別比較</title>
+    <title>部署別比較 - Kompass</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .scrollbar-always-visible {

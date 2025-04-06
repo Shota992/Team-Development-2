@@ -19,7 +19,9 @@ use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 
-//公開ルート（ログイン扶養）新規登録画面
+//公開ルート（ログイン不要）新規登録画面
+Route::get('/sign-up/start', [SignUpController::class, 'start'])->name('sign-up.start');
+
 Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
 Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
 
@@ -118,6 +120,8 @@ Route::middleware(['auth', 'admin.only'])->group(function () {
     Route::post('/distribution/finalize-distribution', [DistributionController::class, 'finalizeDistribution'])->name('survey.finalize-distribution');
     Route::post('/distribution/send', [DistributionController::class, 'sendSurvey'])->name('survey.send');
     Route::post('/distribution/save-settings', [DistributionController::class, 'saveSettings'])->name('survey.save-settings');
+    Route::post('/distribution/survey/{id}/end', [DistributionController::class, 'endSurvey'])->name('survey.end');
+
 
     // View表示系
     Route::view('/distribution/item-edit', 'distribution.item_edit')->name('survey.item-edit');
