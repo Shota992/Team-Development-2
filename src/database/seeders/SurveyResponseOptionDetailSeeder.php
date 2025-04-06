@@ -16,19 +16,28 @@ class SurveyResponseOptionDetailSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        for ($i = 0; $i < 6; $i++) {
-            $responseDetailIdStart = 1 + ($i * 13);
-            $responseDetailIdEnd = 4 + ($i * 13);
+        $optionIdStart = 1; // option_idの開始値
+        $optionIdEnd = 7;   // option_idの終了値
 
-            for ($responseDetailId = $responseDetailIdStart; $responseDetailId <= $responseDetailIdEnd; $responseDetailId++) {
-                for ($optionId = 1; $optionId <= 112; $optionId++) {
-                    if ($faker->boolean(30)) { // 30%の確率で値を入れる
-                        SurveyResponseOptionDetail::create([
-                            'response_detail_id' => $responseDetailId,
-                            'option_id' => $optionId,
-                        ]);
-                    }
+        for ($responseDetailId = 1; $responseDetailId <= 1872; $responseDetailId++) { // response_detail_idをループ
+            for ($optionId = $optionIdStart; $optionId <= $optionIdEnd; $optionId++) { // 各response_detail_idに対して7つのoption_idを割り当て
+                if ($faker->boolean(30)) { // 30%の確率で値を入れる
+                    SurveyResponseOptionDetail::create([
+                        'response_detail_id' => $responseDetailId,
+                        'option_id' => $optionId,
+                    ]);
                 }
+            }
+
+            // option_idをリセットまたは次の範囲に進める
+            if ($responseDetailId % 16 === 0) {
+                // response_detail_idが16の倍数の場合、option_idをリセット
+                $optionIdStart = 1;
+                $optionIdEnd = 7;
+            } else {
+                // 次の範囲に進める
+                $optionIdStart += 7;
+                $optionIdEnd += 7;
             }
         }
     }
