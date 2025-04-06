@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <h2 class="text-2xl font-semibold mb-4">施策作成画面</h2>
+    <h2 class="text-2xl font-semibold mb-4 ml-64">施策作成画面</h2>
 
-    <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6 mb-6">
+    <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6 mb-6 ml-64">
         <form action="{{ route('measures.store') }}" method="POST">
             @csrf
 
@@ -68,7 +68,11 @@
             <!-- タスク作成 -->
             <h3 class="text-xl font-semibold mb-4">タスク作成</h3>
             <div id="tasks-container" class="space-y-4">
-                <div class="task-entry bg-white p-6 rounded shadow">
+                <div class="task-entry bg-white p-6 rounded shadow relative">
+                    <button type="button"
+                        class="remove-task-btn absolute top-2 right-2 text-red-500 hover:text-red-700 text-lg hidden"
+                        title="削除">×</button>
+
                     <label class="block text-sm">タスク</label>
                     <input type="text" name="task_name[]" required class="mt-1 w-full border rounded">
 
@@ -91,10 +95,15 @@
                 </div>
             </div>
 
-            <div id="task-entry-template" style="display:none">
-                <div class="task-entry bg-white p-6 rounded shadow">
-                    <label class="block text-sm">タスク</label>
-                    <input type="text" name="task_name[]" disabled class="mt-1 w-full border rounded">
+            <!-- クローン用テンプレート -->
+            <div id="task-entry-template" style="display:none;">
+                <div class="task-entry bg-white p-6 rounded shadow relative">
+                    <button type="button"
+                        class="remove-task-btn  top-1 right-2 text-red-500 hover:text-red-700 text-xl font-bold z-10"
+                        title="削除">×</button>
+
+                        <label class="block text-sm">タスク</label>
+                        <input type="text" name="task_name[]" required class="mt-1 w-full border rounded">
 
                     <label class="block text-sm mt-4">部署</label>
                     <select name="task_department_id[]" disabled class="mt-1 w-full border rounded">
@@ -115,10 +124,26 @@
                 </div>
             </div>
 
-            <button type="button" id="add-task-btn" class="mt-4 w-full py-2 bg-gray-200 rounded">タスクを追加</button>
-
-            <button type="submit" class="mt-4 w-full py-2 bg-[#86D4FE] text-white rounded">登録</button>
-            <button type="button" id="cancel-btn" class="mt-4 w-full py-2 bg-red-200 text-red-700 rounded">キャンセル</button>
+            <div class="flex flex-col items-center space-y-4 mt-8">
+                <!-- タスク追加 -->
+                <button type="button" id="add-task-btn"
+                    class="flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 border border-gray-300 rounded-full shadow hover:bg-gray-200">
+                    <span class="text-xl mr-2">＋</span> タスク追加
+                </button>
+            
+                <!-- 登録ボタン -->
+                <button type="submit"
+                    class="w-64 py-3 text-white bg-blue-500 hover:bg-blue-600 font-bold text-lg rounded-full shadow transition duration-200">
+                    登録
+                </button>
+            
+                <!-- キャンセルボタン -->
+                <button type="button" id="cancel-btn"
+                    class="w-64 py-3 text-gray-600 bg-gray-200 hover:bg-gray-300 font-semibold text-lg rounded-full shadow-inner transition duration-200">
+                    キャンセル
+                </button>
+            </div>
+            
         </form>
     </div>
 </div>
@@ -126,4 +151,17 @@
 
 @section('scripts')
 <script src="{{ mix('js/taskForm.js') }}"></script>
+<script>
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-task-btn')) {
+        const taskEntry = e.target.closest('.task-entry');
+        const container = document.getElementById('tasks-container');
+        if (taskEntry && container.children.length > 1) {
+          taskEntry.remove();
+        } else {
+          alert('タスクは最低1つ必要です');
+        }
+      }
+    });
+  </script>
 @endsection

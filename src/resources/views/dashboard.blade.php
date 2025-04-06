@@ -157,25 +157,33 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($filteredCards as $item)
-                                        <tr>
-                                            <td class="border border-gray-200 p-2 text-left">{{ $item['label'] }}</td>
-                                            @php
-                                                $avgValue = $item['score'];
-                                                $avgBgClass = ($avgValue >= 4) ? 'bg-blue-50' : (($avgValue <= 2.5) ? 'bg-red-50' : '');
-                                            @endphp
-                                            <td class="border border-gray-200 p-2 text-center {{ $avgBgClass }}">
-                                                {{ number_format($avgValue, 1) }}
-                                            </td>
-                                            @foreach ($item['values'] as $val)
-                                                @php
-                                                    $valBgClass = ($val >= 4) ? 'bg-blue-50' : (($val <= 2.5) ? 'bg-red-50' : '');
-                                                @endphp
-                                                <td class="border border-gray-200 p-2 text-center {{ $valBgClass }}">
-                                                    {{ number_format($val, 1) }}
-                                                </td>
-                                            @endforeach
-                                        </tr>
+                                    <tr>
+                                        <td class="border border-gray-200 p-2 text-left">{{ $item['label'] }}</td>
+
+                                        {{-- 平均スコア（nullを除いて平均を出す） --}}
+                                        @php
+                                            $validValues = collect($item['values'])->filter(function ($val) {
+                                                return is_numeric($val); // 0や小数はOK、nullや"ー"は除外
+                                            });
+                                            $avgValue = $validValues->isNotEmpty() ? $validValues->avg() : null;
+                                            $avgBgClass = ($avgValue >= 4) ? 'bg-blue-50' : (($avgValue <= 2.5) ? 'bg-red-50' : '');
+                                        @endphp
+
+                                        <td class="border border-gray-200 p-2 text-center {{ $avgBgClass }}">
+                                            {{ $avgValue !== null ? number_format($avgValue, 1) : 'ー' }}
+                                        </td>
+
+                                        @foreach ($item['values'] as $val)
+                                        @php
+                                            $valBgClass = is_null($val) ? '' : ($val >= 4 ? 'bg-blue-50' : ($val <= 2.5 ? 'bg-red-50' : ''));
+                                        @endphp
+                                        <td class="border border-gray-200 p-2 text-center {{ $valBgClass }}">
+                                            {{ is_null($val) ? 'ー' : number_format($val, 1) }}
+                                        </td>
                                     @endforeach
+                                    </tr>
+                                @endforeach
+
                                 </tbody>
                             </table>
                         </div>
