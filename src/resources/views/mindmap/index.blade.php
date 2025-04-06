@@ -3,126 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <title>マインドマップ</title>
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
   <link rel="stylesheet" href="https://unpkg.com/vis-network/styles/vis-network.css" />
   <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>
-        html, body {
+    html, body {
       margin: 0;
       padding: 0;
       width: 100vw;
       height: 100vh;
       overflow: hidden;
+      font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+      background: linear-gradient(135deg, #FDEFF9, #E0F7FA);
     }
-
     #mindmap {
-      width: 100vw;  /* ビューポート全体を使用 */
+      width: 100vw;
       height: 100vh;
-      border: none;  /* 境界線なし */
+      border: none;
       position: absolute;
-    
     }
-
     #mapTitle {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(255, 255, 255, 0.8);
-      color: #333;
-      font-size: 18px;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #FF69B4;
+      font-size: 22px;
       font-weight: bold;
-      padding: 6px 12px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      z-index: 9999; /* マップより前面に表示 */
+      padding: 8px 16px;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      z-index: 9999;
+      transition: transform 0.3s;
     }
-
+    #mapTitle:hover {
+      transform: scale(1.05);
+    }
     .addButton {
       position: absolute;
       z-index: 10;
-      background: #2B7CE9;
+      background: #FFB6C1;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       cursor: pointer;
-      font-size: 16px;
+      font-size: 18px;
       text-align: center;
-      line-height: 24px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      line-height: 28px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
       display: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .addButton:hover {
+      background: #FF69B4;
+      transform: scale(1.1);
     }
     #inlineEditor {
       position: absolute;
       z-index: 20;
-      border: 1px solid #2B7CE9;
-      background: #ffffff;
-      font-size: 16px;
-      padding: 2px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      border: 2px solid #FFB6C1;
+      background: #fff0f5;
+      font-size: 18px;
+      padding: 4px 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      border-radius: 8px;
       display: none;
       outline: none;
     }
   </style>
 </head>
 <body>
-  <div id="mapTitle">マインドマップ</div>
+  @include('components.sidebar')
+  <div id="mapTitle" class="ml-64">マインドマップ</div>
   <div id="mindmap"></div>
   <div id="inlineEditor" contenteditable="true"></div>
 
   <script>
+    // --- 保存/読み込み機能追加 ---
+    // 保存する関数：現在のノード・エッジ状態とタイムスタンプを localStorage に保存
+    function saveMindMap() {
+      const nodes = dataSet.nodes.get();
+      const edges = dataSet.edges.get();
+      const state = { nodes, edges, timestamp: Date.now() };
+      localStorage.setItem('mindMapState', JSON.stringify(state));
+    }
+
+    // 読み込む関数：保存データが存在し、1日以内なら読み込む
+    function loadMindMap() {
+      const stateStr = localStorage.getItem('mindMapState');
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        // 1日 = 86400000ミリ秒以上経過していたら無効にする
+        if (Date.now() - state.timestamp > 86400000) {
+          localStorage.removeItem('mindMapState');
+          return false;
+        }
+        dataSet.nodes.clear();
+        dataSet.edges.clear();
+        dataSet.nodes.add(state.nodes);
+        dataSet.edges.add(state.edges);
+        // nodeIdCounter を更新（最大ID + 1）
+        const maxId = state.nodes.reduce((max, n) => Math.max(max, n.id), 0);
+        nodeIdCounter = maxId + 1;
+        return true;
+      }
+      return false;
+    }
+    // --- 保存/読み込み機能追加ここまで ---
+
     // ① パステルカラーのパレット（最上位ブランチ用）
     const branchColors = [
       { // ピンク系
-        background: '#FFA07A',
-        border: '#FF6347',
-        highlightBg: '#FF7F50',
-        highlightBorder: '#FF4500',
-        hoverBg: '#FFDAB9',
-        hoverBorder: '#FFA07A'
+        background: '#FFD1DC',
+        border: '#FFB6C1',
+        highlightBg: '#FF8DAA',
+        highlightBorder: '#FF6F91',
+        hoverBg: '#FFC0CB',
+        hoverBorder: '#FFB6C1'
       },
       { // ライラック系
-        background: '#C8A2C8',
-        border: '#B080B0',
-        highlightBg: '#D8BFD8',
-        highlightBorder: '#A080A0',
-        hoverBg: '#E6CAE6',
-        hoverBorder: '#C8A2C8'
+        background: '#E6DAF3',
+        border: '#D1B2E8',
+        highlightBg: '#C8A2C8',
+        highlightBorder: '#B080B0',
+        hoverBg: '#E8D0F0',
+        hoverBorder: '#D1B2E8'
       },
       { // ペールブルー系
-        background: '#ADD8E6',
-        border: '#87CEEB',
-        highlightBg: '#87CEFA',
-        highlightBorder: '#4682B4',
-        hoverBg: '#B0E0E6',
-        hoverBorder: '#87CEEB'
+        background: '#B3E5FC',
+        border: '#81D4FA',
+        highlightBg: '#4FC3F7',
+        highlightBorder: '#29B6F6',
+        hoverBg: '#B3E5FC',
+        hoverBorder: '#81D4FA'
       },
       { // ミントグリーン系
-        background: '#98FB98',
-        border: '#3CB371',
-        highlightBg: '#66CDAA',
-        highlightBorder: '#2E8B57',
-        hoverBg: '#BDFCC9',
-        hoverBorder: '#3CB371'
+        background: '#C8E6C9',
+        border: '#A5D6A7',
+        highlightBg: '#81C784',
+        highlightBorder: '#66BB6A',
+        hoverBg: '#C8E6C9',
+        hoverBorder: '#A5D6A7'
       },
       { // レモン系
-        background: '#FFFACD',
-        border: '#FFD700',
-        highlightBg: '#FFEFD5',
-        highlightBorder: '#FFA500',
-        hoverBg: '#FFFFE0',
-        hoverBorder: '#FFD700'
+        background: '#FFF9C4',
+        border: '#FFF59D',
+        highlightBg: '#FFF176',
+        highlightBorder: '#FFEE58',
+        hoverBg: '#FFF9C4',
+        hoverBorder: '#FFF59D'
       }
     ];
 
     // ② ルートノード用のカラー
     const rootColor = {
-      background: '#ffffff',
-      border: '#cccccc',
-      highlightBg: '#eeeeee',
-      highlightBorder: '#aaaaaa',
-      hoverBg: '#f5f5f5',
-      hoverBorder: '#cccccc'
+      background: '#FFFFFF',
+      border: '#EEEEEE',
+      highlightBg: '#F5F5F5',
+      highlightBorder: '#E0E0E0',
+      hoverBg: '#FAFAFA',
+      hoverBorder: '#EEEEEE'
     };
 
     // ③ サンプル階層データ（各ノードに level を明示的に設定）
@@ -170,7 +213,9 @@
         const parentNode = nodesArray.find(n => n.id === parentId);
         currentColor = parentNode.color;
       }
-      nodesArray.push({
+      // 中央ノードの場合は高さを30pxに調整
+      const isCentral = (node.level === 0);
+      let nodeStyle = {
         id: currentId,
         label: node.name,
         shape: 'box',
@@ -187,12 +232,25 @@
             border: currentColor.hoverBorder
           }
         },
-        font: { color: '#000000', size: 16, face: 'Comic Sans MS' },
-        borderWidth: 2,
+        // フォント指定を削除（デフォルトフォントを使用）
+        font: { color: '#000000', size: 16 },
+        borderWidth: isCentral ? 4 : 2,
         borderRadius: 12
-      });
+      };
+      if (isCentral) {
+        nodeStyle.widthConstraint = { minimum: 200 };
+        nodeStyle.heightConstraint = { minimum: 30 };
+      }
+      nodesArray.push(nodeStyle);
+      
       if (parentId !== null) {
-        edgesArray.push({ from: parentId, to: currentId });
+        // エッジの smooth 設定：branchIndex がある場合は左右の曲線を設定、なければデフォルトは curvedCW
+        let smoothType = branchIndex !== null ? (branchIndex % 2 === 0 ? 'curvedCW' : 'curvedCCW') : 'curvedCW';
+        edgesArray.push({ 
+          from: parentId, 
+          to: currentId, 
+          smooth: { enabled: true, type: smoothType, roundness: 0.3 } 
+        });
       }
       if (node.children) {
         if (parentId === null) {
@@ -226,14 +284,14 @@
       },
       physics: { enabled: false },
       interaction: { dragNodes: true, zoomView: true },
-      // エッジを直線に設定（smooth: false）
+      // グローバル設定としてのエッジ（各エッジは個別の smooth 設定で上書き）
       edges: {
         smooth: false,
         width: 2,
         color: {
-          color: '#999999',
-          highlight: '#FF4500',
-          hover: '#FF7F50'
+          color: '#CCCCCC',
+          highlight: '#FFB6C1',
+          hover: '#FFB6C1'
         }
       }
     };
@@ -347,7 +405,14 @@
         borderWidth: 2,
         borderRadius: 12
       });
-      dataSet.edges.add({ from: parentId, to: newId });
+      // 親ノードからの既存子ノード数で、曲線の種類を決定
+      let childrenCount = dataSet.edges.get({ filter: edge => edge.from === parentId }).length;
+      let smoothType = (childrenCount % 2 === 0) ? 'curvedCW' : 'curvedCCW';
+      dataSet.edges.add({
+        from: parentId,
+        to: newId,
+        smooth: { enabled: true, type: smoothType, roundness: 0.3 }
+      });
       const newBtn = document.createElement("button");
       newBtn.innerText = "＋";
       newBtn.classList.add("addButton");
@@ -382,6 +447,8 @@
       });
       network.stabilize();
       updateAllButtonPositions();
+      // --- 保存状態を更新 ---
+      saveMindMap();
     }
 
     // ⑬ ダブルクリックでノード内インライン編集
@@ -420,9 +487,12 @@
       const newLabel = inlineEditor.innerText.trim() || "無題";
       dataSet.nodes.update({ id: nodeId, label: newLabel });
       inlineEditor.style.display = "none";
+      // --- 保存状態を更新 ---
+      saveMindMap();
     }
 
     // ⑭ ノード削除機能（Backspace/Deleteキーで選択ノードとその子孫を削除）
+    // 中央ノード（レベル0）は削除しないように変更
     document.addEventListener("keydown", function(e) {
       if (document.activeElement === inlineEditor) return;
       if (selectedNodeId && (e.key === "Backspace" || e.key === "Delete")) {
@@ -431,6 +501,11 @@
       }
     });
     function removeNodeRecursively(nodeId) {
+      // 中央ノード（level 0）の場合は削除しない
+      const node = dataSet.nodes.get(nodeId);
+      if (node.level === 0) {
+        return;
+      }
       const childEdges = dataSet.edges.get({ filter: edge => edge.from === nodeId });
       childEdges.forEach(edge => {
         removeNodeRecursively(edge.to);
@@ -447,6 +522,13 @@
         delete buttons[nodeId];
       }
       selectedNodeId = null;
+      reapplyLayout();
+    }
+
+    // --- 読み込み状態をチェック ---
+    // ページ読み込み時に、保存状態が存在し1日以内であれば読み込む
+    if (loadMindMap()) {
+      network.setData(dataSet);
       reapplyLayout();
     }
   </script>
