@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-4xl mx-auto mt-10 bg-[#F7F8FA] p-8 rounded shadow">
-    <h2 class="text-xl font-bold mb-6">従業員登録</h2>
+<div class="max-w-4xl mx-auto bg-[#F7F8FA] p-8 rounded shadow ml-56">
+    <h2 class="text-xl font-bold mb-6 mt-10">従業員登録</h2>
 
     <form action="{{ route('employee.store') }}" method="POST">
         @csrf

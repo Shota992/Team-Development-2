@@ -28,6 +28,7 @@
                     </div>
                 </div>
 
+                {{-- ※ Laravel側では配列は必須でなくてもよい --}}
                 @error('departments')
                     <p class="text-red-500 text-sm">部署を1つ以上入力してください。</p>
                 @enderror
@@ -84,7 +85,7 @@ function addField(containerId, name) {
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
-    deleteBtn.className = 'px-4 py-1 text-sm bg-red-400 text-white rounded whitespace-nowrap text-center'; 
+    deleteBtn.className = 'px-4 py-1 text-sm bg-red-400 text-white rounded whitespace-nowrap text-center';
     deleteBtn.textContent = '削除';
     deleteBtn.onclick = function () {
         container.removeChild(wrapper);
@@ -102,7 +103,7 @@ document.getElementById('submit-register')?.addEventListener('click', function (
     btn.textContent = '保存中...';
 });
 
-// バリデーション失敗時や戻る時にボタンを初期化
+// ページ戻り時にボタンを元に戻す
 window.addEventListener('pageshow', function () {
     const btn = document.getElementById('submit-register');
     if (btn && btn.textContent.includes('保存中')) {
