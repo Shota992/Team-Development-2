@@ -19,7 +19,9 @@ use App\Http\Controllers\SignUpController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 
-//公開ルート（ログイン扶養）新規登録画面
+//公開ルート（ログイン不要）新規登録画面
+Route::get('/sign-up/start', [SignUpController::class, 'start'])->name('sign-up.start');
+
 Route::get('/sign-up/admin', [SignUpController::class, 'showAdminForm'])->name('sign-up.admin');
 Route::post('/sign-up/admin', [SignUpController::class, 'storeAdmin'])->name('sign-up.admin.store');
 
