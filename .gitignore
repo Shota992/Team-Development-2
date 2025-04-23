@@ -1,3 +1,23 @@
-.history
+# Laravel固有
+/vendor
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/storage/app/public
+/storage/framework/cache
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+/bootstrap/cache
+
+# 環境設定ファイル
+.env
+.env.*
+
+# OS・エディタ関連
 .DS_Store
+.history
+
+# Docker関連（すでにOK）
 /docker/db-store
